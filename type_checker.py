@@ -3,6 +3,7 @@ from tokens import tokens, Token
 from process import error
 
 addable_tokens = [tokens.INT, tokens.FLOAT]
+integral_tokens = [tokens.PLUS, tokens.MIN, tokens.MUL, tokens.DIV]
 readable_tokens = {
     tokens.INT: "int",
     tokens.FLOAT: "float",
@@ -21,7 +22,7 @@ class TypeChecker:
                 stack.append(token)
             elif token.type == tokens.STRING:
                 stack.append(token)
-            elif token.type == tokens.PLUS:
+            elif token.type in integral_tokens:
                 if len(stack) < 2:
                     error("Not enough operands for +", token.line, token.file, token.col)
                 else:

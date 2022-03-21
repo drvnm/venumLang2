@@ -81,12 +81,25 @@ class Executor:
             output.write("_start:\n")
 
             instruction = 0
+            strings = []
             while instruction < len(self.tokens):
                 curr_instruction = self.tokens[instruction]
                 if curr_instruction.type == tokens.PRINT:
-                    output.write(f"  ; calls print label to print top of stack\n")
-                    output.write(f"  pop rdi\n")
-                    output.write(f"  call print\n")
+                    output.write(f"    ; calls print label to print top of stack\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    call print\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.PUTS:
+                    output.write(f"    ; calls syscall 1\n")
+                    output.write(f"    mov rax, 1\n") # sycall number
+                    output.write(f"    mov rdi, 1\n") # file descriptor
+                    output.write(f"    pop r8\n") # string pointer
+                    output.write(f"    pop r9\n") # length of string
+                    output.write(f"    mov rsi, r8\n")
+                    output.write(f"    mov rdx, r9\n")
+                    output.write(f"    syscall\n")
+
+                    # make write syscall
                     instruction += 1
 
                 elif curr_instruction.type == tokens.INT:
@@ -99,12 +112,43 @@ class Executor:
                     output.write(f"    push {curr_instruction.value}\n")
                     instruction += 1
                 
+                elif curr_instruction.type == tokens.STRING:
+                    str_len = len(curr_instruction.value) + 1
+                    output.write(f"    ; push \"{curr_instruction.value}\" onto stack\n")
+                    output.write(f"    mov rdx, {str_len}\n")
+                    output.write(f"    push rdx\n")
+                    output.write(f"    push str_{instruction}\n")
+                    strings.append(curr_instruction.value)
+                    instruction += 1
+                
                 # operators
                 elif curr_instruction.type == tokens.PLUS:
                     output.write(f"    ; add top two values on stack\n")
                     output.write(f"    pop rdi\n")
                     output.write(f"    pop rax\n")
                     output.write(f"    add rax, rdi\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.MIN:
+                    output.write(f"    ; subtract top two values on stack\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    sub rax, rdi\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.MUL:
+                    output.write(f"    ; multiply top two values on stack\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    imul rax, rdi\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.DIV:
+                    output.write(f"    ; divide top two values on stack\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cqo\n")
+                    output.write(f"    idiv rdi\n")
                     output.write(f"    push rax\n")
                     instruction += 1
 
@@ -116,6 +160,14 @@ class Executor:
             output.write("    mov rax, 60\n")
             output.write("    mov rdi, 0\n")
             output.write("    syscall\n")   
+
+            # .data section for literals
+            output.write("\n")
+            output.write("section .data\n")
+            for index, string in enumerate(strings):
+                str_hex = "db " + ", ".join(map(hex, list(bytearray(string, encoding='utf-8')) + [10] ))
+                output.write(f"str_{index}:\n")
+                output.write(f"    {str_hex}\n")
 
         # compile and link
         subprocess.run(["nasm", "-f", "elf64", "./build/test.asm"])

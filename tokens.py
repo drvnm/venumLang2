@@ -9,10 +9,21 @@ tokens = Enum('tokens', """
 
             OPERATORS
             PLUS
+            MIN
+            MUL
+            DIV
 
             KEYWORDS
             PRINT
+            PUTS
                         """)
+
+operator_table = {
+    "+": tokens.PLUS,
+    "-": tokens.MIN,
+    "*": tokens.MUL,
+    "/": tokens.DIV,
+}
 
 class Token:
     def __init__(self, type_: tokens, 

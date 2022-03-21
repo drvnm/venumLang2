@@ -1,5 +1,5 @@
 import sys
-from tokens import tokens, Token
+from tokens import tokens, Token, operator_table
 from typing import List
 
 # removes everything after // in src file
@@ -27,6 +27,7 @@ class Lexer:
         self.col: int = 0
         self.file_name: str = file_name
         self.tokens: List[Token] = []
+        self.operators: List[str] = ["+", "-", "*", "/"]
     
     # advances to the next character in the text
     def advance(self) -> None:
@@ -92,9 +93,12 @@ class Lexer:
                 self.tokens.append(self.word())
 
             # operators
-            elif self.text[self.pos] == "+":
-                self.tokens.append(Token(tokens.PLUS, "+", self.line, self.file_name, self.col))
+            elif self.text[self.pos] in self.operators:
+                operator = self.text[self.pos]
+                self.tokens.append(Token(operator_table[operator], self.text[self.pos], self.line, self.file_name, self.col))
                 self.advance()
+            else:
+                error("Unknown character at", self.line, self.file_name, self.col)
     
     # helper methods
     def print_tokens(self) -> None:

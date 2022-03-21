@@ -65,20 +65,24 @@ print:   push    rbp
    leave
    ret
 _start:
-    ; push 1 onto stack
-    push 1
-    ; push 3 onto stack
-    push 3
-    ; add top two values on stack
-    pop rdi
-    pop rax
-    add rax, rdi
-    push rax
-  ; calls print label to print top of stack
-  pop rdi
-  call print
+    ; push "hello, world!" onto stack
+    mov rdx, 14
+    push rdx
+    push str_0
+    ; calls syscall 1
+    mov rax, 1
+    mov rdi, 1
+    pop r8
+    pop r9
+    mov rsi, r8
+    mov rdx, r9
+    syscall
     
     ; end of code, exit status
     mov rax, 60
     mov rdi, 0
     syscall
+
+section .data
+str_0:
+    db 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21, 0xa
