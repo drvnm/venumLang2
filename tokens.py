@@ -12,10 +12,21 @@ tokens = Enum('tokens', """
             MIN
             MUL
             DIV
+            GT
+            GTE
+            LT
+            LTE
+            EQ
 
             KEYWORDS
             PRINT
             PUTS
+            IFF
+            ELSEF
+            END
+            WHILEF
+            FORF
+
                         """)
 
 operator_table = {
@@ -23,6 +34,11 @@ operator_table = {
     "-": tokens.MIN,
     "*": tokens.MUL,
     "/": tokens.DIV,
+    ">": tokens.GT,
+    ">=": tokens.GTE,
+    "<": tokens.LT,
+    "<=": tokens.LTE,
+    "==": tokens.EQ,
 }
 
 class Token:

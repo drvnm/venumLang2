@@ -27,7 +27,7 @@ class Lexer:
         self.col: int = 0
         self.file_name: str = file_name
         self.tokens: List[Token] = []
-        self.operators: List[str] = ["+", "-", "*", "/"]
+        self.operators: List[str] = ["+", "-", "*", "/", "<", ">", "="]
     
     # advances to the next character in the text
     def advance(self) -> None:
@@ -71,7 +71,13 @@ class Lexer:
             return Token(tokens.__members__[word.upper()], word, self.line, self.file_name, self.col)
         else:
             error("Unknown keyword", self.line, self.file_name, self.col)
-    
+    def operator(self) -> Token:
+        operator = ""
+        while self.pos < len(self.text) and self.text[self.pos] in self.operators:
+            operator += self.text[self.pos]
+            self.advance()
+        return Token(operator_table[operator], operator, self.line, self.file_name, self.col)
+
     def lex(self):
         while self.pos < len(self.text):
             if self.text[self.pos] == " ":
@@ -94,9 +100,7 @@ class Lexer:
 
             # operators
             elif self.text[self.pos] in self.operators:
-                operator = self.text[self.pos]
-                self.tokens.append(Token(operator_table[operator], self.text[self.pos], self.line, self.file_name, self.col))
-                self.advance()
+                self.tokens.append(self.operator())
             else:
                 error("Unknown character at", self.line, self.file_name, self.col)
     

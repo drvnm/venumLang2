@@ -65,18 +65,17 @@ print:   push    rbp
    leave
    ret
 _start:
-    ; push "hello, world!" onto stack
-    mov rdx, 14
-    push rdx
-    push str_0
-    ; calls syscall 1
-    mov rax, 1
-    mov rdi, 1
-    pop r8
-    pop r9
-    mov rsi, r8
-    mov rdx, r9
-    syscall
+    ; push 1 onto stack
+    push 1
+    ; push 2 onto stack
+    push 2
+    ; checks if element is greater then
+    pop rdi
+    pop rax
+    cmp rax, rdi
+    setg al
+    movzx rax, al
+    push rax
     
     ; end of code, exit status
     mov rax, 60
@@ -84,5 +83,3 @@ _start:
     syscall
 
 section .data
-str_0:
-    db 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21, 0xa

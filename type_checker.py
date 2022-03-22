@@ -3,12 +3,20 @@ from tokens import tokens, Token
 from process import error
 
 addable_tokens = [tokens.INT, tokens.FLOAT]
-integral_tokens = [tokens.PLUS, tokens.MIN, tokens.MUL, tokens.DIV]
+integral_tokens = [tokens.PLUS, tokens.MIN, tokens.MUL, tokens.DIV, tokens.GT, tokens.GTE, tokens.LT, tokens.LTE, tokens.EQ]
 readable_tokens = {
     tokens.INT: "int",
     tokens.FLOAT: "float",
     tokens.STRING: "string",
     tokens.PLUS: "+",
+    tokens.MIN: "-",
+    tokens.MUL: "*",
+    tokens.DIV: "/",
+    tokens.GT: ">",
+    tokens.GTE: ">=",
+    tokens.LT: "<",
+    tokens.LTE: "<=",
+    tokens.EQ: "==",
 }
 
 class TypeChecker:
@@ -24,9 +32,26 @@ class TypeChecker:
                 stack.append(token)
             elif token.type in integral_tokens:
                 if len(stack) < 2:
-                    error("Not enough operands for +", token.line, token.file, token.col)
+                    error(f"Not enough operands for {readable_tokens[token.type]}", token.line, token.file, token.col)
                 else:
-                    left_operand = stack.pop()
                     right_operand = stack.pop()
+                    left_operand = stack.pop()
                     if left_operand.type not in addable_tokens or right_operand.type not in addable_tokens:
                         error(f"Operands must be int or float, got {readable_tokens[left_operand.type]} and {readable_tokens[right_operand.type]}", token.line, token.file, token.col)
+                    elif left_operand.type == tokens.FLOAT:
+                        stack.append(Token(tokens.FLOAT, None, token.line, token.file, token.col))
+                    else:
+                        stack.append(Token(tokens.INT, None, token.line, token.file, token.col))
+            # keywords
+            elif token.type == tokens.PRINT:
+                if len(stack) == 0:
+                    error("Not enough operands for print", token.line, token.file, token.col)
+                else:
+                    continue
+            elif token.type == tokens.PUTS:
+                if len(stack) == 0:
+                    error("Not enough operands for puts", token.line, token.file, token.col)
+                else:
+                    string = stack.pop()
+                    if string.type != tokens.STRING:
+                        error(f"puts expects str, got {readable_tokens[string.type]}", token.line, token.file, token.col)

@@ -118,7 +118,7 @@ class Executor:
                     output.write(f"    mov rdx, {str_len}\n")
                     output.write(f"    push rdx\n")
                     output.write(f"    push str_{instruction}\n")
-                    strings.append(curr_instruction.value)
+                    strings.append((curr_instruction.value, instruction))
                     instruction += 1
                 
                 # operators
@@ -151,7 +151,51 @@ class Executor:
                     output.write(f"    idiv rdi\n")
                     output.write(f"    push rax\n")
                     instruction += 1
-
+                elif curr_instruction.type == tokens.GT:
+                    output.write(f"    ; checks if element is greater then\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cmp rax, rdi\n")
+                    output.write(f"    setg al\n")
+                    output.write(f"    movzx rax, al\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.LT:
+                    output.write(f"    ; checks if element is less then\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cmp rax, rdi\n")
+                    output.write(f"    setl al\n")
+                    output.write(f"    movzx rax, al\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.GTE:
+                    output.write(f"    ; checks if element is greater then or equal to\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cmp rax, rdi\n")
+                    output.write(f"    setge al\n")
+                    output.write(f"    movzx rax, al\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.LTE:
+                    output.write(f"    ; checks if element is less then or equal to\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cmp rax, rdi\n")
+                    output.write(f"    setle al\n")
+                    output.write(f"    movzx rax, al\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.EQ:
+                    output.write(f"    ; checks if element is equal to\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cmp rax, rdi\n")
+                    output.write(f"    sete al\n")
+                    output.write(f"    movzx rax, al\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
                 else:
                     instruction += 1
             # exit
@@ -164,8 +208,9 @@ class Executor:
             # .data section for literals
             output.write("\n")
             output.write("section .data\n")
-            for index, string in enumerate(strings):
-                str_hex = "db " + ", ".join(map(hex, list(bytearray(string, encoding='utf-8')) + [10] ))
+            for string, index in strings:
+                byte_str = bytes(string, "utf-8").decode("unicode_escape")
+                str_hex = "db " + ", ".join(map(hex, list(bytearray(byte_str, encoding="utf-8")) + [10] ))
                 output.write(f"str_{index}:\n")
                 output.write(f"    {str_hex}\n")
 

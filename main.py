@@ -15,6 +15,7 @@ if __name__ == "__main__":
     
     lexer = Lexer(file_content, file_name)
     lexer.lex()
+    lexer.print_tokens()
 
     type_checker = TypeChecker(lexer.tokens)
     type_checker.check()
