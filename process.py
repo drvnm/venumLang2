@@ -69,6 +69,8 @@ class Lexer:
             self.advance()
         if word.upper() in tokens.__members__:
             return Token(tokens.__members__[word.upper()], word, self.line, self.file_name, self.col)
+        elif word.upper() + "F" in tokens.__members__:
+            return Token(tokens.__members__[word.upper() + "F"], word, self.line, self.file_name, self.col)
         else:
             error("Unknown keyword", self.line, self.file_name, self.col)
     def operator(self) -> Token:
@@ -108,3 +110,13 @@ class Lexer:
     def print_tokens(self) -> None:
         for token in self.tokens:
             print(token)
+    
+    def generate_blocks(self) -> None:
+        stack = []
+        for index in range(len(self.tokens)):
+            curr_in = self.tokens[index]
+            if curr_in.type == tokens.IFF:
+                stack.append(index)
+            elif curr_in.type == tokens.END:
+                block_ip = stack.pop()
+                self.tokens[block_ip].jump = index

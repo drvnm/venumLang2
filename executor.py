@@ -1,3 +1,4 @@
+from process import error
 from typing import List
 import subprocess
 from tokens import tokens, Token
@@ -196,6 +197,21 @@ class Executor:
                     output.write(f"    movzx rax, al\n")
                     output.write(f"    push rax\n")
                     instruction += 1
+                
+                # branching
+                elif curr_instruction.type == tokens.IFF:
+                    if not hasattr(curr_instruction, "jump"):
+                        error("if statement was not closed", curr_instruction.line, self.path, curr_instruction.col)
+                    output.write(f"    ; if statement\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cmp rax, 0\n")
+                    output.write(f"    je if_{curr_instruction.jump + 1}\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.END:
+                    output.write(f"    ; end statement\n")
+                    output.write(f" if_{instruction + 1}:")
+                    instruction += 1
+
                 else:
                     instruction += 1
             # exit

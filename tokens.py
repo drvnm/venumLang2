@@ -20,6 +20,7 @@ tokens = Enum('tokens', """
 
             KEYWORDS
             PRINT
+            DO
             PUTS
             IFF
             ELSEF

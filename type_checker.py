@@ -55,3 +55,16 @@ class TypeChecker:
                     string = stack.pop()
                     if string.type != tokens.STRING:
                         error(f"puts expects str, got {readable_tokens[string.type]}", token.line, token.file, token.col)
+            # branching, might improve this
+            elif token.type == tokens.IFF:
+                if len(stack) == 0:
+                    error("Not enough operands for do", token.line, token.file, token.col)
+                cond = stack.pop()
+                if cond.type != tokens.INT:
+                    error(f"do expects int, got {readable_tokens[cond.type]}", token.line, token.file, token.col)
+            elif token.type == tokens.DO:
+                continue
+            elif token.type == tokens.ELSEF:
+                continue
+            elif token.type == tokens.END:
+                continue
