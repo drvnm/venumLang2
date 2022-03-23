@@ -205,10 +205,16 @@ class Executor:
                     output.write(f"    ; if statement\n")
                     output.write(f"    pop rax\n")
                     output.write(f"    cmp rax, 0\n")
-                    output.write(f"    je if_{curr_instruction.jump + 1}\n")
+                    output.write(f"    je if_{curr_instruction.jump}\n")
                     instruction += 1
                 elif curr_instruction.type == tokens.END:
                     output.write(f"    ; end statement\n")
+                    output.write(f" if_{instruction + 1}:")
+                    instruction += 1
+                elif curr_instruction.type == tokens.ELSEF:
+                    after_end = curr_instruction.jump
+                    output.write(f"    ; else statement\n")
+                    output.write(f"    jmp if_{after_end}\n")
                     output.write(f" if_{instruction + 1}:")
                     instruction += 1
 

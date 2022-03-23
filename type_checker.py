@@ -61,7 +61,7 @@ class TypeChecker:
                     error("Not enough operands for do", token.line, token.file, token.col)
                 cond = stack.pop()
                 if cond.type != tokens.INT:
-                    error(f"do expects int, got {readable_tokens[cond.type]}", token.line, token.file, token.col)
+                    error(f"if expects int, got {readable_tokens[cond.type]}", token.line, token.file, token.col)
             elif token.type == tokens.DO:
                 continue
             elif token.type == tokens.ELSEF:

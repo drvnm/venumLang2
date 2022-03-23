@@ -117,6 +117,14 @@ class Lexer:
             curr_in = self.tokens[index]
             if curr_in.type == tokens.IFF:
                 stack.append(index)
+            elif curr_in.type == tokens.ELSEF:
+                if_index = stack.pop()
+                self.tokens[if_index].jump = index + 1
+                stack.append(index)
             elif curr_in.type == tokens.END:
                 block_ip = stack.pop()
-                self.tokens[block_ip].jump = index
+                self.tokens[block_ip].jump = index + 1
+            elif curr_in.type == tokens.WHILEF:
+                stack.append(index)
+            elif curr_in.type == tokens.DO:
+                while_ip = stack.pop()

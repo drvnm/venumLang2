@@ -67,8 +67,8 @@ print:   push    rbp
 _start:
     ; push 5 onto stack
     push 5
-    ; push 5 onto stack
-    push 5
+    ; push 53 onto stack
+    push 53
     ; checks if element is equal to
     pop rdi
     pop rax
@@ -79,9 +79,9 @@ _start:
     ; if statement
     pop rax
     cmp rax, 0
-    je if_14
-    ; push "5 == 5" onto stack
-    mov rdx, 7
+    je if_7
+    ; push "if stmt" onto stack
+    mov rdx, 8
     push rdx
     push str_4
     ; calls syscall 1
@@ -92,25 +92,12 @@ _start:
     mov rsi, r8
     mov rdx, r9
     syscall
-    ; push 10 onto stack
-    push 10
-    ; push 20 onto stack
-    push 20
-    ; checks if element is equal to
-    pop rdi
-    pop rax
-    cmp rax, rdi
-    sete al
-    movzx rax, al
-    push rax
-    ; if statement
-    pop rax
-    cmp rax, 0
-    je if_13
-    ; push "10 == 1" onto stack
-    mov rdx, 8
+    ; else statement
+    jmp if_10
+ if_7:    ; push "else" onto stack
+    mov rdx, 5
     push rdx
-    push str_10
+    push str_7
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -120,8 +107,7 @@ _start:
     mov rdx, r9
     syscall
     ; end statement
- if_13:    ; end statement
- if_14:    
+ if_10:    
     ; end of code, exit status
     mov rax, 60
     mov rdi, 0
@@ -129,6 +115,6 @@ _start:
 
 section .data
 str_4:
-    db 0x35, 0x20, 0x3d, 0x3d, 0x20, 0x35, 0xa
-str_10:
-    db 0x31, 0x30, 0x20, 0x3d, 0x3d, 0x20, 0x31, 0xa
+    db 0x69, 0x66, 0x20, 0x73, 0x74, 0x6d, 0x74, 0xa
+str_7:
+    db 0x65, 0x6c, 0x73, 0x65, 0xa
