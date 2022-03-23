@@ -4,7 +4,7 @@ from typing import List
 
 # dict for determining how much bytes a type takes
 type_size = {
-    tokens.INT: 4,
+    tokens.INT: 8,
 }
 
 # removes everything after // in src file

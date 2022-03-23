@@ -1,8 +1,18 @@
 var x int
 var y int
 
-3344333 x write
-43344444 y write
+0 x load
+0 y load
 
-y load print
-x load print
+while x load 1000 < do
+
+    while y load 100 < do
+        y load print
+        y load 1 + y write
+    end 
+
+    0 y write
+    
+    x load print
+    x load 1 + x write
+end
