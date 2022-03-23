@@ -1,3 +1,8 @@
-while 4 4 == do
+var x int
+var y int
 
-end
+3344333 x write
+43344444 y write
+
+y load print
+x load print

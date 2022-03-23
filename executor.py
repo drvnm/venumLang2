@@ -3,6 +3,8 @@ from typing import List
 import subprocess
 from tokens import tokens, Token
 
+MEMORY_SIZE = 64_000
+
 class Executor:
     def __init__(self, tokens: List[Token], path: str):
         self.path: str = path
@@ -103,17 +105,17 @@ class Executor:
                     # make write syscall
                     instruction += 1
 
-                elif curr_instruction.type == tokens.INT:
+                elif curr_instruction.type == tokens.FLOAT_PUSH:
                     output.write(f"    ; push {curr_instruction.value} onto stack\n")
                     output.write(f"    push {curr_instruction.value}\n")
                     instruction += 1
 
-                elif curr_instruction.type == tokens.FLOAT:
+                elif curr_instruction.type == tokens.INT_PUSH:
                     output.write(f"    ; push {curr_instruction.value} onto stack\n")
                     output.write(f"    push {curr_instruction.value}\n")
                     instruction += 1
                 
-                elif curr_instruction.type == tokens.STRING:
+                elif curr_instruction.type == tokens.STRING_PUSH:
                     str_len = len(curr_instruction.value) + 1
                     output.write(f"    ; push \"{curr_instruction.value}\" onto stack\n")
                     output.write(f"    mov rdx, {str_len}\n")
@@ -197,6 +199,29 @@ class Executor:
                     output.write(f"    movzx rax, al\n")
                     output.write(f"    push rax\n")
                     instruction += 1
+                elif curr_instruction.type == tokens.NEQ:
+                    output.write(f"    ; checks if element is not equal to\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cmp rax, rdi\n")
+                    output.write(f"    setne al\n")
+                    output.write(f"    movzx rax, al\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.COPY:
+                    output.write(f"    ; copies top value on stack\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    push rax\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.MOD:
+                    output.write(f"    ; modulo top two values on stack\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cqo\n")
+                    output.write(f"    idiv rdi\n")
+                    output.write(f"    push rdx\n")
+                    instruction += 1
                 
                 # branching
                 elif curr_instruction.type == tokens.IFF:
@@ -208,14 +233,56 @@ class Executor:
                     output.write(f"    je if_{curr_instruction.jump}\n")
                     instruction += 1
                 elif curr_instruction.type == tokens.END:
+                    if hasattr(curr_instruction, "jump"):
+                        output.write(f"    ; jumps to while statement\n")
+                        output.write(f"    jmp while_{curr_instruction.jump}\n")
                     output.write(f"    ; end statement\n")
-                    output.write(f" if_{instruction + 1}:")
+                    output.write(f" if_{instruction + 1}:\n")
+                    output.write(f" do_{instruction + 1}:\n")
                     instruction += 1
                 elif curr_instruction.type == tokens.ELSEF:
                     after_end = curr_instruction.jump
                     output.write(f"    ; else statement\n")
                     output.write(f"    jmp if_{after_end}\n")
                     output.write(f" if_{instruction + 1}:")
+                    instruction += 1
+                elif curr_instruction.type == tokens.DO:
+                    end_ip = curr_instruction.jump
+                    output.write(f"    ; do statement\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    cmp rax, 0\n")
+                    output.write(f"    je do_{end_ip}\n")
+                    instruction += 1
+                
+                elif curr_instruction.type == tokens.WHILEF:
+                    output.write(f"    ; while statement\n")
+                    output.write(f" while_{instruction}:")
+                    instruction += 1
+                
+                # variables
+                elif curr_instruction.type == tokens.IDENTIFIER:
+                    adress = curr_instruction.size
+                    output.write(f"    ; variable declaration\n")
+                    output.write(f"    mov rax, MEMORY\n")
+                    output.write(f"    mov rdi, {adress}\n")
+                    output.write(f"    add rax, rdi\n")
+                    output.write(f"    push rax\n")
+                    instruction += 1
+
+                # Writes a byte to a variable
+                elif curr_instruction.type == tokens.WRITE: 
+                    output.write(f"    ; write byte to variable\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    pop rdi\n")
+                    output.write(f"    mov [rax], rdi\n")
+                    instruction += 1
+                # LOAD a byte from a variable
+                elif curr_instruction.type == tokens.LOAD:
+                    output.write(f"    ; load byte from variable\n")
+                    output.write(f"    pop rax\n")
+                    output.write(f"    xor rbx, rbx\n")
+                    output.write(f"    mov rbx, qword [rax]\n")
+                    output.write(f"    push rbx\n")
                     instruction += 1
 
                 else:
@@ -235,6 +302,13 @@ class Executor:
                 str_hex = "db " + ", ".join(map(hex, list(bytearray(byte_str, encoding="utf-8")) + [10] ))
                 output.write(f"str_{index}:\n")
                 output.write(f"    {str_hex}\n")
+            
+            # .bss
+            output.write(f"\n")
+            output.write(f"section .bss\n")
+            output.write(f"    ; MEMORY\n")
+            output.write(f"  MEMORY: resb {MEMORY_SIZE}\n")
+            output.write(f"    ; heap\n")
 
         # compile and link
         subprocess.run(["nasm", "-f", "elf64", "./build/test.asm"])

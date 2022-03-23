@@ -1,6 +1,11 @@
 import sys
-from tokens import tokens, Token, operator_table
+from tokens import *
 from typing import List
+
+# dict for determining how much bytes a type takes
+type_size = {
+    tokens.INT: 4,
+}
 
 # removes everything after // in src file
 def remove_comments(lines: List[str]) -> List[str]:
@@ -27,7 +32,7 @@ class Lexer:
         self.col: int = 0
         self.file_name: str = file_name
         self.tokens: List[Token] = []
-        self.operators: List[str] = ["+", "-", "*", "/", "<", ">", "="]
+        self.operators: List[str] = ["+", "-", "*", "/", "<", ">", "=", "!", "%"]
     
     # advances to the next character in the text
     def advance(self) -> None:
@@ -49,9 +54,9 @@ class Lexer:
             error("Numbers cannot start with 0", self.line, self.file_name, self.col)
         
         elif result.count(".") == 1:
-            return Token(tokens.FLOAT, float(result), self.line, self.file_name, self.col)
+            return Token(tokens.FLOAT_PUSH, float(result), self.line, self.file_name, self.col)
         else:
-            return Token(tokens.INT, int(result), self.line, self.file_name, self.col)
+            return Token(tokens.INT_PUSH, int(result), self.line, self.file_name, self.col)
     
     def string(self) -> Token:
         result = ""
@@ -60,7 +65,7 @@ class Lexer:
             result += self.text[self.pos]
             self.advance()
         self.advance()
-        return Token(tokens.STRING, result, self.line, self.file_name, self.col)
+        return Token(tokens.STRING_PUSH, result, self.line, self.file_name, self.col)
     
     def word(self) -> Token:
         word = ""
@@ -72,7 +77,8 @@ class Lexer:
         elif word.upper() + "F" in tokens.__members__:
             return Token(tokens.__members__[word.upper() + "F"], word, self.line, self.file_name, self.col)
         else:
-            error("Unknown keyword", self.line, self.file_name, self.col)
+            return Token(tokens.IDENTIFIER, word, self.line, self.file_name, self.col)
+
     def operator(self) -> Token:
         operator = ""
         while self.pos < len(self.text) and self.text[self.pos] in self.operators:
@@ -104,12 +110,16 @@ class Lexer:
             elif self.text[self.pos] in self.operators:
                 self.tokens.append(self.operator())
             else:
-                error("Unknown character at", self.line, self.file_name, self.col)
+                error("Unknown character", self.line, self.file_name, self.col)
     
     # helper methods
     def print_tokens(self) -> None:
+        print(f"stack length: {len(self.tokens)}")
         for token in self.tokens:
-            print(token)
+            if hasattr(token, "size"):
+                print(f"{token} | at {token.size}")
+            else:
+                print(token)
     
     def generate_blocks(self) -> None:
         stack = []
@@ -123,8 +133,45 @@ class Lexer:
                 stack.append(index)
             elif curr_in.type == tokens.END:
                 block_ip = stack.pop()
-                self.tokens[block_ip].jump = index + 1
+                if self.tokens[block_ip].type == tokens.IFF or self.tokens[block_ip].type == tokens.ELSEF:
+                    self.tokens[block_ip].jump = index + 1
+                else:
+                    self.tokens[block_ip].jump = index + 1
+                    self.tokens[index].jump = self.tokens[block_ip].while_ip
             elif curr_in.type == tokens.WHILEF:
                 stack.append(index)
             elif curr_in.type == tokens.DO:
                 while_ip = stack.pop()
+                self.tokens[index].while_ip = while_ip
+                stack.append(index)
+        
+    def generate_variables(self) -> None:
+        names = {}
+        index = 0
+        memory_index = 0
+        while index < len(self.tokens):
+            current_token = self.tokens[index]
+            if current_token.type == tokens.VAR:
+                identifier = self.tokens[index + 1]
+                type_token = self.tokens[index + 2]
+               
+                # check if the name already exists
+                if identifier.value in names:
+                    error(f"Variable {identifier.value} already exists", current_token.line, self.file_name, current_token.col)
+                del self.tokens[index + 1: index + 3]
+                token = Token(tokens.VARIABLE, identifier.value, current_token.line, self.file_name, current_token.col)
+                token.static_type = type_token.type
+                token.size = memory_index
+                memory_index += type_size[type_token.type]
+                self.tokens[index] = token
+                names[identifier.value] = token
+                index += 1
+            elif current_token.type == tokens.IDENTIFIER:
+                if current_token.value in names:
+                    self.tokens[index].size = names[current_token.value].size
+                    index += 1
+                else:
+                    error(f"Variable {current_token.value} not found", current_token.line, self.file_name, current_token.col)
+                
+            else:
+                index += 1

@@ -3,9 +3,9 @@ from enum import Enum
 tokens = Enum('tokens', """ 
 
             LITERALS
-            INT
-            FLOAT
-            STRING
+            INT_PUSH
+            FLOAT_PUSH
+            STRING_PUSH
 
             OPERATORS
             PLUS
@@ -17,6 +17,9 @@ tokens = Enum('tokens', """
             LT
             LTE
             EQ
+            NEQ
+            COPY
+            MOD
 
             KEYWORDS
             PRINT
@@ -27,6 +30,16 @@ tokens = Enum('tokens', """
             END
             WHILEF
             FORF
+            VAR
+            IDENTIFIER
+            WRITE
+            LOAD
+
+            TYPES
+            FLOAT
+            INT
+            STRING
+            VARIABLE
 
                         """)
 
@@ -40,6 +53,14 @@ operator_table = {
     "<": tokens.LT,
     "<=": tokens.LTE,
     "==": tokens.EQ,
+    "!=": tokens.NEQ,	
+    "%": tokens.MOD,
+}
+
+matching_tokens = {
+    tokens.INT: tokens.INT_PUSH,
+    tokens.FLOAT: tokens.FLOAT_PUSH,
+    tokens.STRING: tokens.STRING_PUSH,
 }
 
 class Token:

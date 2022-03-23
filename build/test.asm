@@ -65,56 +65,63 @@ print:   push    rbp
    leave
    ret
 _start:
-    ; push 5 onto stack
-    push 5
-    ; push 53 onto stack
-    push 53
-    ; checks if element is equal to
-    pop rdi
-    pop rax
-    cmp rax, rdi
-    sete al
-    movzx rax, al
+    ; push 3344333 onto stack
+    push 3344333
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 0
+    add rax, rdi
     push rax
-    ; if statement
+    ; write byte to variable
     pop rax
-    cmp rax, 0
-    je if_7
-    ; push "if stmt" onto stack
-    mov rdx, 8
-    push rdx
-    push str_4
-    ; calls syscall 1
-    mov rax, 1
-    mov rdi, 1
-    pop r8
-    pop r9
-    mov rsi, r8
-    mov rdx, r9
-    syscall
-    ; else statement
-    jmp if_10
- if_7:    ; push "else" onto stack
-    mov rdx, 5
-    push rdx
-    push str_7
-    ; calls syscall 1
-    mov rax, 1
-    mov rdi, 1
-    pop r8
-    pop r9
-    mov rsi, r8
-    mov rdx, r9
-    syscall
-    ; end statement
- if_10:    
+    pop rdi
+    mov [rax], rdi
+    ; push 43344444 onto stack
+    push 43344444
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 4
+    add rax, rdi
+    push rax
+    ; write byte to variable
+    pop rax
+    pop rdi
+    mov [rax], rdi
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 4
+    add rax, rdi
+    push rax
+    ; load byte from variable
+    pop rax
+    xor rbx, rbx
+    mov rbx, qword [rax]
+    push rbx
+    ; calls print label to print top of stack
+    pop rdi
+    call print
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 0
+    add rax, rdi
+    push rax
+    ; load byte from variable
+    pop rax
+    xor rbx, rbx
+    mov rbx, qword [rax]
+    push rbx
+    ; calls print label to print top of stack
+    pop rdi
+    call print
+    
     ; end of code, exit status
     mov rax, 60
     mov rdi, 0
     syscall
 
 section .data
-str_4:
-    db 0x69, 0x66, 0x20, 0x73, 0x74, 0x6d, 0x74, 0xa
-str_7:
-    db 0x65, 0x6c, 0x73, 0x65, 0xa
+
+section .bss
+    ; MEMORY
+  MEMORY: resb 64000
+    ; heap
