@@ -1,18 +1,4 @@
-var x int
-var y int
-
-0 x load
-0 y load
-
-while x load 1000 < do
-
-    while y load 100 < do
-        y load print
-        y load 1 + y write
-    end 
-
-    0 y write
-    
-    x load print
-    x load 1 + x write
+func yeet in
+    4 4 4 4 4 4
 end
+

@@ -34,6 +34,13 @@ tokens = Enum('tokens', """
             IDENTIFIER
             WRITE
             LOAD
+            FUNC
+
+            HELPERS
+            FUNC_NAME
+            FUNC_CALL
+            IN
+            FUNC_END
 
             TYPES
             FLOAT

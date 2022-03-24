@@ -85,6 +85,8 @@ class Executor:
 
             instruction = 0
             strings = []
+            last_function = 0
+            functions = {}
             while instruction < len(self.tokens):
                 curr_instruction = self.tokens[instruction]
                 if curr_instruction.type == tokens.PRINT:
@@ -283,6 +285,21 @@ class Executor:
                     output.write(f"    xor rbx, rbx\n")
                     output.write(f"    mov rbx, qword [rax]\n")
                     output.write(f"    push rbx\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.FUNC:
+                    output.write(f"    ; function def\n")
+                    output.write(f"  {curr_instruction.name}:\n")
+                    output.write(f"    push rbp\n")
+                    output.write(f"    mov rbp, rsp\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.FUNC_END:
+                    output.write(f"    ; function end\n")
+                    output.write(f"    leave\n")
+                    output.write(f"    ret\n")
+                    instruction += 1
+                elif curr_instruction.type == tokens.FUNC_CALL:
+                    output.write(f"    ; function call\n")
+                    output.write(f"    call {curr_instruction.value}\n")
                     instruction += 1
 
                 else:

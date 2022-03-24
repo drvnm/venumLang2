@@ -64,183 +64,29 @@ print:   push    rbp
    nop
    leave
    ret
+
 _start:
-    ; push 0 onto stack
-    push 0
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 0
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop rax
-    xor rbx, rbx
-    mov rbx, qword [rax]
-    push rbx
-    ; push 0 onto stack
-    push 0
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 8
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop rax
-    xor rbx, rbx
-    mov rbx, qword [rax]
-    push rbx
-    ; while statement
- while_8:    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 0
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop rax
-    xor rbx, rbx
-    mov rbx, qword [rax]
-    push rbx
-    ; push 1000 onto stack
-    push 1000
-    ; checks if element is less then
-    pop rdi
-    pop rax
-    cmp rax, rdi
-    setl al
-    movzx rax, al
-    push rax
-    ; do statement
-    pop rax
-    cmp rax, 0
-    je do_43
-    ; while statement
- while_14:    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 8
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop rax
-    xor rbx, rbx
-    mov rbx, qword [rax]
-    push rbx
-    ; push 100 onto stack
-    push 100
-    ; checks if element is less then
-    pop rdi
-    pop rax
-    cmp rax, rdi
-    setl al
-    movzx rax, al
-    push rax
-    ; do statement
-    pop rax
-    cmp rax, 0
-    je do_30
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 8
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop rax
-    xor rbx, rbx
-    mov rbx, qword [rax]
-    push rbx
+    ; function def
+  
+    ; function call
+    call yeet
+    ; push 4 onto stack
+    push 4
     ; calls print label to print top of stack
     pop rdi
     call print
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 8
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop rax
-    xor rbx, rbx
-    mov rbx, qword [rax]
-    push rbx
-    ; push 1 onto stack
-    push 1
-    ; add top two values on stack
-    pop rdi
-    pop rax
-    add rax, rdi
-    push rax
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 8
-    add rax, rdi
-    push rax
-    ; write byte to variable
-    pop rax
-    pop rdi
-    mov [rax], rdi
-    ; jumps to while statement
-    jmp while_14
-    ; end statement
- if_30:
- do_30:
-    ; push 0 onto stack
-    push 0
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 8
-    add rax, rdi
-    push rax
-    ; write byte to variable
-    pop rax
-    pop rdi
-    mov [rax], rdi
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 0
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop rax
-    xor rbx, rbx
-    mov rbx, qword [rax]
-    push rbx
-    ; calls print label to print top of stack
-    pop rdi
-    call print
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 0
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop rax
-    xor rbx, rbx
-    mov rbx, qword [rax]
-    push rbx
-    ; push 1 onto stack
-    push 1
-    ; add top two values on stack
-    pop rdi
-    pop rax
-    add rax, rdi
-    push rax
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 0
-    add rax, rdi
-    push rax
-    ; write byte to variable
-    pop rax
-    pop rdi
-    mov [rax], rdi
-    ; jumps to while statement
-    jmp while_8
-    ; end statement
- if_43:
- do_43:
     
     ; end of code, exit status
     mov rax, 60
     mov rdi, 0
     syscall
+
+yeet:
+    push rbp
+    mov rbp, rsp
+    ; function end
+    leave
+    ret
 
 section .data
 
