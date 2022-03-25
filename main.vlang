@@ -1,4 +1,5 @@
-func yeet in
-    4 4 4 4 4 4
+func printHello in
+    "hello" puts
 end
 
+printHello

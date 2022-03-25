@@ -1,7 +1,7 @@
 section .text
    global _start
-
-print:   push    rbp
+print:
+   push    rbp
    mov     rbp, rsp
    sub     rsp, 64
    mov     DWORD   [rbp-52], edi
@@ -64,31 +64,37 @@ print:   push    rbp
    nop
    leave
    ret
-
 _start:
-    ; function def
-  
     ; function call
-    call yeet
-    ; push 4 onto stack
-    push 4
-    ; calls print label to print top of stack
-    pop rdi
-    call print
+    call printHello
     
     ; end of code, exit status
     mov rax, 60
     mov rdi, 0
     syscall
-
-yeet:
+     ; function def
+  printHello:
     push rbp
     mov rbp, rsp
+    ; push "hello" onto stack
+    mov rdx, 6
+    push rdx
+    push str_3
+    ; calls syscall 1
+    mov rax, 1
+    mov rdi, 1
+    pop r8
+    pop r9
+    mov rsi, r8
+    mov rdx, r9
+    syscall
     ; function end
     leave
     ret
 
 section .data
+str_3:
+    db 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0xa
 
 section .bss
     ; MEMORY
