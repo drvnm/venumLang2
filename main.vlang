@@ -1,5 +1,10 @@
-func printHello in
-    "hello" puts
+var x int
+5 x write
+
+x load 
+
+func test INT in
+    print
 end
 
-printHello
+test 3 print

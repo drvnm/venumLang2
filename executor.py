@@ -1,6 +1,6 @@
 from io import TextIOWrapper
 from process import error
-from typing import List
+from typing import List, Dict
 import subprocess
 from tokens import tokens, Token
 
@@ -8,12 +8,13 @@ MEMORY_SIZE = 64_000
 
 
 class Executor:
-    def __init__(self, tokens: List[Token], path: str):
+    def __init__(self, tokens: List[Token], path: str, function_names: Dict[str, Token]):
         self.path: str = path
         self.tokens: List[Token] = tokens
         self.file = open('./build/test.asm', 'w')
         self.subroutines: str = """ """
         self.append: bool = False
+        self.function_names = function_names
 
     def write(self, line: str):
         if self.append:
@@ -93,6 +94,8 @@ class Executor:
         self.write("   ret")
 
         self.write("_start:")
+
+        args_registers = ["rdi", "rsi", "rdx", "rcx", "r8", "r9"]
 
         instruction = 0
         strings = []
@@ -307,10 +310,12 @@ class Executor:
                 instruction += 1
             elif curr_instruction.type == tokens.FUNC:
                 self.append = True
-                self.write(f"    ; function def")
-                self.write(f"  {curr_instruction.name}:")
+                self.write(f"; function definition")
+                self.write(f"{curr_instruction.name}:")
                 self.write(f"    push rbp")
                 self.write(f"    mov rbp, rsp")
+                for i in range(curr_instruction.num_args):
+                    self.write(f"    push {args_registers[i]}")
                 instruction += 1
             elif curr_instruction.type == tokens.FUNC_END:
                 self.write(f"    ; function end")
@@ -319,6 +324,9 @@ class Executor:
                 instruction += 1
                 self.append = False
             elif curr_instruction.type == tokens.FUNC_CALL:
+                num_args = self.function_names[curr_instruction.value].num_args
+                for i in range(num_args):
+                    self.write(f"    pop {args_registers[i]}")
                 self.write(f"    ; function call")
                 self.write(f"    call {curr_instruction.value}")
                 instruction += 1
@@ -331,12 +339,12 @@ class Executor:
         self.write("    mov rax, 60")
         self.write("    mov rdi, 0")
         self.write("    syscall")
-    
+
         # writes subroutine buffer to file
         self.file.write(self.subroutines)
 
         # .data section for literals
-        self.write("")
+        self.write("\n")
         self.write("section .data")
         for string, index in strings:
             byte_str = bytes(string, "utf-8").decode("unicode_escape")

@@ -47,6 +47,7 @@ tokens = Enum('tokens', """
             INT
             STRING
             VARIABLE
+            
 
                         """)
 
@@ -69,6 +70,8 @@ matching_tokens = {
     tokens.FLOAT: tokens.FLOAT_PUSH,
     tokens.STRING: tokens.STRING_PUSH,
 }
+
+
 
 class Token:
     def __init__(self, type_: tokens, 

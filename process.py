@@ -1,6 +1,6 @@
 import sys
 from tokens import *
-from typing import List
+from typing import List, Dict
 
 # dict for determining how much bytes a type takes
 type_size = {
@@ -38,6 +38,7 @@ class Lexer:
         self.tokens: List[Token] = []
         self.operators: List[str] = [
             "+", "-", "*", "/", "<", ">", "=", "!", "%"]
+        self.function_names: Dict[str, Token] = {}
 
     # advances to the next character in the text
     def advance(self) -> None:
@@ -125,6 +126,8 @@ class Lexer:
         for token in self.tokens:
             if hasattr(token, "size"):
                 print(f"{token} | at {token.size}")
+            elif token.type == tokens.FUNC:
+                print(f"{token} | takes {token.num_args} args")
             else:
                 print(token)
 
@@ -157,7 +160,6 @@ class Lexer:
         index = 0
         memory_index = 0
         stack = []
-        function_names = {}
 
         while index < len(self.tokens):
             current_token = self.tokens[index]
@@ -182,20 +184,34 @@ class Lexer:
                 if current_token.value in names:
                     self.tokens[index].size = names[current_token.value].size
                     index += 1
-                elif current_token.value in function_names:
-                    self.tokens[index] = Token(tokens.FUNC_CALL, current_token.value, current_token.line, current_token.file, current_token.col)
-                
+                elif current_token.value in self.function_names:
+                    self.tokens[index] = Token(
+                        tokens.FUNC_CALL, current_token.value, current_token.line, current_token.file, current_token.col)
+
                 else:
                     error(f"Variable {current_token.value} not found",
                           current_token.line, self.file_name, current_token.col)
 
             elif current_token.type == tokens.FUNC:
+                current_token.num_args = 0
+                current_token.arg_types = []
                 function_name = self.tokens[index + 1]
-                function_names[function_name.value] = index
+                self.function_names[function_name.value] = self.tokens[index]
                 function_name.type = tokens.FUNC_NAME
                 current_token.name = function_name.value
                 stack.append(index)
                 index += 1
+
+                while self.tokens[index].type != tokens.IN:
+                    if self.tokens[index].type in matching_tokens:
+                        function_index = stack.pop()
+
+                        self.tokens[function_index].num_args += 1
+                        self.tokens[function_index].arg_types.append(
+                            self.tokens[index].type)
+
+                        stack.append(function_index)
+                    index += 1
 
             elif current_token.type == tokens.END:
                 function_index = stack.pop()
@@ -211,3 +227,5 @@ class Lexer:
 
             else:
                 index += 1
+
+        

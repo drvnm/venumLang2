@@ -65,36 +65,54 @@ print:
    leave
    ret
 _start:
+    ; push 5 onto stack
+    push 5
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 0
+    add rax, rdi
+    push rax
+    ; self.write byte to variable
+    pop rax
+    pop rdi
+    mov [rax], rdi
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 0
+    add rax, rdi
+    push rax
+    ; load byte from variable
+    pop rax
+    xor rbx, rbx
+    mov rbx, qword [rax]
+    push rbx
+    pop rdi
     ; function call
-    call printHello
+    call test
+    ; push 3 onto stack
+    push 3
+    ; calls print label to print top of stack
+    pop rdi
+    call print
     
     ; end of code, exit status
     mov rax, 60
     mov rdi, 0
     syscall
-     ; function def
-  printHello:
+ ; function definition
+test:
     push rbp
     mov rbp, rsp
-    ; push "hello" onto stack
-    mov rdx, 6
-    push rdx
-    push str_3
-    ; calls syscall 1
-    mov rax, 1
-    mov rdi, 1
-    pop r8
-    pop r9
-    mov rsi, r8
-    mov rdx, r9
-    syscall
+    push rdi
+    ; calls print label to print top of stack
+    pop rdi
+    call print
     ; function end
     leave
     ret
 
+
 section .data
-str_3:
-    db 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0xa
 
 section .bss
     ; MEMORY

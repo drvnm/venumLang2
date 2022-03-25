@@ -15,12 +15,13 @@ if __name__ == "__main__":
     
     lexer = Lexer(file_content, file_name)
     lexer.lex()
+   
     lexer.generate_variables()
-    lexer.print_tokens()
+    # lexer.print_tokens()
     lexer.generate_blocks()
 
     type_checker = TypeChecker(lexer.tokens)
-    type_checker.check()
+    # type_checker.check()
 
-    executor = Executor(lexer.tokens, file_name)
+    executor = Executor(lexer.tokens, file_name, lexer.function_names)
     executor.execute()
