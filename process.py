@@ -37,7 +37,7 @@ class Lexer:
         self.file_name: str = file_name
         self.tokens: List[Token] = []
         self.operators: List[str] = [
-            "+", "-", "*", "/", "<", ">", "=", "!", "%"]
+            "+", "-", "*", "/", "<", ">", "=", "!", "%", "&"]
         self.function_names: Dict[str, Token] = {}
 
     # advances to the next character in the text

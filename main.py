@@ -17,7 +17,7 @@ if __name__ == "__main__":
     lexer.lex()
    
     lexer.generate_variables()
-    # lexer.print_tokens()
+    lexer.print_tokens()
     lexer.generate_blocks()
 
     type_checker = TypeChecker(lexer.tokens)

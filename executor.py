@@ -244,6 +244,20 @@ class Executor:
                 self.write(f"    idiv rdi")
                 self.write(f"    push rdx")
                 instruction += 1
+            elif curr_instruction.type == tokens.DOUBLE_AND:
+                # checks if top 2 stack values are true
+                self.write(f"    ; double and")
+                self.write(f"    pop rdi")
+                self.write(f"    pop rax")
+                self.write(f"    cmp rax, 1")
+                self.write(f"    sete al")
+                self.write(f"    cmp rdi, 1")
+                self.write(f"    sete bl")
+                self.write(f"    and al, bl")
+                self.write(f"    movzx rax, al")
+                self.write(f"    push rax")
+                instruction += 1
+
 
             # branching
             elif curr_instruction.type == tokens.IFF:

@@ -20,6 +20,7 @@ tokens = Enum('tokens', """
             NEQ
             COPY
             MOD
+            DOUBLE_AND
 
             KEYWORDS
             PRINT
@@ -63,6 +64,7 @@ operator_table = {
     "==": tokens.EQ,
     "!=": tokens.NEQ,	
     "%": tokens.MOD,
+    "&&": tokens.DOUBLE_AND
 }
 
 matching_tokens = {

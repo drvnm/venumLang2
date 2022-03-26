@@ -1,10 +1,18 @@
 var x int
-5 x write
+0 x write
 
-x load 
-
-func test INT in
-    print
+while x load 100 < do
+    x load 3 % 0 == x load 5 % 0 ==  && if
+        "fizzbuzz" puts
+    else
+        x load 3 % 0 == if
+            "fizz" puts
+        else
+            x load 5 % 0 == if
+                "buzz" puts
+            end
+        end
+    end
+    // increment x 
+    x load 1 + x write
 end
-
-test 3 print
