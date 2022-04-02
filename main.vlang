@@ -1,18 +1,84 @@
-var x int
-0 x write
+// constants
 
-while x load 100 < do
-    x load 3 % 0 == x load 5 % 0 ==  && if
-        "fizzbuzz" puts
-    else
-        x load 3 % 0 == if
-            "fizz" puts
-        else
-            x load 5 % 0 == if
-                "buzz" puts
-            end
-        end
-    end
-    // increment x 
-    x load 1 + x write
+var AF_INET int_16 2 AF_INET WRITE
+var PORT int_16 14619 PORT WRITE 
+var INADDR_ANY int_32 0 INADDR_ANY WRITE 
+
+var AF_INET2 int_16 2 AF_INET2 WRITE
+var PORT2 int_16 14619 PORT2 WRITE 
+var INADDR_ANY2 int_32 0 INADDR_ANY2 WRITE 
+
+var LPOINTER int_32 0 LPOINTER WRITE
+
+func SOCK_STREAM in 1 return end
+
+// late variables
+var socket_number int_64
+var conn_fd int_64
+
+
+// bind socket
+func open_socket int int int in
+    41 syscall4
+    return
 end
+
+// bind socket
+func bind int int int in
+    49 syscall4
+    return
+end
+
+func fputs int int int in
+    1 syscall4
+    return
+end
+
+func listen int int  in
+    50 syscall4
+    return
+end
+
+func accept int int int in
+    43 syscall4
+    return
+end
+
+
+
+// creating socket
+0 SOCK_STREAM AF_INET load open_socket socket_number write
+socket_number load 0 < if
+    "Couldnt create socket\n" puts
+else
+    "Socket created, is: " puts socket_number load print 
+end
+
+// bind socket
+16 AF_INET socket_number load bind 0 != if
+    "Couldnt bind socket\n" puts
+else
+    "Socket bound\n" puts
+end
+
+5 socket_number load listen 0 != if
+    "Couldnt listen to socket\n" puts
+else
+    "Socket listening\n" puts
+end
+
+LPOINTER AF_INET2 socket_number load accept conn_fd write
+conn_fd load 0 < if
+    "Couldnt accept connection\n" puts
+else
+    "Connection accepted, is: \n" puts conn_fd load print "\n" puts
+end
+
+"HTTP/1.1 200 OK\n" conn_fd load fputs
+"Server: Atest\n" conn_fd load fputs
+"Content-Type: text/html\n" conn_fd load fputs
+"Connection: Closed\n" conn_fd load fputs
+"\n" conn_fd load fputs
+"<h1>Hello World!</h1>\n" conn_fd load fputs
+
+

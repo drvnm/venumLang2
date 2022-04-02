@@ -2,19 +2,32 @@ from io import TextIOWrapper
 from process import error
 from typing import List, Dict
 import subprocess
-from tokens import tokens, Token
+from tokens import operations, Operation, syscall_table
 
 MEMORY_SIZE = 64_000
+SIZE_DICT = {
+    operations.INT_8: "BYTE",
+    operations.INT_16: "WORD",
+    operations.INT_32: "DWORD",
+    operations.INT_64: "QWORD",
+}
 
+SIZE_REG_DICT = {
+    operations.INT_8: "AL",
+    operations.INT_16: "AX",
+    operations.INT_32: "EAX",
+    operations.INT_64: "RAX",
+}
 
 class Executor:
-    def __init__(self, tokens: List[Token], path: str, function_names: Dict[str, Token]):
+    def __init__(self, operations: List[Operation], path: str, function_names: Dict[str, Operation], output_file: str):
         self.path: str = path
-        self.tokens: List[Token] = tokens
-        self.file = open('./build/test.asm', 'w')
+        self.operations: List[Operation] = operations
         self.subroutines: str = """ """
         self.append: bool = False
-        self.function_names = function_names
+        self.function_names: Dict[str, Operation] = function_names
+        self.output_file: str = output_file
+        self.file = open(f'{self.output_file}.asm', 'w')
 
     def write(self, line: str):
         if self.append:
@@ -22,8 +35,7 @@ class Executor:
         else:
             self.file.write(f"{line}\n")
 
-    def execute(self):
-
+    def execute(self) -> None:
         # self.write standard sections
         self.write("section .text")
         self.write("   global _start")
@@ -95,21 +107,23 @@ class Executor:
 
         self.write("_start:")
 
-        args_registers = ["rdi", "rsi", "rdx", "rcx", "r8", "r9"]
+        # collections to keep track of things
+        args_registers = ["rdi", "rsi", "rdx", "rcx", "r8", "r9"] # for function calls
+        syscall_registers = ["rax", "rdi", "rsi", "rdx", "r10", "r8", "r9"] # for system calls
+
+        strings = []
 
         instruction = 0
-        strings = []
-        last_function = 0
-        functions = {}
-        while instruction < len(self.tokens):
-            curr_instruction = self.tokens[instruction]
-            if curr_instruction.type == tokens.PRINT:
+
+        while instruction < len(self.operations):
+            curr_instruction = self.operations[instruction]
+            if curr_instruction.type == operations.PRINT:
                 self.write(
                     f"    ; calls print label to print top of stack")
                 self.write(f"    pop rdi")
                 self.write(f"    call print")
                 instruction += 1
-            elif curr_instruction.type == tokens.PUTS:
+            elif curr_instruction.type == operations.PUTS:
                 self.write(f"    ; calls syscall 1")
                 self.write(f"    mov rax, 1")  # sycall number
                 self.write(f"    mov rdi, 1")  # file descriptor
@@ -121,52 +135,70 @@ class Executor:
 
                 # make self.write syscall
                 instruction += 1
+            elif curr_instruction.type == operations.POP:
+                self.write(f"    ; pops top of stack")
+                self.write(f"    pop rax")
+                instruction += 1
+            elif curr_instruction.type == operations.SWAP:
+                self.write(f"    ; swaps top two elements on stack")
+                self.write(f"    pop rdi")
+                self.write(f"    pop rsi")
+                self.write(f"    push rdi")
+                self.write(f"    push rsi")
+                instruction += 1
 
-            elif curr_instruction.type == tokens.FLOAT_PUSH:
+            elif curr_instruction.type == operations.FLOAT_PUSH:
                 self.write(
                     f"    ; push {curr_instruction.value} onto stack")
                 self.write(f"    push {curr_instruction.value}")
                 instruction += 1
 
-            elif curr_instruction.type == tokens.INT_PUSH:
+            elif curr_instruction.type == operations.INT_PUSH:
                 self.write(
                     f"    ; push {curr_instruction.value} onto stack")
                 self.write(f"    push {curr_instruction.value}")
                 instruction += 1
 
-            elif curr_instruction.type == tokens.STRING_PUSH:
-                str_len = len(curr_instruction.value) + 1
+            elif curr_instruction.type == operations.STRING_PUSH:
+                str_len = len(curr_instruction.value) - 1
                 self.write(
                     f"    ; push \"{curr_instruction.value}\" onto stack")
-                self.write(f"    mov rdx, {str_len}")
-                self.write(f"    push rdx")
+                self.write(f"    push {str_len}")
                 self.write(f"    push str_{instruction}")
                 strings.append((curr_instruction.value, instruction))
                 instruction += 1
-
-            # operators
-            elif curr_instruction.type == tokens.PLUS:
+            elif curr_instruction.type in syscall_table:
+                operation = str(curr_instruction.type).split('.')[1]
+                num_args = int(operation[-1])
+                for i in range(num_args):
+                    self.write(f"    pop r15")
+                    self.write(f"    mov {syscall_registers[i]}, r15")
+                self.write(f"    syscall")
+                # pushes return value to stack
+                self.write(f"    push rax")
+                instruction += 1
+            elif curr_instruction.type == operations.PLUS:
                 self.write(f"    ; add top two values on stack")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
                 self.write(f"    add rax, rdi")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.MIN:
+            elif curr_instruction.type == operations.MIN:
                 self.write(f"    ; subtract top two values on stack")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
                 self.write(f"    sub rax, rdi")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.MUL:
+            elif curr_instruction.type == operations.MUL:
                 self.write(f"    ; multiply top two values on stack")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
                 self.write(f"    imul rax, rdi")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.DIV:
+            elif curr_instruction.type == operations.DIV:
                 self.write(f"    ; divide top two values on stack")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
@@ -174,7 +206,7 @@ class Executor:
                 self.write(f"    idiv rdi")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.GT:
+            elif curr_instruction.type == operations.GT:
                 self.write(f"    ; checks if element is greater then")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
@@ -183,7 +215,7 @@ class Executor:
                 self.write(f"    movzx rax, al")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.LT:
+            elif curr_instruction.type == operations.LT:
                 self.write(f"    ; checks if element is less then")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
@@ -192,7 +224,7 @@ class Executor:
                 self.write(f"    movzx rax, al")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.GTE:
+            elif curr_instruction.type == operations.GTE:
                 self.write(
                     f"    ; checks if element is greater then or equal to")
                 self.write(f"    pop rdi")
@@ -202,7 +234,7 @@ class Executor:
                 self.write(f"    movzx rax, al")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.LTE:
+            elif curr_instruction.type == operations.LTE:
                 self.write(
                     f"    ; checks if element is less then or equal to")
                 self.write(f"    pop rdi")
@@ -212,7 +244,7 @@ class Executor:
                 self.write(f"    movzx rax, al")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.EQ:
+            elif curr_instruction.type == operations.EQ:
                 self.write(f"    ; checks if element is equal to")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
@@ -221,7 +253,7 @@ class Executor:
                 self.write(f"    movzx rax, al")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.NEQ:
+            elif curr_instruction.type == operations.NEQ:
                 self.write(f"    ; checks if element is not equal to")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
@@ -230,13 +262,13 @@ class Executor:
                 self.write(f"    movzx rax, al")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.COPY:
+            elif curr_instruction.type == operations.COPY:
                 self.write(f"    ; copies top value on stack")
                 self.write(f"    pop rax")
                 self.write(f"    push rax")
                 self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.MOD:
+            elif curr_instruction.type == operations.MOD:
                 self.write(f"    ; modulo top two values on stack")
                 self.write(f"    pop rdi")
                 self.write(f"    pop rax")
@@ -244,7 +276,7 @@ class Executor:
                 self.write(f"    idiv rdi")
                 self.write(f"    push rdx")
                 instruction += 1
-            elif curr_instruction.type == tokens.DOUBLE_AND:
+            elif curr_instruction.type == operations.DOUBLE_AND:
                 # checks if top 2 stack values are true
                 self.write(f"    ; double and")
                 self.write(f"    pop rdi")
@@ -258,9 +290,8 @@ class Executor:
                 self.write(f"    push rax")
                 instruction += 1
 
-
             # branching
-            elif curr_instruction.type == tokens.IFF:
+            elif curr_instruction.type == operations.IFF:
                 if not hasattr(curr_instruction, "jump"):
                     error("if statement was not closed",
                           curr_instruction.line, self.path, curr_instruction.col)
@@ -269,7 +300,7 @@ class Executor:
                 self.write(f"    cmp rax, 0")
                 self.write(f"    je if_{curr_instruction.jump}")
                 instruction += 1
-            elif curr_instruction.type == tokens.END:
+            elif curr_instruction.type == operations.END:
                 if hasattr(curr_instruction, "jump"):
                     self.write(f"    ; jumps to while statement")
                     self.write(
@@ -278,13 +309,13 @@ class Executor:
                 self.write(f" if_{instruction + 1}:")
                 self.write(f" do_{instruction + 1}:")
                 instruction += 1
-            elif curr_instruction.type == tokens.ELSEF:
+            elif curr_instruction.type == operations.ELSEF:
                 after_end = curr_instruction.jump
                 self.write(f"    ; else statement")
                 self.write(f"    jmp if_{after_end}")
                 self.write(f" if_{instruction + 1}:")
                 instruction += 1
-            elif curr_instruction.type == tokens.DO:
+            elif curr_instruction.type == operations.DO:
                 end_ip = curr_instruction.jump
                 self.write(f"    ; do statement")
                 self.write(f"    pop rax")
@@ -292,13 +323,17 @@ class Executor:
                 self.write(f"    je do_{end_ip}")
                 instruction += 1
 
-            elif curr_instruction.type == tokens.WHILEF:
+            elif curr_instruction.type == operations.WHILEF:
                 self.write(f"    ; while statement")
                 self.write(f" while_{instruction}:")
                 instruction += 1
+            elif curr_instruction.type == operations.CONTINUEF:
+                self.write(f"    ; continue statement")
+                self.write(f"    jmp while_{curr_instruction.jump}")
+                instruction += 1
 
             # variables
-            elif curr_instruction.type == tokens.IDENTIFIER:
+            elif curr_instruction.type == operations.IDENTIFIER:
                 adress = curr_instruction.size
                 self.write(f"    ; variable declaration")
                 self.write(f"    mov rax, MEMORY")
@@ -308,21 +343,22 @@ class Executor:
                 instruction += 1
 
             # Writes a byte to a variable
-            elif curr_instruction.type == tokens.WRITE:
+            elif curr_instruction.type == operations.WRITE:
                 self.write(f"    ; self.write byte to variable")
                 self.write(f"    pop rax")
                 self.write(f"    pop rdi")
                 self.write(f"    mov [rax], rdi")
                 instruction += 1
             # LOAD a byte from a variable
-            elif curr_instruction.type == tokens.LOAD:
+            elif curr_instruction.type == operations.LOAD:
+                var_type = self.operations[instruction - 1].static_type
                 self.write(f"    ; load byte from variable")
-                self.write(f"    pop rax")
-                self.write(f"    xor rbx, rbx")
-                self.write(f"    mov rbx, qword [rax]")
-                self.write(f"    push rbx")
+                self.write(f"    pop r10")
+                self.write(f"    xor rax, rax")
+                self.write(f"    mov {SIZE_REG_DICT[var_type]}, {SIZE_DICT[var_type]} [r10]")
+                self.write(f"    push rax")
                 instruction += 1
-            elif curr_instruction.type == tokens.FUNC:
+            elif curr_instruction.type == operations.FUNC:
                 self.append = True
                 self.write(f"; function definition")
                 self.write(f"{curr_instruction.name}:")
@@ -331,18 +367,26 @@ class Executor:
                 for i in range(curr_instruction.num_args):
                     self.write(f"    push {args_registers[i]}")
                 instruction += 1
-            elif curr_instruction.type == tokens.FUNC_END:
+            elif curr_instruction.type == operations.FUNC_END:
                 self.write(f"    ; function end")
                 self.write(f"    leave")
                 self.write(f"    ret")
                 instruction += 1
                 self.append = False
-            elif curr_instruction.type == tokens.FUNC_CALL:
-                num_args = self.function_names[curr_instruction.value].num_args
-                for i in range(num_args):
+            elif curr_instruction.type == operations.FUNC_CALL:
+                function = self.function_names[curr_instruction.value]
+                n_args = function.num_args
+                for i in range(n_args - 1, -1, -1):
                     self.write(f"    pop {args_registers[i]}")
                 self.write(f"    ; function call")
                 self.write(f"    call {curr_instruction.value}")
+                self.write(f"    push rax")  # push return value
+                instruction += 1
+            elif curr_instruction.type == operations.RETURN:
+                self.write(f"    ; early return")
+                self.write(f"    pop rax")
+                self.write(f"    leave")
+                self.write(f"    ret")
                 instruction += 1
 
             else:
@@ -364,7 +408,7 @@ class Executor:
             byte_str = bytes(string, "utf-8").decode("unicode_escape")
             str_hex = "db " + \
                 ", ".join(
-                    map(hex, list(bytearray(byte_str, encoding="utf-8")) + [10]))
+                    map(hex, list(bytearray(byte_str, encoding="utf-8"))))
             self.write(f"str_{index}:")
             self.write(f"    {str_hex}")
 
@@ -377,5 +421,5 @@ class Executor:
         self.file.close()
 
         # compile and link
-        subprocess.run(["nasm", "-f", "elf64", "./build/test.asm"])
-        subprocess.run(["ld", "-o", "./build/test", "./build/test.o"])
+        subprocess.run(["nasm", "-f", "elf64", f"{self.output_file}.asm"])
+        subprocess.run(["ld", "-o", f"{self.output_file}", f"{self.output_file}.o"])

@@ -4,11 +4,14 @@ from typing import List, Dict
 
 # dict for determining how much bytes a type takes
 type_size = {
-    tokens.INT: 8,
+    operations.INT: 8,
+    operations.INT_8: 1,
+    operations.INT_16: 2,
+    operations.INT_32: 4,
+    operations.INT_64: 8,
 }
 
 # removes everything after // in src file
-
 
 def remove_comments(lines: List[str]) -> List[str]:
     # remove comments
@@ -35,10 +38,12 @@ class Lexer:
         self.line: int = 0
         self.col: int = 0
         self.file_name: str = file_name
-        self.tokens: List[Token] = []
+        self.operations: List[Operation] = []
         self.operators: List[str] = [
             "+", "-", "*", "/", "<", ">", "=", "!", "%", "&"]
-        self.function_names: Dict[str, Token] = {}
+        self.function_names: Dict[str, Operation] = {}
+        self.allowed_names: List[str] = ['_', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+        print(self.allowed_names)
 
     # advances to the next character in the text
     def advance(self) -> None:
@@ -47,7 +52,7 @@ class Lexer:
             self.col += 1
 
     # methods for consuming literals
-    def number(self) -> Token:
+    def number(self) -> Operation:
         result = ""
         while self.pos < len(self.text) and (self.text[self.pos].isdigit() or self.text[self.pos] == "."):
             result += self.text[self.pos]
@@ -62,37 +67,37 @@ class Lexer:
                   self.line, self.file_name, self.col)
 
         elif result.count(".") == 1:
-            return Token(tokens.FLOAT_PUSH, float(result), self.line, self.file_name, self.col)
+            return Operation(operations.FLOAT_PUSH, float(result), self.line, self.file_name, self.col)
         else:
-            return Token(tokens.INT_PUSH, int(result), self.line, self.file_name, self.col)
+            return Operation(operations.INT_PUSH, int(result), self.line, self.file_name, self.col)
 
-    def string(self) -> Token:
+    def string(self) -> Operation:
         result = ""
         self.advance()
         while self.pos < len(self.text) and self.text[self.pos] != '"':
             result += self.text[self.pos]
             self.advance()
         self.advance()
-        return Token(tokens.STRING_PUSH, result, self.line, self.file_name, self.col)
+        return Operation(operations.STRING_PUSH, result, self.line, self.file_name, self.col)
 
-    def word(self) -> Token:
+    def word(self) -> Operation:
         word = ""
-        while self.pos < len(self.text) and self.text[self.pos].isalpha():
+        while self.pos < len(self.text) and (self.text[self.pos].isalpha() or self.text[self.pos] in self.allowed_names):
             word += self.text[self.pos]
             self.advance()
-        if word.upper() in tokens.__members__:
-            return Token(tokens.__members__[word.upper()], word, self.line, self.file_name, self.col)
-        elif word.upper() + "F" in tokens.__members__:
-            return Token(tokens.__members__[word.upper() + "F"], word, self.line, self.file_name, self.col)
+        if word.upper() in operations.__members__:
+            return Operation(operations.__members__[word.upper()], word, self.line, self.file_name, self.col)
+        elif word.upper() + "F" in operations.__members__:
+            return Operation(operations.__members__[word.upper() + "F"], word, self.line, self.file_name, self.col)
         else:
-            return Token(tokens.IDENTIFIER, word, self.line, self.file_name, self.col)
+            return Operation(operations.IDENTIFIER, word, self.line, self.file_name, self.col)
 
-    def operator(self) -> Token:
+    def operator(self) -> Operation:
         operator = ""
         while self.pos < len(self.text) and self.text[self.pos] in self.operators:
             operator += self.text[self.pos]
             self.advance()
-        return Token(operator_table[operator], operator, self.line, self.file_name, self.col)
+        return Operation(operator_table[operator], operator, self.line, self.file_name, self.col)
 
     def lex(self):
         while self.pos < len(self.text):
@@ -106,53 +111,58 @@ class Lexer:
 
             # literal characters
             elif self.text[self.pos].isdigit():
-                self.tokens.append(self.number())
+                self.operations.append(self.number())
             elif self.text[self.pos] == '"':
-                self.tokens.append(self.string())
+                self.operations.append(self.string())
 
             # keywords
             elif self.text[self.pos].isalpha():
-                self.tokens.append(self.word())
+                self.operations.append(self.word())
 
             # operators
             elif self.text[self.pos] in self.operators:
-                self.tokens.append(self.operator())
+                self.operations.append(self.operator())
             else:
                 error("Unknown character", self.line, self.file_name, self.col)
 
     # helper methods
-    def print_tokens(self) -> None:
-        print(f"stack length: {len(self.tokens)}")
-        for token in self.tokens:
-            if hasattr(token, "size"):
-                print(f"{token} | at {token.size}")
-            elif token.type == tokens.FUNC:
-                print(f"{token} | takes {token.num_args} args")
+    def print_program(self) -> None:
+        print(f"stack length: {len(self.operations)}")
+        for Operation in self.operations:
+            if hasattr(Operation, "size"):
+                print(f"{Operation} | at {Operation.size}")
+            elif Operation.type == operations.FUNC:
+                print(f"{Operation} | takes {Operation.num_args} args")
             else:
-                print(token)
+                print(Operation)
 
     def generate_blocks(self) -> None:
         stack = []
-        for index in range(len(self.tokens)):
-            curr_in = self.tokens[index]
-            if curr_in.type == tokens.IFF:
+        # loop that cross references blocks like while or if statements.
+        for index in range(len(self.operations)):
+            curr_in = self.operations[index]
+            if curr_in.type == operations.IFF:
                 stack.append(index)
-            elif curr_in.type == tokens.ELSEF:
+            elif curr_in.type == operations.ELSEF:
                 if_index = stack.pop()
-                self.tokens[if_index].jump = index + 1
+                self.operations[if_index].jump = index + 1
                 stack.append(index)
-            elif curr_in.type == tokens.END:
+            elif curr_in.type == operations.END:
                 block_ip = stack.pop()
-                if self.tokens[block_ip].type == tokens.IFF or self.tokens[block_ip].type == tokens.ELSEF:
-                    self.tokens[block_ip].jump = index + 1
+                if self.operations[block_ip].type == operations.IFF or self.operations[block_ip].type == operations.ELSEF:
+                    self.operations[block_ip].jump = index + 1
                 else:
-                    self.tokens[block_ip].jump = index + 1
-                    self.tokens[index].jump = self.tokens[block_ip].while_ip
-            elif curr_in.type == tokens.WHILEF:
+                    self.operations[block_ip].jump = index + 1
+                    self.operations[index].jump = self.operations[block_ip].while_ip
+            elif curr_in.type == operations.CONTINUEF:
+                do_ip = stack.pop()
+                self.operations[index].jump = self.operations[do_ip].while_ip 
+                stack.append(do_ip)
+            elif curr_in.type == operations.WHILEF:
                 stack.append(index)
-            elif curr_in.type == tokens.DO:
+            elif curr_in.type == operations.DO:
                 while_ip = stack.pop()
-                self.tokens[index].while_ip = while_ip
+                self.operations[index].while_ip = while_ip
                 stack.append(index)
 
     def generate_variables(self) -> None:
@@ -161,70 +171,65 @@ class Lexer:
         memory_index = 0
         stack = []
 
-        while index < len(self.tokens):
-            current_token = self.tokens[index]
-            if current_token.type == tokens.VAR:
-                identifier = self.tokens[index + 1]
-                type_token = self.tokens[index + 2]
+        while index < len(self.operations):
+            current_Operation = self.operations[index]
+            if current_Operation.type == operations.VAR:
+                identifier = self.operations[index + 1]
+                type_Operation = self.operations[index + 2]
 
                 # check if the name already exists
                 if identifier.value in names:
                     error(f"Variable {identifier.value} already exists",
-                          current_token.line, self.file_name, current_token.col)
-                del self.tokens[index + 1: index + 3]
-                token = Token(tokens.VARIABLE, identifier.value,
-                              current_token.line, self.file_name, current_token.col)
-                token.static_type = type_token.type
-                token.size = memory_index
-                memory_index += type_size[type_token.type]
-                self.tokens[index] = token
-                names[identifier.value] = token
+                          current_Operation.line, self.file_name, current_Operation.col)
+                del self.operations[index + 1: index + 3]
+                operation = Operation(operations.VARIABLE, identifier.value,
+                              current_Operation.line, self.file_name, current_Operation.col)
+                operation.static_type = type_Operation.type
+                operation.size = memory_index
+                memory_index += type_size[type_Operation.type]
+                self.operations[index] = operation
+                names[identifier.value] = operation
                 index += 1
-            elif current_token.type == tokens.IDENTIFIER:
-                if current_token.value in names:
-                    self.tokens[index].size = names[current_token.value].size
+            elif current_Operation.type == operations.IDENTIFIER:
+                if current_Operation.value in names:
+                    self.operations[index].size = names[current_Operation.value].size
+                    self.operations[index].static_type = names[current_Operation.value].static_type
                     index += 1
-                elif current_token.value in self.function_names:
-                    self.tokens[index] = Token(
-                        tokens.FUNC_CALL, current_token.value, current_token.line, current_token.file, current_token.col)
-
+                elif current_Operation.value in self.function_names:
+                    self.operations[index] = Operation(
+                        operations.FUNC_CALL, current_Operation.value, current_Operation.line, current_Operation.file, current_Operation.col)
                 else:
-                    error(f"Variable {current_token.value} not found",
-                          current_token.line, self.file_name, current_token.col)
+                    error(f"Variable {current_Operation.value} not found",
+                          current_Operation.line, self.file_name, current_Operation.col)
 
-            elif current_token.type == tokens.FUNC:
-                current_token.num_args = 0
-                current_token.arg_types = []
-                function_name = self.tokens[index + 1]
-                self.function_names[function_name.value] = self.tokens[index]
-                function_name.type = tokens.FUNC_NAME
-                current_token.name = function_name.value
+            elif current_Operation.type == operations.FUNC:
+                current_Operation.num_args = 0
+                current_Operation.arg_types = []
+                function_name = self.operations[index + 1]
+                self.function_names[function_name.value] = self.operations[index]
+                function_name.type = operations.FUNC_NAME
+                current_Operation.name = function_name.value
                 stack.append(index)
                 index += 1
-
-                while self.tokens[index].type != tokens.IN:
-                    if self.tokens[index].type in matching_tokens:
+                while self.operations[index].type != operations.IN:
+                    if self.operations[index].type in matching_operations:
                         function_index = stack.pop()
-
-                        self.tokens[function_index].num_args += 1
-                        self.tokens[function_index].arg_types.append(
-                            self.tokens[index].type)
-
+                        self.operations[function_index].num_args += 1
+                        self.operations[function_index].arg_types.append(
+                            self.operations[index].type)
                         stack.append(function_index)
                     index += 1
-
-            elif current_token.type == tokens.END:
+            elif current_Operation.type == operations.END:
                 function_index = stack.pop()
-                if self.tokens[function_index].type == tokens.FUNC:
-                    self.tokens[index].type = tokens.FUNC_END
+                if self.operations[function_index].type == operations.FUNC:
+                    self.operations[index].type = operations.FUNC_END
                 index += 1
-            elif current_token.type == tokens.IFF:
+            elif current_Operation.type == operations.IFF:
                 stack.append(index)
                 index += 1
-            elif current_token.type == tokens.DO:
+            elif current_Operation.type == operations.DO:
                 stack.append(index)
                 index += 1
-
             else:
                 index += 1
 

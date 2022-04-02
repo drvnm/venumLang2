@@ -9,15 +9,32 @@ This is a statically typed language written in python, and compiles to x64 assem
 - [X] Strings
 - [X] Conditionals 
 - [X] Loops
-- [ ] Functions
+- [X] Functions
 - [X] Memory
 - [ ] Standard library
+
+
+# functions 
+```js
+func print_string int int in
+    puts
+
+    // return the number 5
+    5 return
+end
+
+"hello world\n" print_string print
+>> hello world
+>> 5
+```
+
+
 
 # variables
 #### Syntax will be improved
 ```js
 // also supports! comments
-var x int // provide a type (int float or string for now)
+var x int_16 // provide a type (int float or string for now)
 
 2 x write // writes 2 into x
 x load // loads the value stored in x ontop of the stack
