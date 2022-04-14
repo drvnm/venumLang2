@@ -3,16 +3,27 @@ This is my toy language, heavily inspired by [Porth](https://gitlab.com/tsoding/
 
 This is a statically typed language written in python, and compiles to x64 assembly!
 
-## TODO'S
-- [x] Numerical values
-- [x] Print function
-- [X] Strings
-- [X] Conditionals 
-- [X] Loops
-- [X] Functions
-- [X] Memory
-- [ ] Standard library
 
+# Structs 
+vlang supports structures, for now you can load any integer value in a struct:
+```cpp
+struct server 
+    int_64
+    int_8
+end
+
+55 server.0 write
+server.0 load print
+>> 55 
+```
+
+# Constants
+constants get replaced with their stack-equivalent during compilation: 
+```cpp
+const x "yeet"
+x puts // will use STRING_PUSH with x's content
+>> yeet
+```
 
 # functions 
 ```js
