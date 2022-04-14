@@ -146,6 +146,13 @@ class Executor:
                 self.write(f"    push rdi")
                 self.write(f"    push rsi")
                 instruction += 1
+            elif curr_instruction.type == operations.EXIT:
+                # pop exit code off stack and exit process
+                self.write(f"    ; exit process")
+                self.write(f"    mov rax, 60")
+                self.write(f"    mov rdi, 0")
+                self.write(f"    syscall")
+                instruction += 1
 
             elif curr_instruction.type == operations.FLOAT_PUSH:
                 self.write(
@@ -160,7 +167,9 @@ class Executor:
                 instruction += 1
 
             elif curr_instruction.type == operations.STRING_PUSH:
-                str_len = len(curr_instruction.value) - 1
+                str_len = len(curr_instruction.value)
+                newline_count = curr_instruction.value.count("\\n")
+                str_len += -newline_count
                 self.write(
                     f"    ; push \"{curr_instruction.value}\" onto stack")
                 self.write(f"    push {str_len}")

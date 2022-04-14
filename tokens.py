@@ -40,6 +40,8 @@ operations = Enum('operations', """
             FUNC
             RETURN
             CONTINUEF
+            CONST
+            STRUCT
 
             HELPERS
 
@@ -47,7 +49,9 @@ operations = Enum('operations', """
             FUNC_CALL
             IN
             FUNC_END
-
+            CONST_CALL
+            CONST_DEF
+            
             TYPES
             FLOAT
             INT
@@ -69,7 +73,7 @@ operations = Enum('operations', """
             INTRINSICS
             POP
             SWAP
-            
+            EXIT
                         """)
 
 syscall_table = [operations.SYSCALL1, operations.SYSCALL2, operations.SYSCALL3, operations.SYSCALL4, operations.SYSCALL5, operations.SYSCALL6]
