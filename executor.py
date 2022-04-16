@@ -1,15 +1,17 @@
 from io import TextIOWrapper
-from process import error
+from process import error, type_size
 from typing import List, Dict
 import subprocess
 from tokens import operations, Operation, syscall_table
 
 MEMORY_SIZE = 64_000
 SIZE_DICT = {
+    operations.INT: "BYTE",
     operations.INT_8: "BYTE",
     operations.INT_16: "WORD",
     operations.INT_32: "DWORD",
     operations.INT_64: "QWORD",
+    operations.CHAR: "BYTE",
 }
 
 SIZE_REG_DICT = {
@@ -17,7 +19,9 @@ SIZE_REG_DICT = {
     operations.INT_16: "AX",
     operations.INT_32: "EAX",
     operations.INT_64: "RAX",
+    operations.CHAR: "AL",
 }
+
 
 class Executor:
     def __init__(self, operations: List[Operation], path: str, function_names: Dict[str, Operation], output_file: str):
@@ -108,8 +112,10 @@ class Executor:
         self.write("_start:")
 
         # collections to keep track of things
-        args_registers = ["rdi", "rsi", "rdx", "rcx", "r8", "r9"] # for function calls
-        syscall_registers = ["rax", "rdi", "rsi", "rdx", "r10", "r8", "r9"] # for system calls
+        args_registers = ["rdi", "rsi", "rdx",
+                          "rcx", "r8", "r9"]  # for function calls
+        syscall_registers = ["rax", "rdi", "rsi", "rdx",
+                             "r10", "r8", "r9"]  # for system calls
 
         strings = []
 
@@ -132,8 +138,6 @@ class Executor:
                 self.write(f"    mov rsi, r8")
                 self.write(f"    mov rdx, r9")
                 self.write(f"    syscall")
-
-                # make self.write syscall
                 instruction += 1
             elif curr_instruction.type == operations.POP:
                 self.write(f"    ; pops top of stack")
@@ -180,8 +184,7 @@ class Executor:
                 operation = str(curr_instruction.type).split('.')[1]
                 num_args = int(operation[-1])
                 for i in range(num_args):
-                    self.write(f"    pop r15")
-                    self.write(f"    mov {syscall_registers[i]}, r15")
+                    self.write(f"    pop {syscall_registers[i]}")
                 self.write(f"    syscall")
                 # pushes return value to stack
                 self.write(f"    push rax")
@@ -353,18 +356,41 @@ class Executor:
 
             # Writes a byte to a variable
             elif curr_instruction.type == operations.WRITE:
-                self.write(f"    ; self.write byte to variable")
+                self.write(f"    ; writes byte to variable")
                 self.write(f"    pop rax")
                 self.write(f"    pop rdi")
                 self.write(f"    mov [rax], rdi")
                 instruction += 1
+            # writes bytes to array index
+            elif curr_instruction.type == operations.WRITEARR:
+                bit_size = type_size[self.operations[instruction - 2].static_type]
+                self.write(f"    ; write bytes to array")
+                self.write(f"    pop rdi") # index
+                self.write(f"    pop rax") # pointer
+                self.write(f"    pop rdx") # value
+                self.write(f"    mov [rax + rdi * {bit_size}], rdx")
+                instruction += 1
             # LOAD a byte from a variable
             elif curr_instruction.type == operations.LOAD:
-                var_type = self.operations[instruction - 1].static_type
+                static_type = self.operations[instruction - 1].static_type
                 self.write(f"    ; load byte from variable")
-                self.write(f"    pop r10")
+                self.write(f"    pop r10") # pointer to variable
                 self.write(f"    xor rax, rax")
-                self.write(f"    mov {SIZE_REG_DICT[var_type]}, {SIZE_DICT[var_type]} [r10]")
+                self.write(
+                    f"    mov {SIZE_REG_DICT[static_type]}, {SIZE_DICT[static_type]} [r10]"
+                )
+                self.write(f"    push rax")
+                instruction += 1
+            # pops index and instruction from stack, loads that index
+            elif curr_instruction.type == operations.LOADARR:
+                static_type = self.operations[instruction - 2].static_type
+                self.write(f"    ; loads bytes from array")
+                self.write(f"    pop rdi")  # index
+                self.write(f"    pop r10")  # pointer to array
+                self.write(f"    xor rax, rax")
+                self.write(
+                    f"    mov {SIZE_REG_DICT[static_type]}, {SIZE_DICT[static_type]} [r10 + rdi * {type_size[static_type]}]"
+                )
                 self.write(f"    push rax")
                 instruction += 1
             elif curr_instruction.type == operations.FUNC:
@@ -414,10 +440,7 @@ class Executor:
         self.write("\n")
         self.write("section .data")
         for string, index in strings:
-            byte_str = bytes(string, "utf-8").decode("unicode_escape")
-            str_hex = "db " + \
-                ", ".join(
-                    map(hex, list(bytearray(byte_str, encoding="utf-8"))))
+            str_hex = f'db `{string}`, 0'
             self.write(f"str_{index}:")
             self.write(f"    {str_hex}")
 
@@ -431,4 +454,5 @@ class Executor:
 
         # compile and link
         subprocess.run(["nasm", "-f", "elf64", f"{self.output_file}.asm"])
-        subprocess.run(["ld", "-o", f"{self.output_file}", f"{self.output_file}.o"])
+        subprocess.run(
+            ["ld", "-o", f"{self.output_file}", f"{self.output_file}.o"])

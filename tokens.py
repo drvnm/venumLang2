@@ -42,6 +42,8 @@ operations = Enum('operations', """
             CONTINUEF
             CONST
             STRUCT
+            LOADARR
+            WRITEARR
 
             HELPERS
 
@@ -61,6 +63,8 @@ operations = Enum('operations', """
             INT_16
             INT_32
             INT_64
+            ARRAY
+            CHAR
 
             SYSCALLS
             SYSCALL1

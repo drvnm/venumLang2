@@ -1,5 +1,14 @@
 const SOCK_STREAM 1
 
+var buff char[1000]
+var fd int_64
+
+
+0 0 "./home.html" swap pop 2 syscall4  fd write // read file
+fd load print
+100 buff fd load 0 syscall4 print // read content into buff
+fd load print
+
 struct server
     int_16
     int_16
@@ -10,9 +19,8 @@ end
 14619 server.1 write // PORT
 0 server.2 write // IP
 
-var LPOINTER int_32 0 LPOINTER WRITE
-
 // late variables
+var LPOINTER int_32 0 LPOINTER WRITE
 var socket_number int_64
 var conn_fd int_64
 
@@ -79,7 +87,7 @@ conn_fd load 0 < if
     "Couldnt accept connection\n" puts
     exit
 else
-    "Connection accepted, is: \n" puts conn_fd load print "\n" puts
+    "Connection accepted, is: " puts conn_fd load print "\n" puts
 end
 
 
@@ -90,3 +98,6 @@ end
 "Connection: Closed\n" conn_fd load fputs
 "\n" conn_fd load fputs
 "<h1>Hello World!</h1>\n" conn_fd load fputs
+100 buff conn_fd load fputs
+
+

@@ -9,6 +9,7 @@ type_size = {
     operations.INT_16: 2,
     operations.INT_32: 4,
     operations.INT_64: 8,
+    operations.CHAR: 1,
 }
 
 # removes everything after // in src file
@@ -40,11 +41,9 @@ class Lexer:
         self.col: int = 0
         self.file_name: str = file_name
         self.operations: List[Operation] = []
-        self.operators: List[str] = [
-            "+", "-", "*", "/", "<", ">", "=", "!", "%", "&"]
+        self.operators: str = "+-*/<>=!%&"
         self.function_names: Dict[str, Operation] = {}
-        self.allowed_names: List[str] = [
-            '_', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.']
+        self.allowed_names: str = '_1234567890.[]'
         self.constants: Dict[str, str] = {}
         self.structs = {}
     # advances to the next character in the text
@@ -88,6 +87,23 @@ class Lexer:
         while self.pos < len(self.text) and (self.text[self.pos].isalpha() or self.text[self.pos] in self.allowed_names):
             word += self.text[self.pos]
             self.advance()
+        if '[' in word and word[-1] == ']':
+            arr_type = word.split('[')[0]
+            if arr_type.upper() not in operations.__members__:
+                error(f"Unknown type: {arr_type}",
+                      self.line, self.file_name, self.col)
+            arr_lenght = int(word.split('[')[1][:-1])
+
+            byte_size = type_size[operations.__members__[
+                arr_type.upper()]] * arr_lenght
+
+            static_type = operations.__members__[arr_type.upper()]
+            operation = Operation(static_type, arr_type,
+                                  self.line, self.file_name, self.col)
+            operations.static_type = static_type
+            operation.size = byte_size
+            operation.ISARR = True
+            return operation
         if word.upper() in operations.__members__:
             return Operation(operations.__members__[word.upper()], word, self.line, self.file_name, self.col)
         elif word.upper() + "F" in operations.__members__:
@@ -199,7 +215,8 @@ class Lexer:
                                       current_Operation.line, self.file_name, current_Operation.col)
                 operation.static_type = type_Operation.type
                 operation.size = memory_index
-                memory_index += type_size[type_Operation.type]
+                print(type_Operation.type)
+                memory_index += type_size[type_Operation.type] if not hasattr(type_Operation, 'ISARR') else type_Operation.size
                 self.operations[index] = operation
                 names[identifier.value] = operation
                 index += 1
@@ -274,7 +291,6 @@ class Lexer:
                 self.structs[struct_name.value] = []
                 last_index = index
                 index += 2
-                struct_size = 0
                 while self.operations[index].type != operations.END:
                     field_size = type_size[self.operations[index].type]
                     self.structs[struct_name.value].append(
@@ -286,8 +302,7 @@ class Lexer:
                     memory_index += field_size
                     index += 1
                 index += 1
-                print(f"test {self.operations[index:][0]}")
-                print(f"last_index {last_index}, index {index}")
+              
                 del self.operations[last_index: index]
                 index -= (index - last_index)
             else:
