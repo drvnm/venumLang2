@@ -1,16 +1,15 @@
 include "stdlib/network.vlang"
 include "stdlib/io.vlang"
+include "stdlib/string.vlang"
 
 const SOCK_STREAM 1
 
 var buff char[1000]
 var fd int_64
 
-
-0 0 "../home.html" swap pop 2 syscall4  fd write // read file
-fd load print
-100 buff fd load 0 syscall4 print // read content into buff
-fd load print
+"../home.html" str_to_pointer() open_file() fd write // open file
+100 buff fd load read_file() print // read content into buff
+fd load close_file()
 
 
 struct server
@@ -29,12 +28,7 @@ var socket_number int_64
 var conn_fd int_64
 
 
-
-
-var buffer int_64 // sketchy way of making a 8 byte string buffer..
-
-
-0 SOCK_STREAM server.0 load open_socket socket_number write
+0 SOCK_STREAM server.0 load open_socket() socket_number write
 socket_number load 0 < if
     "Couldnt create socket\n" puts
     1 exit
@@ -43,21 +37,21 @@ else
 end
 
 // bind socket
-16 server.0 socket_number load bind 0 != if
+16 server.0 socket_number load bind() 0 != if
     "Couldnt bind socket\n" puts
     exit
 else
     "Socket bound\n" puts
 end
 
-5 socket_number load listen 0 != if
+5 socket_number load listen() 0 != if
     "Couldnt listen to socket\n" puts
     exit
 else
     "Socket listening\n" puts
 end
 
-LPOINTER server.0 socket_number load accept conn_fd write
+LPOINTER server.0 socket_number load accept() conn_fd write
 conn_fd load 0 < if
     "Couldnt accept connection\n" puts
     exit
@@ -67,12 +61,12 @@ end
 
 
 
-"HTTP/1.1 200 OK\n" conn_fd load fputs
-"Server: Atest\n" conn_fd load fputs
-"Content-Type: text/html\n" conn_fd load fputs
-"Connection: Closed\n" conn_fd load fputs
-"\n" conn_fd load fputs
-"<h1>Hello World!</h1>\n" conn_fd load fputs
-100 buff conn_fd load fputs
+"HTTP/1.1 200 OK\n" conn_fd load fputs()
+"Server: Atest\n" conn_fd load fputs()
+"Content-Type: text/html\n" conn_fd load fputs()
+"Connection: Closed\n" conn_fd load fputs()
+"\n" conn_fd load fputs()
+"<h1>Hello World!</h1>\n" conn_fd load fputs()
+100 buff conn_fd load fputs()
 
 

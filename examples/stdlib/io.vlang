@@ -1,5 +1,24 @@
+include "./stdlib/sys.vlang"
+
 // puts with file descriptor
-func fputs int int int in
-    1 syscall4
+func fputs() int int int in
+    SYS_WRITE syscall4
     return
+end
+
+// open file
+func open_file() int in
+    var str_pointer int_64 str_pointer write
+    0 0 str_pointer load SYS_OPEN syscall4
+    return
+end
+
+// write file content to buffer
+func read_file() int int int in
+    SYS_READ syscall4
+end
+
+// close a file
+func close_file() int in
+    SYS_CLOSE syscall2
 end
