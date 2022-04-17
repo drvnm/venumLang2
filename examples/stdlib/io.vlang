@@ -1,0 +1,5 @@
+// puts with file descriptor
+func fputs int int int in
+    1 syscall4
+    return
+end

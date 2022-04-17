@@ -1,0 +1,24 @@
+// open socket
+func open_socket int int int in
+    41 syscall4
+    return
+end
+
+// bind socket to port
+func bind int int int in
+    49 syscall4
+    return
+end
+
+
+// listen to socket
+func listen int int in
+    50 syscall4
+    return
+end
+
+// accept connection
+func accept int int int in
+    43 syscall4
+    return
+end
