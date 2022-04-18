@@ -1,29 +1,13 @@
-from io import TextIOWrapper
-from process import error, type_size
+from preprocessing.process import error, type_size
 from typing import List, Dict
 import subprocess
-from tokens import operations, Operation, syscall_table
-
-MEMORY_SIZE = 64_000
-SIZE_DICT = {
-    operations.INT: "BYTE",
-    operations.INT_8: "BYTE",
-    operations.INT_16: "WORD",
-    operations.INT_32: "DWORD",
-    operations.INT_64: "QWORD",
-    operations.CHAR: "BYTE",
-}
-
-SIZE_REG_DICT = {
-    operations.INT_8: "AL",
-    operations.INT_16: "AX",
-    operations.INT_32: "EAX",
-    operations.INT_64: "RAX",
-    operations.CHAR: "AL",
-}
+from preprocessing.operations import operations, Operation
+from preprocessing.lookup_tables import *
 
 
 class Executor:
+    MEMORY_SIZE = 64_000
+
     def __init__(self, operations: List[Operation], path: str, function_names: Dict[str, Operation], output_file: str):
         self.path: str = path
         self.operations: List[Operation] = operations
@@ -111,14 +95,18 @@ class Executor:
 
         self.write("_start:")
 
+        args_registers = [
+            "rdi", "rsi", "rdx",
+            "rcx", "r8", "r9"
+        ]  # for function calls
+
+        syscall_registers = [
+            "rax", "rdi", "rsi", "rdx",
+            "r10", "r8", "r9"
+        ]  # for system calls
+
         # collections to keep track of things
-        args_registers = ["rdi", "rsi", "rdx",
-                          "rcx", "r8", "r9"]  # for function calls
-        syscall_registers = ["rax", "rdi", "rsi", "rdx",
-                             "r10", "r8", "r9"]  # for system calls
-
         strings = []
-
         instruction = 0
 
         while instruction < len(self.operations):
@@ -303,7 +291,7 @@ class Executor:
                 instruction += 1
 
             # branching
-            elif curr_instruction.type == operations.IFF:
+            elif curr_instruction.type == operations.IF:
                 if not hasattr(curr_instruction, "jump"):
                     error("if statement was not closed",
                           curr_instruction.line, self.path, curr_instruction.col)
@@ -321,7 +309,7 @@ class Executor:
                 self.write(f" if_{instruction + 1}:")
                 self.write(f" do_{instruction + 1}:")
                 instruction += 1
-            elif curr_instruction.type == operations.ELSEF:
+            elif curr_instruction.type == operations.ELSE:
                 after_end = curr_instruction.jump
                 self.write(f"    ; else statement")
                 self.write(f"    jmp if_{after_end}")
@@ -335,7 +323,7 @@ class Executor:
                 self.write(f"    je do_{end_ip}")
                 instruction += 1
 
-            elif curr_instruction.type == operations.WHILEF:
+            elif curr_instruction.type == operations.WHILE:
                 self.write(f"    ; while statement")
                 self.write(f" while_{instruction}:")
                 instruction += 1
@@ -365,16 +353,16 @@ class Executor:
             elif curr_instruction.type == operations.WRITEARR:
                 bit_size = type_size[self.operations[instruction - 2].static_type]
                 self.write(f"    ; write bytes to array")
-                self.write(f"    pop rdi") # index
-                self.write(f"    pop rax") # pointer
-                self.write(f"    pop rdx") # value
+                self.write(f"    pop rdi")  # index
+                self.write(f"    pop rax")  # pointer
+                self.write(f"    pop rdx")  # value
                 self.write(f"    mov [rax + rdi * {bit_size}], rdx")
                 instruction += 1
             # LOAD a byte from a variable
             elif curr_instruction.type == operations.LOAD:
                 static_type = self.operations[instruction - 1].static_type
                 self.write(f"    ; load byte from variable")
-                self.write(f"    pop r10") # pointer to variable
+                self.write(f"    pop r10")  # pointer to variable
                 self.write(f"    xor rax, rax")
                 self.write(
                     f"    mov {SIZE_REG_DICT[static_type]}, {SIZE_DICT[static_type]} [r10]"
@@ -394,9 +382,13 @@ class Executor:
                 self.write(f"    push rax")
                 instruction += 1
             elif curr_instruction.type == operations.FUNC:
+                func_name = curr_instruction.name
+                # check if func name has ()
+                if func_name[-2:] == "()":
+                    func_name = func_name[:-2]
                 self.append = True
                 self.write(f"; function definition")
-                self.write(f"{curr_instruction.name}:")
+                self.write(f"    {func_name}:")
                 self.write(f"    push rbp")
                 self.write(f"    mov rbp, rsp")
                 for i in range(curr_instruction.num_args):
@@ -411,10 +403,15 @@ class Executor:
             elif curr_instruction.type == operations.FUNC_CALL:
                 function = self.function_names[curr_instruction.value]
                 n_args = function.num_args
+                func_name = curr_instruction.value
+                # check if func name has ()
+                if func_name[-2:] == "()":
+                    func_name = func_name[:-2]
+
                 for i in range(n_args - 1, -1, -1):
                     self.write(f"    pop {args_registers[i]}")
                 self.write(f"    ; function call")
-                self.write(f"    call {curr_instruction.value}")
+                self.write(f"    call {func_name}")
                 self.write(f"    push rax")  # push return value
                 instruction += 1
             elif curr_instruction.type == operations.RETURN:
@@ -448,7 +445,7 @@ class Executor:
         self.write(f"")
         self.write(f"section .bss")
         self.write(f"    ; MEMORY")
-        self.write(f"  MEMORY: resb {MEMORY_SIZE}")
+        self.write(f"  MEMORY: resb {Executor.MEMORY_SIZE}")
         self.write(f"    ; heap")
         self.file.close()
 

@@ -1,37 +1,8 @@
-import sys
-from tokens import *
+from preprocessing.operations import *
+from preprocessing.lookup_tables import *
+from preprocessing.helper_functions import *
 from typing import List, Dict
-
-# dict for determining how much bytes a type takes
-type_size = {
-    operations.INT: 8,
-    operations.INT_8: 1,
-    operations.INT_16: 2,
-    operations.INT_32: 4,
-    operations.INT_64: 8,
-    operations.CHAR: 1,
-}
-
-# removes everything after // in src file
-
-
-def remove_comments(lines: List[str]) -> List[str]:
-    # remove comments
-    new_lines = []
-
-    for line in lines:
-        line = line.split("//")[0]
-        new_lines.append(line)
-
-    # join lines
-    return "\n".join(new_lines)
-
-
-def error(msg: str, line: int, file_name: str, col: int) -> None:
-    print(f"File: {file_name}, line: {line + 1}, col: {col}")
-    print(f"   Error: {msg}")
-    sys.exit(1)
-
+import os
 
 class Lexer:
     def __init__(self, text: str, file_name: str):
@@ -41,11 +12,16 @@ class Lexer:
         self.col: int = 0
         self.file_name: str = file_name
         self.operations: List[Operation] = []
-        self.operators: str = "+-*/<>=!%&"
+        self.operators: str = "+-*/#<>=!%&"
         self.function_names: Dict[str, Operation] = {}
-        self.allowed_names: str = '_1234567890.[]'
+        self.allowed_names: str = '_123456#7890.[]()'
+
+        # attributes of the program
         self.constants: Dict[str, str] = {}
         self.structs = {}
+        self.variables = {}
+        self.memory_index = 0
+
     # advances to the next character in the text
 
     def advance(self) -> None:
@@ -83,31 +59,33 @@ class Lexer:
         return Operation(operations.STRING_PUSH, result, self.line, self.file_name, self.col)
 
     def word(self) -> Operation:
+        ops = operations.__members__
         word = ""
         while self.pos < len(self.text) and (self.text[self.pos].isalpha() or self.text[self.pos] in self.allowed_names):
             word += self.text[self.pos]
             self.advance()
+
+        # if a [] is found, word is probably an array
         if '[' in word and word[-1] == ']':
             arr_type = word.split('[')[0]
-            if arr_type.upper() not in operations.__members__:
+            if arr_type.upper() not in ops:
                 error(f"Unknown type: {arr_type}",
                       self.line, self.file_name, self.col)
             arr_lenght = int(word.split('[')[1][:-1])
 
-            byte_size = type_size[operations.__members__[
+            byte_size = type_size[ops[
                 arr_type.upper()]] * arr_lenght
 
-            static_type = operations.__members__[arr_type.upper()]
+            static_type = ops[arr_type.upper()]
             operation = Operation(static_type, arr_type,
                                   self.line, self.file_name, self.col)
             operations.static_type = static_type
             operation.size = byte_size
             operation.ISARR = True
             return operation
-        if word.upper() in operations.__members__:
-            return Operation(operations.__members__[word.upper()], word, self.line, self.file_name, self.col)
-        elif word.upper() + "F" in operations.__members__:
-            return Operation(operations.__members__[word.upper() + "F"], word, self.line, self.file_name, self.col)
+        if word.upper() in ops:
+            return Operation(ops[word.upper()], word, self.line, self.file_name, self.col)
+
         else:
             return Operation(operations.IDENTIFIER, word, self.line, self.file_name, self.col)
 
@@ -146,7 +124,6 @@ class Lexer:
 
     # helper methods
     def print_program(self) -> None:
-        print(f"stack length: {len(self.operations)}")
         for Operation in self.operations:
             if hasattr(Operation, "size"):
                 print(f"{Operation} | at {Operation.size}")
@@ -160,15 +137,15 @@ class Lexer:
         # loop that cross references blocks like while or if statements.
         for index in range(len(self.operations)):
             curr_in = self.operations[index]
-            if curr_in.type == operations.IFF:
+            if curr_in.type == operations.IF:
                 stack.append(index)
-            elif curr_in.type == operations.ELSEF:
+            elif curr_in.type == operations.ELSE:
                 if_index = stack.pop()
                 self.operations[if_index].jump = index + 1
                 stack.append(index)
             elif curr_in.type == operations.END:
                 block_ip = stack.pop()
-                if self.operations[block_ip].type == operations.IFF or self.operations[block_ip].type == operations.ELSEF:
+                if self.operations[block_ip].type == operations.IF or self.operations[block_ip].type == operations.ELSE:
                     self.operations[block_ip].jump = index + 1
                 else:
                     self.operations[block_ip].jump = index + 1
@@ -177,7 +154,7 @@ class Lexer:
                 do_ip = stack.pop()
                 self.operations[index].jump = self.operations[do_ip].while_ip
                 stack.append(do_ip)
-            elif curr_in.type == operations.WHILEF:
+            elif curr_in.type == operations.WHILE:
                 stack.append(index)
             elif curr_in.type == operations.DO:
                 while_ip = stack.pop()
@@ -195,9 +172,11 @@ class Lexer:
                 operations.INT_PUSH, value, curr_op.line, curr_op.file, curr_op.col)
 
     def generate_variables(self) -> None:
-        names = {}
+        from preprocessing.generate_tokens import generate_tokens
+
+        self.variables = {}
         index = 0
-        memory_index = 0  # keeps track of where new memory begins
+        self.memory_index = 0  # keeps track of where new memory begins
         stack = []
 
         while index < len(self.operations):
@@ -207,24 +186,24 @@ class Lexer:
                 type_Operation = self.operations[index + 2]
 
                 # check if the name already exists
-                if identifier.value in names:
-                    error(f"Variable {identifier.value} already exists",
+                if identifier.value in self.variables:
+                    error(f"Symbol {identifier.value} already exists",
                           current_Operation.line, self.file_name, current_Operation.col)
                 del self.operations[index + 1: index + 3]
                 operation = Operation(operations.VARIABLE, identifier.value,
                                       current_Operation.line, self.file_name, current_Operation.col)
                 operation.static_type = type_Operation.type
-                operation.size = memory_index
-                print(type_Operation.type)
-                memory_index += type_size[type_Operation.type] if not hasattr(type_Operation, 'ISARR') else type_Operation.size
+                operation.size = self.memory_index
+                self.memory_index += type_size[type_Operation.type] if not hasattr(
+                    type_Operation, 'ISARR') else type_Operation.size
                 self.operations[index] = operation
-                names[identifier.value] = operation
+                self.variables[identifier.value] = operation
                 index += 1
             elif current_Operation.type == operations.IDENTIFIER:
                 # handle variable
-                if current_Operation.value in names:
-                    self.operations[index].size = names[current_Operation.value].size
-                    self.operations[index].static_type = names[current_Operation.value].static_type
+                if current_Operation.value in self.variables:
+                    self.operations[index].size = self.variables[current_Operation.value].size
+                    self.operations[index].static_type = self.variables[current_Operation.value].static_type
                     index += 1
                 # handle function calls
                 elif current_Operation.value in self.function_names:
@@ -239,27 +218,28 @@ class Lexer:
                 elif '.' in current_Operation.value:
 
                     struct_name, idx = current_Operation.value.split('.')
-                    print(idx)
                     struct_info = self.structs[struct_name][int(idx)]
-                    print(struct_info)
                     self.operations[index].static_type = struct_info[0]
                     self.operations[index].size = struct_info[1]
                     index += 1
 
                 else:
-                    error(f"Variable {current_Operation.value} not found",
+                    error(f"Symbol {current_Operation.value} not found",
                           current_Operation.line, self.file_name, current_Operation.col)
 
             elif current_Operation.type == operations.FUNC:
                 current_Operation.num_args = 0
                 current_Operation.arg_types = []
-                function_name = self.operations[index + 1]
+                function_name = self.operations[index + 1] # function name
+                # if function_name.value in self.function_names:
+                #     error(f"Function {function_name.value} already exists",
+                #           current_Operation.line, self.file_name, current_Operation.col)
                 self.function_names[function_name.value] = self.operations[index]
                 function_name.type = operations.FUNC_NAME
                 current_Operation.name = function_name.value
                 stack.append(index)
                 index += 1
-                while self.operations[index].type != operations.IN:
+                while self.operations[index].type != operations.IN: # loop through arguments, we need this later to pop into correct registers
                     if self.operations[index].type in matching_operations:
                         function_index = stack.pop()
                         self.operations[function_index].num_args += 1
@@ -272,7 +252,7 @@ class Lexer:
                 if self.operations[function_index].type == operations.FUNC:
                     self.operations[index].type = operations.FUNC_END
                 index += 1
-            elif current_Operation.type == operations.IFF:
+            elif current_Operation.type == operations.IF:
                 stack.append(index)
                 index += 1
             elif current_Operation.type == operations.DO:
@@ -281,7 +261,7 @@ class Lexer:
             elif current_Operation.type == operations.CONST:
                 const_name = self.operations[index + 1]
                 const_value = self.operations[index + 2]
-                if const_name.value in names or const_name.value in self.constants or const_name.value in self.function_names:
+                if const_name.value in self.variables or const_name.value in self.constants or const_name.value in self.function_names:
                     error(f"Constant {const_name.value} already exists",
                           current_Operation.line, self.file_name, current_Operation.col)
                 del self.operations[index: index + 3]
@@ -296,14 +276,39 @@ class Lexer:
                     self.structs[struct_name.value].append(
                         [
                             self.operations[index].type,
-                            memory_index
+                            self.memory_index
                         ]
                     )
-                    memory_index += field_size
+                    self.memory_index += field_size
                     index += 1
                 index += 1
-              
+
                 del self.operations[last_index: index]
                 index -= (index - last_index)
+            elif current_Operation.type == operations.INCLUDE:
+                file_name = self.operations[index + 1].value
+                if not os.path.isfile(file_name):  # check if the file exists
+                    error(f"File {file_name} not found",
+                          current_Operation.line, self.file_name, current_Operation.col)
+                # delete the include operation
+                del self.operations[index: index + 2]
+                # all the info that is needed from the different file
+                other_ops, function_names, variables, memory, constants = generate_tokens(
+                    file_name
+                )
+                self.operations[index: index] = other_ops
+                self.function_names = {
+                    **self.function_names,
+                    **function_names
+                }
+                self.variables = {
+                    **self.variables,
+                    **variables
+                }
+                self.constants = {
+                    **self.constants,
+                    **constants
+                }
+                self.memory_index += memory
             else:
                 index += 1

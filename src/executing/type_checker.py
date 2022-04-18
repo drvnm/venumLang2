@@ -1,6 +1,6 @@
 from typing import List
-from tokens import operations, Operation
-from process import error
+from preprocessing.operations import operations, Operation
+from preprocessing.process import error
 
 addable_operations = [operations.INT_PUSH, operations.FLOAT_PUSH]
 integral_operations = [operations.PLUS, operations.MIN, operations.MUL, operations.DIV, operations.GT, operations.GTE, operations.LT, operations.LTE, operations.EQ]

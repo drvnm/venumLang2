@@ -1,6 +1,5 @@
-from process import Lexer, remove_comments
-from type_checker import TypeChecker
-from executor import Executor
+from preprocessing import *
+from executing import *
 import sys
 import os
 
@@ -23,11 +22,12 @@ if __name__ == "__main__":
     lexer.lex()
    
     lexer.generate_variables()
-    lexer.print_program()
     lexer.generate_blocks()
+    lexer.print_program()
 
-    type_checker = TypeChecker(lexer.operations)
+    # type_checker = TypeChecker(lexer.operations)
     # type_checker.check() # disabled for now...
 
     executor = Executor(lexer.operations, file_name, lexer.function_names, output_file)
     executor.execute()
+
