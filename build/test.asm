@@ -65,9 +65,93 @@ print:
    leave
    ret
 _start:
-    ; push "../home.html" onto stack
-    push 12
-    push str_91
+    ; push 1 onto stack
+    push 1
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 8
+    add rax, rdi
+    push rax
+    ; push 0 onto stack
+    push 0
+    ; write bytes to array
+    pop rdi
+    pop rax
+    pop rdx
+    mov [rax + rdi * 1], rdx
+    ; push 2 onto stack
+    push 2
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 8
+    add rax, rdi
+    push rax
+    ; push 1 onto stack
+    push 1
+    ; write bytes to array
+    pop rdi
+    pop rax
+    pop rdx
+    mov [rax + rdi * 1], rdx
+    ; push 3 onto stack
+    push 3
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 10
+    add rax, rdi
+    push rax
+    ; writes byte to variable
+    pop rax
+    pop rdi
+    mov [rax], rdi
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 8
+    add rax, rdi
+    push rax
+    ; push 0 onto stack
+    push 0
+    ; loads bytes from array
+    pop rdi
+    pop r10
+    xor rax, rax
+    mov AL, BYTE [r10 + rdi * 1]
+    push rax
+    ; calls print label to print top of stack
+    pop rdi
+    call print
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 8
+    add rax, rdi
+    push rax
+    ; push 1 onto stack
+    push 1
+    ; loads bytes from array
+    pop rdi
+    pop r10
+    xor rax, rax
+    mov AL, BYTE [r10 + rdi * 1]
+    push rax
+    ; calls print label to print top of stack
+    pop rdi
+    call print
+    ; variable declaration
+    mov rax, MEMORY
+    mov rdi, 10
+    add rax, rdi
+    push rax
+    ; load byte from variable
+    pop r10
+    xor rax, rax
+    mov AL, BYTE [r10]
+    push rax
+    ; calls print label to print top of stack
+    pop rdi
+    call print
+    ; push "./home.html" onto stack
+    push 11
+    push str_113
     pop rsi
     pop rdi
     ; function call
@@ -79,7 +163,7 @@ _start:
     push rax
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1008
+    mov rdi, 1011
     add rax, rdi
     push rax
     ; writes byte to variable
@@ -90,12 +174,12 @@ _start:
     push 100
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 8
+    mov rdi, 11
     add rax, rdi
     push rax
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1008
+    mov rdi, 1011
     add rax, rdi
     push rax
     ; load byte from variable
@@ -114,7 +198,7 @@ _start:
     call print
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1008
+    mov rdi, 1011
     add rax, rdi
     push rax
     ; load byte from variable
@@ -130,7 +214,7 @@ _start:
     push 2
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1016
+    mov rdi, 1019
     add rax, rdi
     push rax
     ; writes byte to variable
@@ -141,7 +225,7 @@ _start:
     push 14619
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1018
+    mov rdi, 1021
     add rax, rdi
     push rax
     ; writes byte to variable
@@ -152,7 +236,7 @@ _start:
     push 0
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1020
+    mov rdi, 1023
     add rax, rdi
     push rax
     ; writes byte to variable
@@ -163,7 +247,7 @@ _start:
     push 0
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1024
+    mov rdi, 1027
     add rax, rdi
     push rax
     ; writes byte to variable
@@ -176,7 +260,7 @@ _start:
     push 1
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1016
+    mov rdi, 1019
     add rax, rdi
     push rax
     ; load byte from variable
@@ -192,7 +276,7 @@ _start:
     push rax
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1028
+    mov rdi, 1031
     add rax, rdi
     push rax
     ; writes byte to variable
@@ -201,7 +285,7 @@ _start:
     mov [rax], rdi
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1028
+    mov rdi, 1031
     add rax, rdi
     push rax
     ; load byte from variable
@@ -221,10 +305,10 @@ _start:
     ; if statement
     pop rax
     cmp rax, 0
-    je if_137
+    je if_159
     ; push "Couldnt create socket\n" onto stack
     push 22
-    push str_132
+    push str_154
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -240,11 +324,11 @@ _start:
     mov rdi, 0
     syscall
     ; else statement
-    jmp if_143
- if_137:
+    jmp if_165
+ if_159:
     ; push "Socket created, is: " onto stack
     push 20
-    push str_137
+    push str_159
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -255,7 +339,7 @@ _start:
     syscall
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1028
+    mov rdi, 1031
     add rax, rdi
     push rax
     ; load byte from variable
@@ -267,18 +351,18 @@ _start:
     pop rdi
     call print
     ; end statement
- if_143:
- do_143:
+ if_165:
+ do_165:
     ; push 16 onto stack
     push 16
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1016
+    mov rdi, 1019
     add rax, rdi
     push rax
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1028
+    mov rdi, 1031
     add rax, rdi
     push rax
     ; load byte from variable
@@ -304,10 +388,10 @@ _start:
     ; if statement
     pop rax
     cmp rax, 0
-    je if_155
+    je if_177
     ; push "Couldnt bind socket\n" onto stack
     push 20
-    push str_151
+    push str_173
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -321,11 +405,11 @@ _start:
     mov rdi, 0
     syscall
     ; else statement
-    jmp if_158
- if_155:
+    jmp if_180
+ if_177:
     ; push "Socket bound\n" onto stack
     push 13
-    push str_155
+    push str_177
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -335,13 +419,13 @@ _start:
     mov rdx, r9
     syscall
     ; end statement
- if_158:
- do_158:
+ if_180:
+ do_180:
     ; push 5 onto stack
     push 5
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1028
+    mov rdi, 1031
     add rax, rdi
     push rax
     ; load byte from variable
@@ -366,10 +450,10 @@ _start:
     ; if statement
     pop rax
     cmp rax, 0
-    je if_169
+    je if_191
     ; push "Couldnt listen to socket\n" onto stack
     push 25
-    push str_165
+    push str_187
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -383,11 +467,11 @@ _start:
     mov rdi, 0
     syscall
     ; else statement
-    jmp if_172
- if_169:
+    jmp if_194
+ if_191:
     ; push "Socket listening\n" onto stack
     push 17
-    push str_169
+    push str_191
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -397,21 +481,21 @@ _start:
     mov rdx, r9
     syscall
     ; end statement
- if_172:
- do_172:
+ if_194:
+ do_194:
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1024
+    mov rdi, 1027
     add rax, rdi
     push rax
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1016
+    mov rdi, 1019
     add rax, rdi
     push rax
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1028
+    mov rdi, 1031
     add rax, rdi
     push rax
     ; load byte from variable
@@ -427,7 +511,7 @@ _start:
     push rax
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; writes byte to variable
@@ -436,7 +520,7 @@ _start:
     mov [rax], rdi
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -456,10 +540,10 @@ _start:
     ; if statement
     pop rax
     cmp rax, 0
-    je if_188
+    je if_210
     ; push "Couldnt accept connection\n" onto stack
     push 26
-    push str_184
+    push str_206
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -473,11 +557,11 @@ _start:
     mov rdi, 0
     syscall
     ; else statement
-    jmp if_196
- if_188:
+    jmp if_218
+ if_210:
     ; push "Connection accepted, is: " onto stack
     push 25
-    push str_188
+    push str_210
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -488,7 +572,7 @@ _start:
     syscall
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -501,7 +585,7 @@ _start:
     call print
     ; push "\n" onto stack
     push 1
-    push str_193
+    push str_215
     ; calls syscall 1
     mov rax, 1
     mov rdi, 1
@@ -511,14 +595,14 @@ _start:
     mov rdx, r9
     syscall
     ; end statement
- if_196:
- do_196:
+ if_218:
+ do_218:
     ; push "HTTP/1.1 200 OK\n" onto stack
     push 16
-    push str_196
+    push str_218
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -534,10 +618,10 @@ _start:
     push rax
     ; push "Server: Atest\n" onto stack
     push 14
-    push str_200
+    push str_222
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -553,10 +637,10 @@ _start:
     push rax
     ; push "Content-Type: text/html\n" onto stack
     push 24
-    push str_204
+    push str_226
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -572,10 +656,10 @@ _start:
     push rax
     ; push "Connection: Closed\n" onto stack
     push 19
-    push str_208
+    push str_230
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -591,10 +675,10 @@ _start:
     push rax
     ; push "\n" onto stack
     push 1
-    push str_212
+    push str_234
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -610,10 +694,10 @@ _start:
     push rax
     ; push "<h1>Hello World!</h1>\n" onto stack
     push 22
-    push str_216
+    push str_238
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -631,12 +715,12 @@ _start:
     push 100
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 8
+    mov rdi, 11
     add rax, rdi
     push rax
     ; variable declaration
     mov rax, MEMORY
-    mov rdi, 1036
+    mov rdi, 1039
     add rax, rdi
     push rax
     ; load byte from variable
@@ -862,37 +946,37 @@ _start:
 
 
 section .data
-str_91:
-    db `../home.html`, 0
-str_132:
+str_113:
+    db `./home.html`, 0
+str_154:
     db `Couldnt create socket\n`, 0
-str_137:
+str_159:
     db `Socket created, is: `, 0
-str_151:
+str_173:
     db `Couldnt bind socket\n`, 0
-str_155:
+str_177:
     db `Socket bound\n`, 0
-str_165:
+str_187:
     db `Couldnt listen to socket\n`, 0
-str_169:
+str_191:
     db `Socket listening\n`, 0
-str_184:
+str_206:
     db `Couldnt accept connection\n`, 0
-str_188:
+str_210:
     db `Connection accepted, is: `, 0
-str_193:
+str_215:
     db `\n`, 0
-str_196:
+str_218:
     db `HTTP/1.1 200 OK\n`, 0
-str_200:
+str_222:
     db `Server: Atest\n`, 0
-str_204:
+str_226:
     db `Content-Type: text/html\n`, 0
-str_208:
+str_230:
     db `Connection: Closed\n`, 0
-str_212:
+str_234:
     db `\n`, 0
-str_216:
+str_238:
     db `<h1>Hello World!</h1>\n`, 0
 
 section .bss

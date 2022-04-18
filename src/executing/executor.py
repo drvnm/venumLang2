@@ -161,7 +161,7 @@ class Executor:
             elif curr_instruction.type == operations.STRING_PUSH:
                 str_len = len(curr_instruction.value)
                 newline_count = curr_instruction.value.count("\\n")
-                str_len += -newline_count
+                str_len -= newline_count
                 self.write(
                     f"    ; push \"{curr_instruction.value}\" onto stack")
                 self.write(f"    push {str_len}")

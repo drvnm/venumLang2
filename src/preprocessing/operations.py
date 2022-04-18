@@ -92,7 +92,8 @@ class Operation:
                  value: any,
                  line: int,
                  file_name: str,
-                 col: int
+                 col: int,
+                 line_content: str = ""
                  ) -> None:
 
         self.type: operations = type_
@@ -100,6 +101,7 @@ class Operation:
         self.line: int = line
         self.file: str = file_name
         self.col: int = col
+        self.line_content: str = line_content
 
     def __str__(self) -> str:
         return f'Operation({self.type}, {self.value})'

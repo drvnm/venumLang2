@@ -21,7 +21,7 @@ if __name__ == "__main__":
     lexer = Lexer(file_content, file_name)
     lexer.lex()
    
-    lexer.generate_variables()
+    lexer.generate_symbols()
     lexer.generate_blocks()
     lexer.print_program()
 

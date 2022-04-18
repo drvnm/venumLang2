@@ -8,7 +8,7 @@ def generate_tokens(path):
     lexer = Lexer(file_content, path)
     lexer.lex()
 
-    lexer.generate_variables()
+    lexer.generate_symbols()
     lexer.print_program()
     lexer.generate_blocks()
 

@@ -1,4 +1,5 @@
 
+from sys import builtin_module_names
 from preprocessing.operations import operations
 
 
@@ -53,3 +54,5 @@ type_size = {
     operations.INT_64: 8,
     operations.CHAR: 1,
 }
+
+builtin_types = ["int", "int_8", "int_16", "int_32", "int_64", "char"]
