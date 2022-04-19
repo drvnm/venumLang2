@@ -351,7 +351,11 @@ class Executor:
                 instruction += 1
             # writes bytes to array index
             elif curr_instruction.type == operations.WRITEARR:
+                push_type = self.operations[instruction - 2].type
                 bit_size = type_size[self.operations[instruction - 2].static_type]
+                if push_type == operations.STRING_PUSH:
+                    pass
+                    instruction += 1
                 self.write(f"    ; write bytes to array")
                 self.write(f"    pop rdi")  # index
                 self.write(f"    pop rax")  # pointer

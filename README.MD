@@ -12,8 +12,8 @@ struct server
     int_8
 end
 
-55 server.0 write
-server.0 load print
+55 server.0!
+server.0* print
 >> 55 
 ```
 
@@ -42,13 +42,20 @@ end
 
 
 # variables
-#### Syntax will be improved
+
+```js
+var x int_16 // provide a type (int float or string for now)
+
+2 x! // writes 2 into x
+x* // dereferences x and pushes its value on top of the stack
+```	
+#### the example above is syntactic sugar for:
 ```js
 // also supports! comments
 var x int_16 // provide a type (int float or string for now)
 
-2 x write // writes 2 into x
-x load // loads the value stored in x ontop of the stack
+2 x write
+x load 
 ```	
 
 # if statements and loops

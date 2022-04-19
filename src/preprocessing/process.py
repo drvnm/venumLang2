@@ -15,7 +15,7 @@ class Lexer:
         self.operations: List[Operation] = []
         self.operators: str = "+-*/#<>=!%&"
         self.function_names: Dict[str, Operation] = {}
-        self.allowed_names: str = '_123456#7890.[]()'
+        self.allowed_names: str = '_123456#!789*0.[]()'
 
         # attributes of the program
         self.constants: Dict[str, str] = {}
@@ -69,7 +69,6 @@ class Lexer:
             word += self.text[self.pos]
             self.advance()
 
-        print(word)
         # if a [] is found, word is probably an array
         if '[' in word and word[-1] == ']':
             arr_type = word.split('[')[0]
@@ -89,9 +88,26 @@ class Lexer:
             operation.ISARR = True
             return operation
 
+        # check if last char is *, means word is a dereference, replace with identifier and load
+        if word[-1] == '*':
+            word = word[:-1]
+            self.operations.append(Operation(operations.IDENTIFIER, word, self.line,
+                                             self.file_name, self.col, self.line_content))
+            return Operation(operations.LOAD, "load", self.line,
+                             self.file_name, self.col, self.line_content)
+
+        # if last char is !, use write operation
+        if word[-1] == '!':
+            word = word[:-1]
+            self.operations.append(Operation(operations.IDENTIFIER, word, self.line,
+                                             self.file_name, self.col, self.line_content))
+            return Operation(operations.WRITE, "write", self.line,
+                             self.file_name, self.col, self.line_content)
+
         # parsing types
         elif word in builtin_types:
-            operation = Operation(ops[word.upper()], word, self.line, self.file_name, self.col, self.line_content)
+            operation = Operation(
+                ops[word.upper()], word, self.line, self.file_name, self.col, self.line_content)
             operation.size = type_size[ops[word.upper()]]
             return operation
 
@@ -133,7 +149,8 @@ class Lexer:
             elif self.text[self.pos] in self.operators:
                 self.operations.append(self.operator())
             else:
-                error("Unknown character", self.line, self.file_name, self.col, self.line_content)
+                error("Unknown character", self.line,
+                      self.file_name, self.col, self.line_content)
 
     # helper methods
     def print_program(self) -> None:
