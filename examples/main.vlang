@@ -2,30 +2,13 @@ include "stdlib/network.vlang"
 include "stdlib/io.vlang"
 include "stdlib/string.vlang"
 
-
-// just sum testing
-struct server 
-    int_8[2] 
-    int_8
-end
-
-1 server.0 0 writearr
-2 server.0 1 writearr
-3 server.1 write
-
-server.0 0 loadarr print
-server.0 1 loadarr print
-server.1 load print
-
 const SOCK_STREAM 1
-
 var buff char[1000]
 var fd int_64
 
-"./home.html" str_to_pointer() open_file() fd write // open file
-100 buff fd load read_file() print // read content into buff
-fd load close_file()
-
+"./home.html" str_to_pointer() open_file() fd! // open file
+100 buff fd* read_file() print // read content into buff
+fd* close_file()
 
 struct server
     int_16
@@ -34,55 +17,55 @@ struct server
 end
 
 
-2 server.0 write // AF_INET
-14619 server.1 write // PORT
-0 server.2 write // IP
+2 server.0! // AF_INET
+14619 server.1! // PORT
+0 server.2! // IP
 
 // late variables
-var LPOINTER int_32 0 LPOINTER WRITE
+var LPOINTER int_32 0 LPOINTER!
 var socket_number int_64
 var conn_fd int_64
 
 
-0 SOCK_STREAM server.0 load open_socket() socket_number write
-socket_number load 0 < if
+0 SOCK_STREAM server.0* open_socket() socket_number!
+socket_number* 0 < if
     "Couldnt create socket\n" puts
     1 exit
 else
-    "Socket created, is: " puts socket_number load print 
+    "Socket created, is: " puts socket_number* print 
 end
 
 // bind socket
-16 server.0 socket_number load bind() 0 != if
+16 server.0 socket_number* bind() 0 != if
     "Couldnt bind socket\n" puts
     exit
 else
     "Socket bound\n" puts
 end
 
-5 socket_number load listen() 0 != if
+5 socket_number* listen() 0 != if
     "Couldnt listen to socket\n" puts
     exit
 else
     "Socket listening\n" puts
 end
 
-LPOINTER server.0 socket_number load accept() conn_fd write
-conn_fd load 0 < if
+LPOINTER server.0 socket_number* accept() conn_fd!
+conn_fd* 0 < if
     "Couldnt accept connection\n" puts
     exit
 else
-    "Connection accepted, is: " puts conn_fd load print "\n" puts
+    "Connection accepted, is: " puts conn_fd* print "\n" puts
 end
 
 
 
-"HTTP/1.1 200 OK\n" conn_fd load fputs()
-"Server: Atest\n" conn_fd load fputs()
-"Content-Type: text/html\n" conn_fd load fputs()
-"Connection: Closed\n" conn_fd load fputs()
-"\n" conn_fd load fputs()
-"<h1>Hello World!</h1>\n" conn_fd load fputs()
-100 buff conn_fd load fputs()
+"HTTP/1.1 200 OK\n" conn_fd* fputs()
+"Server: Atest\n" conn_fd* fputs()
+"Content-Type: text/html\n" conn_fd* fputs()
+"Connection: Closed\n" conn_fd* fputs()
+"\n" conn_fd* fputs()
+"<h1>Hello World!</h1>\n" conn_fd* fputs()
+100 buff conn_fd* fputs()
 
-
+e* 
