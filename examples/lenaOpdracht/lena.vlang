@@ -1,0 +1,26 @@
+include "lena_array.vlang"
+
+func convert_greyscale() int in 
+    25 / return 
+end
+
+func arr_to_picture() in
+    var tracker_x int_64
+    var character int_64
+    var index int_8 
+
+    while tracker_x* ARR_LENGTH < do
+        tracker_x* 512 % 0 == if
+            "\n" puts
+        else 
+            lena_array tracker_x*  loadarr // load value at index x
+            convert_greyscale() index!
+            characters index* loadarr character! // load char value into character
+            1 character puts
+        end
+        tracker_x* 1 + tracker_x! // increment tracker_x
+    end 
+end
+
+arr_to_picture()
+

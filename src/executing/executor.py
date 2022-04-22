@@ -6,7 +6,7 @@ from preprocessing.lookup_tables import *
 
 
 class Executor:
-    MEMORY_SIZE = 64_000
+    MEMORY_SIZE = 500_000
 
     def __init__(self, operations: List[Operation], path: str, function_names: Dict[str, Operation], output_file: str):
         self.path: str = path
@@ -351,11 +351,11 @@ class Executor:
                 instruction += 1
             # writes bytes to array index
             elif curr_instruction.type == operations.WRITEARR:
-                push_type = self.operations[instruction - 2].type
+                push_type = self.operations[instruction - 2].type # hardcoded for now
                 bit_size = type_size[self.operations[instruction - 2].static_type]
                 if push_type == operations.STRING_PUSH:
                     pass
-                    instruction += 1
+    
                 self.write(f"    ; write bytes to array")
                 self.write(f"    pop rdi")  # index
                 self.write(f"    pop rax")  # pointer
@@ -375,7 +375,7 @@ class Executor:
                 instruction += 1
             # pops index and instruction from stack, loads that index
             elif curr_instruction.type == operations.LOADARR:
-                static_type = self.operations[instruction - 2].static_type
+                static_type = self.operations[instruction - 3].static_type
                 self.write(f"    ; loads bytes from array")
                 self.write(f"    pop rdi")  # index
                 self.write(f"    pop r10")  # pointer to array

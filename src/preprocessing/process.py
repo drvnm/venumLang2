@@ -224,8 +224,7 @@ class Lexer:
                                       current_Operation.line, self.file_name, current_Operation.col, current_Operation.line_content)
                 operation.static_type = type_Operation.type
                 operation.size = self.memory_index
-                self.memory_index += type_size[type_Operation.type] if not hasattr(
-                    type_Operation, 'ISARR') else type_Operation.size
+                self.memory_index += type_Operation.size
                 self.operations[index] = operation
                 self.variables[identifier.value] = operation
                 index += 1

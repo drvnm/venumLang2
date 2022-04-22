@@ -86,8 +86,8 @@ _start:
     pop rax
     pop rdi
     mov [rax], rdi
-    ; push 100 onto stack
-    push 100
+    ; push 1000 onto stack
+    push 1000
     ; variable declaration
     mov rax, MEMORY
     mov rdi, 8
@@ -513,122 +513,8 @@ _start:
     ; end statement
  if_196:
  do_196:
-    ; push "HTTP/1.1 200 OK\n" onto stack
-    push 16
-    push str_196
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 1036
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop r10
-    xor rax, rax
-    mov RAX, QWORD [r10]
-    push rax
-    pop rdx
-    pop rsi
-    pop rdi
-    ; function call
-    call fputs
-    push rax
-    ; push "Server: Atest\n" onto stack
-    push 14
-    push str_200
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 1036
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop r10
-    xor rax, rax
-    mov RAX, QWORD [r10]
-    push rax
-    pop rdx
-    pop rsi
-    pop rdi
-    ; function call
-    call fputs
-    push rax
-    ; push "Content-Type: text/html\n" onto stack
-    push 24
-    push str_204
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 1036
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop r10
-    xor rax, rax
-    mov RAX, QWORD [r10]
-    push rax
-    pop rdx
-    pop rsi
-    pop rdi
-    ; function call
-    call fputs
-    push rax
-    ; push "Connection: Closed\n" onto stack
-    push 19
-    push str_208
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 1036
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop r10
-    xor rax, rax
-    mov RAX, QWORD [r10]
-    push rax
-    pop rdx
-    pop rsi
-    pop rdi
-    ; function call
-    call fputs
-    push rax
-    ; push "\n" onto stack
-    push 1
-    push str_212
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 1036
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop r10
-    xor rax, rax
-    mov RAX, QWORD [r10]
-    push rax
-    pop rdx
-    pop rsi
-    pop rdi
-    ; function call
-    call fputs
-    push rax
-    ; push "<h1>Hello World!</h1>\n" onto stack
-    push 22
-    push str_216
-    ; variable declaration
-    mov rax, MEMORY
-    mov rdi, 1036
-    add rax, rdi
-    push rax
-    ; load byte from variable
-    pop r10
-    xor rax, rax
-    mov RAX, QWORD [r10]
-    push rax
-    pop rdx
-    pop rsi
-    pop rdi
-    ; function call
-    call fputs
-    push rax
-    ; push 100 onto stack
-    push 100
+    ; push 1000 onto stack
+    push 1000
     ; variable declaration
     mov rax, MEMORY
     mov rdi, 8
@@ -882,18 +768,6 @@ str_188:
     db `Connection accepted, is: `, 0
 str_193:
     db `\n`, 0
-str_196:
-    db `HTTP/1.1 200 OK\n`, 0
-str_200:
-    db `Server: Atest\n`, 0
-str_204:
-    db `Content-Type: text/html\n`, 0
-str_208:
-    db `Connection: Closed\n`, 0
-str_212:
-    db `\n`, 0
-str_216:
-    db `<h1>Hello World!</h1>\n`, 0
 
 section .bss
     ; MEMORY

@@ -9,7 +9,7 @@ def generate_tokens(path):
     lexer.lex()
 
     lexer.generate_symbols()
-    lexer.print_program()
+    # lexer.print_program()
     lexer.generate_blocks()
 
     return lexer.operations, lexer.function_names, lexer.variables, lexer.memory_index, lexer.constants
