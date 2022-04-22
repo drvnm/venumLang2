@@ -351,7 +351,7 @@ class Executor:
                 instruction += 1
             # writes bytes to array index
             elif curr_instruction.type == operations.WRITEARR:
-                push_type = self.operations[instruction - 2].type # hardcoded for now
+                push_type = self.operations[instruction - 2].type # hardcoded for now, change to - 3 for lena example
                 bit_size = type_size[self.operations[instruction - 2].static_type]
                 if push_type == operations.STRING_PUSH:
                     pass
