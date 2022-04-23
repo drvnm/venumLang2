@@ -21,7 +21,7 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line) // byte is our OPCODE
         chunk->lines = GROW_ARRAY(int, chunk->lines, oldCapacity, chunk->capacity);
     }
 
-    // write the new byte to codes
+    // write the new opcode to codes
     chunk->code[chunk->count] = byte;
     chunk->lines[chunk->count] = line;
     chunk->count++;
