@@ -30,8 +30,8 @@ class Lexer:
     def get_current_char(self) -> str:  # get current char
         return self.source[self.current]
 
-    def add_token(self, token_type: tokens, lexeme) -> None:
-        self.tokens.append(Token(token_type, lexeme, None, self.line))
+    def add_token(self, token_type: tokens, lexeme, literal=None) -> None:
+        self.tokens.append(Token(token_type, lexeme, literal, self.line))
 
     def peek_next_char(self) -> str:  # get next char
         if self.current + 1 >= len(self.source):
@@ -54,7 +54,7 @@ class Lexer:
             error(self.line, 'Unterminated string')
         else:
             self.advance()
-            self.add_token(tokens.STRING, string)
+            self.add_token(tokens.STRING, string, str(string))
 
     def number(self) -> None:
         number = ''
@@ -70,9 +70,9 @@ class Lexer:
                 number += self.get_current_char()
                 self.advance()
 
-            self.add_token(tokens.NUMBER, float(number))
+            self.add_token(tokens.NUMBER, float(number), float(number))
         else:
-            self.add_token(tokens.NUMBER, int(number))
+            self.add_token(tokens.NUMBER, int(number), int(number))
 
     def identifier(self) -> None:
         identifier = ''
@@ -115,7 +115,6 @@ class Lexer:
 
             # handle / for comments and divide
             elif char == '/':
-                print("test")
                 if self.peek_next_char() == '/':
                     while not self.at_end() and self.get_current_char() != '\n':
                         self.advance()
