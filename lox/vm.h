@@ -24,7 +24,7 @@ typedef enum
 
 void initVM();
 void freeVM();
-InterpretResult interpret(Chunk *chunk);
+InterpretResult interpret(const char* source); // here raw string gets converted to tokens
 void push(Value value);
 Value pop();
 
