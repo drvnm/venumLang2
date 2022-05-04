@@ -1,0 +1,38 @@
+program -> decleration* EOF;
+
+decleration -> varDecl | statement;
+statement -> exprStmt | 
+            printStmt | 
+            block     |
+            ifStmt;
+
+varDecl -> "let" IDENTIFIER ("=" expression)? ";";
+block -> "{" decleration* "}";    
+
+exprStmt -> expression ";";
+printStmt -> "print" expression ";";
+ifStmt -> "if" "(" expression ")" statement ("else" statement)?;
+
+expression     → assigment ;
+assigment      → IDENTIFIER "=" assigment | equality | logic_or;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary
+               | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil"
+               | "(" expression ")" | IDENTIFIER ;
+
+logig_or       → logic_and ( "||" logic_and )* ;
+logic_and      → equality ( "&&" equality )* ;
+
+
+
+Grammar notation	Code representation
+
+Terminal	        Code to match and consume a token
+Nonterminal     	Call to that rule’s function
+|	                if or switch statement
+* or +	            while or for loop
+?	                if statement

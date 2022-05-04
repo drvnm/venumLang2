@@ -92,11 +92,8 @@ class Lexer:
                     self.line += 1
                 self.advance()
 
-            if self.at_end():
-                self.add_token(tokens.EOF, None)
-
             # handle single char tokens, like + ( ) { }
-            elif (char := self.get_current_char()) in single_char_tokens:
+            if (char := self.get_current_char()) in single_char_tokens:
                 token = single_char_tokens[char]
                 self.add_token(token, char)
                 self.advance()
@@ -130,6 +127,11 @@ class Lexer:
 
             elif char.isalnum() or char == '_':
                 self.identifier()
+
+            elif self.at_end():
+                self.add_token(tokens.EOF, None)
+                print("tyest!")
+                return
 
             else:
                 error(
