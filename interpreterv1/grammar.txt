@@ -1,4 +1,4 @@
-program -> decleration* EOF;
+program -> decleration* EOF;!
 
 decleration -> varDecl | statement;
 statement -> exprStmt | 

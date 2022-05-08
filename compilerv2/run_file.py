@@ -1,9 +1,10 @@
 import sys
 from scanning.lexer import Lexer
-from interpreter.interpreter import Interpreter
+from visitors.ast_printer import AstPrinter
+from compiler.compiler import Compiler
 from parsing.parser import *
 from parsing.expressions import *
-from visitors.ast_printer import *
+
 
 class Runner():
     has_error = False
@@ -16,12 +17,13 @@ class Runner():
                 sys.exit()
             lexer = Lexer(source)
             lexer.scan()
-            
-            exprs = Parser(lexer.tokens).parse()
-            interpreter = Interpreter()
-            interpreter.execute(exprs)
-            
-            
+
+            expr = Parser(lexer.tokens).parse()
+            compiler = Compiler()
+            compiler.compile(expr)
+            print(AstPrinter().print(expr))
+
+
     @staticmethod
     def run_file(path: str) -> None:
         file = open(path, 'r')
@@ -29,9 +31,9 @@ class Runner():
 
         lexer = Lexer(source)
         lexer.scan()
-            
-        exprs = Parser(lexer.tokens).parse()
-        interpreter = Interpreter()
-        interpreter.execute(exprs)
-        
-        file.close()
+        expr = Parser(lexer.tokens).parse()
+        compiler = Compiler()
+        compiler.compile(expr)
+        print(AstPrinter().print(expr))
+
+        # print(lexer.tokens)

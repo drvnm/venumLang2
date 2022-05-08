@@ -15,7 +15,7 @@ void printSyscall(int number) {
 }
 
 int main() {
-    printSyscall(20);
+    printSyscall(220);
     printSyscall(202);
 
 }
