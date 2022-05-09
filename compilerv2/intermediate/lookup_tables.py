@@ -50,10 +50,19 @@ word_to_keyword = {
     'super': tokens.SUPER,
     'this': tokens.THIS,
     'true': tokens.TRUE,
-    'let': tokens.LET,
     'while': tokens.WHILE,
+
     'byte': tokens.BYTE,	
     'short': tokens.SHORT,
     'int': tokens.INT,
     'long': tokens.LONG,
+    'bool': tokens.BOOL,
+}
+
+type_to_size = {
+    tokens.BYTE: 1,
+    tokens.SHORT: 2,
+    tokens.INT: 4,
+    tokens.LONG: 8,
+    tokens.BOOL: 1,
 }

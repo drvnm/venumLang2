@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class Visitor(ABC):
+class ExprVisitor(ABC):
     @abstractmethod
     def visit_literal_expr(self, literal_expression): ...
 
@@ -12,3 +12,10 @@ class Visitor(ABC):
 
     @abstractmethod
     def visit_binary_expr(self, binary_expression): ...
+
+class StmtVisitor(ABC):
+    @abstractmethod
+    def visit_print_stmt(self, print_stmt): ...
+
+    @abstractmethod
+    def visit_expr_stmt(self, expr_stmt): ...

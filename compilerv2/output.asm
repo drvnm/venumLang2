@@ -67,11 +67,31 @@
       leave
       ret
  _start:
-   push 1
-   pop rax ; logical NOT top of stack
-   not rax
+   push 3
+   push 3
+   pop rax ; multiply left by right
+   pop rbx
+   mul rbx
    push rax
-   pop rdi
+   push 3
+   pop rax ; add right to left
+   pop rbx
+   add rax, rbx
+   push rax
+   pop rdi ; print statement
+   call print
+   push 300
+   push 100
+   pop rax ; multiply left by right
+   pop rbx
+   mul rbx
+   push rax
+   push 2
+   pop rax ; add right to left
+   pop rbx
+   add rax, rbx
+   push rax
+   pop rdi ; print statement
    call print
    ; end of program
    mov rax, 60

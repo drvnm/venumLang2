@@ -1,8 +1,12 @@
+from re import I
 from typing import List
 from scanning.error import error
 from intermediate.tokens import *
+from intermediate.lookup_tables import *
 from .expressions import *
 from .statements import *
+
+types = [tokens.BYTE, tokens.SHORT, tokens.INT, tokens.LONG, tokens.BOOL, tokens.STRING]
 
 
 class Parser():
@@ -44,6 +48,7 @@ class Parser():
             self.advance()
         else:
             error(self.peek(), message)
+        return self.previous()
     
     def primary(self) -> Expr:
         if self.match(tokens.FALSE):
@@ -58,8 +63,10 @@ class Parser():
             expr = self.expression()
             self.consume(tokens.RIGHT_PAREN, "Expected ')' after expression.")
             return GroupingExpr(expr)
-
-
+        if self.match(tokens.IDENTIFIER):
+            return VarExpr(self.previous())
+        # if no valid token is found, throw error
+        self.error(self.peek(), "Expected expression.")
 
     def unary(self) -> Expr:
         if self.match(tokens.MINUS, tokens.BANG):
@@ -110,7 +117,44 @@ class Parser():
     def expression(self) -> Expr:
         expr = self.equality()
         return expr
-
-    def parse(self) -> Expr:
+    
+    def print_stmt(self) -> Stmt:
         expr = self.expression()
-        return expr
+        self.consume(tokens.SEMICOLON, "Expected ';' after 'print' expression.")
+        return PrintStmt(expr)
+    
+    def expression_stmt(self) -> Stmt:
+        expr = self.expression()
+        self.consume(tokens.SEMICOLON, "Expected ';' after expression.")
+        return ExprStmt(expr)
+
+    def statement(self) -> Stmt:
+        if self.match(tokens.PRINT):
+            return self.print_stmt()
+        return self.expression_stmt()
+    
+    def var_declaration(self) -> Stmt:
+        type_ = self.previous()
+        size = type_to_size[type_.type]
+        name = self.consume(tokens.IDENTIFIER, "Expected variable name.")
+        expr = None
+
+        if self.match(tokens.EQUAL):
+            expr = self.expression()
+        
+        self.consume(tokens.SEMICOLON, "Expected ';' after variable declaration.")
+        return VarStmt(type_, name, expr, size)
+
+    def declaration(self) -> Stmt:
+        if self.match(*types):
+            return self.var_declaration()
+        return self.statement()
+
+
+    def parse(self) -> List[Stmt]:
+        statements = []
+
+        while not self.is_at_end():
+            statements.append(self.declaration())
+        
+        return statements

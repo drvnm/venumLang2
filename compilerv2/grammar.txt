@@ -1,7 +1,40 @@
-expression -> equality
-equality   -> comparison ( ( "!=" | "==" ) comparison )*
-comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )*
-term       -> factor ( ( "+" | "-") factor )*
-factor     -> unary ( ( "*" | "/"  ) unary )*
-unary      -> ( "!" | "-" ) unary | primary
-primary    -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")"
+program     -> decleration* EOF;
+
+decleration -> varDecl | statement
+
+varDecl     -> type IDENTIFIER ("=" expression)? ";"
+
+statement   -> exprStmt
+            | printStmt
+
+exprStmt    -> expr ";";
+printStmt   -> "print" expression ";";
+
+expression  -> equality
+equality    -> comparison ( ( "!=" | "==" ) comparison )*
+comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )*
+term        -> factor ( ( "+" | "-") factor )*
+factor      -> unary ( ( "*" | "/"  ) unary )*
+unary       -> ( "!" | "-" ) unary | primary
+primary     -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER
+
+type        -> "BYTE" | "SHORT" | "INT" | "LONG"
+
+
+
+
+
+
+
+
+
+
+
+
+Grammar notation	Code representation
+
+Terminal	        Code to match and consume a token
+Nonterminal     	Call to that rule’s function
+|	                if or switch statement
+* or +	            while or for loop
+?	                if statement

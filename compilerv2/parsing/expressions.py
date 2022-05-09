@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from intermediate.tokens import *
-from visitors.visitor import Visitor
+from visitors.visitor import ExprVisitor
 
 # base class for every kind of expression
 class Expr(ABC):
@@ -16,7 +16,7 @@ class BinaryExpr(Expr):
         self.operator = operator
         self.right = right
     
-    def accept(self, visitor: Visitor):
+    def accept(self, visitor: ExprVisitor):
         return visitor.visit_binary_expr(self)
 
 # this class represents an expression like ( <expr> )
@@ -24,7 +24,7 @@ class GroupingExpr(Expr):
     def __init__(self, expression: Expr):
         self.expression = expression
     
-    def accept(self, visitor: Visitor):
+    def accept(self, visitor: ExprVisitor):
         return visitor.visit_grouping_expr(self)
     
 # this class represents an expression like 2.3 or "my string"
@@ -32,7 +32,7 @@ class LiteralExpr(Expr):
     def __init__(self, value: Token):
         self.value = value
     
-    def accept(self, visitor: Visitor):
+    def accept(self, visitor: ExprVisitor):
         return visitor.visit_literal_expr(self)
     
 # this class represents an expression like !true
@@ -41,5 +41,13 @@ class UnaryExpr(Expr):
         self.operator = operator
         self.right = right
 
-    def accept(self, visitor: Visitor):
+    def accept(self, visitor: ExprVisitor):
         return visitor.visit_unary_expr(self)
+
+# class to represent variable expressions like x 
+class VarExpr(Expr):
+    def __init__(self, name: Token):
+        self.name = name
+    
+    def accept(self, visitor: ExprVisitor):
+        return visitor.visit_var_expr(self)

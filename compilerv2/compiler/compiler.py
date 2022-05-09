@@ -1,19 +1,21 @@
 import subprocess
 from typing import List
-from visitors.visitor import Visitor
+from .environment import Environment
+
+from visitors.visitor import *
 from parsing.statements import *
 from parsing.expressions import *
 from intermediate.tokens import *
 
 
-class Compiler(Visitor):
+class Compiler(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.file = open("output.asm", "w")
         self.output_file = "output"
+        self.environment = Environment()
 
     # writes line to asm file
     def write(self, line: str, indent: int = True):
-        print("attempt to write")
         indent = "  " if indent else ""
         self.file.write(f" {indent}{line}\n")
 
@@ -97,11 +99,10 @@ class Compiler(Visitor):
         self.write("mov rdi, 0")
         self.write("syscall")
 
-    def compile(self, expr: Expr):
+    def compile(self, statements: List[Stmt]):
         self.write_header()
-        expr.accept(self)
-        self.write("pop rdi")
-        self.write("call print")
+        for statement in statements:
+            statement.accept(self)
         self.write_footer()
         self.file.close()
 
@@ -127,7 +128,7 @@ class Compiler(Visitor):
             self.write(f"push rax")
         elif unary_expr.operator.type == tokens.BANG:
             self.write(f"pop rax ; logical NOT top of stack")
-            self.write(f"not rax")
+            self.write(f"xor rax, 1")
             self.write(f"push rax")
 
     def visit_grouping_expr(self, grouping_expr: GroupingExpr):
@@ -181,6 +182,16 @@ class Compiler(Visitor):
             self.write(f"pop rax ; compare left to right")
             self.write(f"pop rbx")
             self.write(f"cmp rax, rbx")
-            self.write(f"pushf")
-            print("yeaah")
 
+    def visit_print_stmt(self, print_stmt: PrintStmt):
+        self.execute(print_stmt.expr)
+
+        # call print function
+        self.write("pop rdi ; print statement")
+        self.write("call print")
+    
+    def visit_expr_stmt(self, expr_stmt: ExprStmt):
+        self.execute(expr_stmt.expr)
+
+    def visit_var_stmt(self, var_stmt: VarStmt):
+        pass

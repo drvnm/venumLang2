@@ -31,9 +31,8 @@ class Runner():
 
         lexer = Lexer(source)
         lexer.scan()
-        expr = Parser(lexer.tokens).parse()
+        exprs = Parser(lexer.tokens).parse()
         compiler = Compiler()
-        compiler.compile(expr)
-        print(AstPrinter().print(expr))
+        compiler.compile(exprs)
 
         # print(lexer.tokens)

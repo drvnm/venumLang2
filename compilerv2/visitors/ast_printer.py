@@ -1,8 +1,8 @@
-from .visitor import Visitor
+from .visitor import ExprVisitor
 from parsing.expressions import *
 
 # turns exprs like 3 + 3 into (+ 3 3)
-class AstPrinter(Visitor):
+class AstPrinter(ExprVisitor):
     def print(self, expr: Expr):
         return expr.accept(self)
 
