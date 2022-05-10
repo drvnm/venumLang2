@@ -11,6 +11,7 @@ single_char_tokens = {
     '+': tokens.PLUS,
     ';': tokens.SEMICOLON,
     '*': tokens.STAR,
+    '&' : tokens.AMPERSAND,
 }
 
 two_char_tokens = {
@@ -65,4 +66,18 @@ type_to_size = {
     tokens.INT: 4,
     tokens.LONG: 8,
     tokens.BOOL: 1,
+}
+
+size_to_word = {
+    1: 'BYTE',
+    2: 'WORD',
+    4: 'DWORD',
+    8: 'QWORD',
+}
+
+word_to_register = {
+    'BYTE': 'AL',
+    'WORD': 'AX',
+    'DWORD': 'EAX',
+    'QWORD': 'RAX',
 }

@@ -65,6 +65,13 @@ class Parser():
             return GroupingExpr(expr)
         if self.match(tokens.IDENTIFIER):
             return VarExpr(self.previous())
+        if self.match(tokens.STAR):
+            expr = self.expression()
+            return DereferenceExpr(expr)
+        if self.match(tokens.AMPERSAND):
+            token = self.consume(tokens.IDENTIFIER, "Expected variable name.")
+            return VarToPointerExpr(token)
+        
         # if no valid token is found, throw error
         self.error(self.peek(), "Expected expression.")
 

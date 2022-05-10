@@ -16,7 +16,7 @@ comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )*
 term        -> factor ( ( "+" | "-") factor )*
 factor      -> unary ( ( "*" | "/"  ) unary )*
 unary       -> ( "!" | "-" ) unary | primary
-primary     -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER
+primary     -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | "&"? IDENTIFIER | "*" expression
 
 type        -> "BYTE" | "SHORT" | "INT" | "LONG"
 

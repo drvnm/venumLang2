@@ -67,29 +67,42 @@
       leave
       ret
  _start:
+   push 1
+   pop rax ; store variable my_byte
+   mov [MEMORY + 0], rax
+   push 2
+   pop rax ; store variable my_short
+   mov [MEMORY + 1], rax
    push 3
-   push 3
-   pop rax ; multiply left by right
-   pop rbx
-   mul rbx
+   pop rax ; store variable my_int
+   mov [MEMORY + 3], rax
+   push 4
+   pop rax ; store variable my_long
+   mov [MEMORY + 7], rax
+   xor rax, rax
+   mov AL, BYTE [MEMORY + 0]
    push rax
-   push 3
+   xor rax, rax
+   mov RAX, QWORD [MEMORY + 7]
+   push rax
    pop rax ; add right to left
    pop rbx
    add rax, rbx
    push rax
    pop rdi ; print statement
    call print
-   push 300
-   push 100
-   pop rax ; multiply left by right
-   pop rbx
-   mul rbx
+   mov rax, MEMORY + 0
    push rax
-   push 2
+   mov rax, MEMORY + 7
+   push rax
    pop rax ; add right to left
    pop rbx
    add rax, rbx
+   push rax
+   pop rdi ; print statement
+   call print
+   xor rax, rax
+   mov EAX, DWORD [MEMORY + 3]
    push rax
    pop rdi ; print statement
    call print
@@ -97,3 +110,5 @@
    mov rax, 60
    mov rdi, 0
    syscall
+ section .bss
+   MEMORY: resb 6400

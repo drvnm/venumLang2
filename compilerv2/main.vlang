@@ -1,2 +1,8 @@
-print 3 + 3 * 3;
-print 2 + 100 * 300;
+byte my_byte = 1;
+short my_short = 2;
+int my_int = 3;
+long my_long = 4;
+
+print my_long + my_byte;
+print &my_long + &my_byte;
+print my_int;

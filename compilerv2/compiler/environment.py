@@ -1,7 +1,7 @@
-from pyrsistent import v
 from parsing.statements import VarStmt
 from scanning.error import error
 from intermediate.tokens import *
+from intermediate.lookup_tables import *
 
 # class that will hold data states
 class Environment:
@@ -9,15 +9,17 @@ class Environment:
         self.variables = {}
         self.memory_index = 0
     
-    def define(self, var: VarStmt, value: any):
+    def define(self, var: VarStmt):
         name = var.name.lexeme
         size = var.size
         if name in self.variables:
-            error(name, f'Variable {name} already defined')
-        self.variables[name] = [value, size]
+            error(var.name, f'Variable {name} already defined')
+        word = size_to_word[size]
+        self.variables[name] = [self.memory_index, word]
+        self.memory_index += size
 
-    
-    def get_(self, name: Token):
+    # return memory index of variable
+    def get(self, name: Token) -> int:
         if name.lexeme in self.variables:
-            return self.variables[name.lexeme][0]
+            return self.variables[name.lexeme]
         error(name, f'Undefined variable {name.lexeme}')

@@ -1,11 +1,11 @@
 import subprocess
 from typing import List
 from .environment import Environment
-
 from visitors.visitor import *
 from parsing.statements import *
 from parsing.expressions import *
 from intermediate.tokens import *
+from intermediate.lookup_tables import *
 
 
 class Compiler(ExprVisitor, StmtVisitor):
@@ -13,6 +13,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.file = open("output.asm", "w")
         self.output_file = "output"
         self.environment = Environment()
+        self.mem_size = 64_00
 
     # writes line to asm file
     def write(self, line: str, indent: int = True):
@@ -99,6 +100,10 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("mov rdi, 0")
         self.write("syscall")
 
+        # section for variables
+        self.write("section .bss", False)
+        self.write(f"MEMORY: resb {self.mem_size}")
+
     def compile(self, statements: List[Stmt]):
         self.write_header()
         for statement in statements:
@@ -115,7 +120,8 @@ class Compiler(ExprVisitor, StmtVisitor):
         expr.accept(self)
 
     def visit_literal_expr(self, expr: LiteralExpr):
-        literal = expr.value.literal if isinstance(expr.value, Token) else expr.value
+        literal = expr.value.literal if isinstance(
+            expr.value, Token) else expr.value
         if isinstance(literal, bool):
             literal = 1 if literal else 0
         self.write(f"push {literal}")
@@ -132,7 +138,7 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"push rax")
 
     def visit_grouping_expr(self, grouping_expr: GroupingExpr):
-        self.execute(grouping_expr.expr)
+        self.execute(grouping_expr.expression)
 
     def visit_binary_expr(self, binary_expr: BinaryExpr):
         self.execute(binary_expr.right)
@@ -189,9 +195,42 @@ class Compiler(ExprVisitor, StmtVisitor):
         # call print function
         self.write("pop rdi ; print statement")
         self.write("call print")
-    
+
     def visit_expr_stmt(self, expr_stmt: ExprStmt):
         self.execute(expr_stmt.expr)
 
+    # stores a variable in .bss
     def visit_var_stmt(self, var_stmt: VarStmt):
-        pass
+        if var_stmt.expr is not None:
+            self.execute(var_stmt.expr)
+            self.write(f"pop rax ; store variable {var_stmt.name.lexeme}")
+        else:
+            self.write(f"mov rax, 0 ; store variable {var_stmt.name.lexeme}")
+        self.environment.define(var_stmt) # calculate address
+        start_index, word = self.environment.get(var_stmt.name)
+        self.write(f"mov [MEMORY + {start_index}], rax")
+
+    # loads a variable from .bss
+    def visit_var_expr(self, var_expr: VarExpr):
+        start_index, word = self.environment.get(var_expr.name)
+        register = word_to_register[word]
+        self.write("xor rax, rax")
+        self.write(f"mov {register}, {word} [MEMORY + {start_index}]")
+        self.write(f"push rax")
+    
+    # handle references
+    def visit_var_to_pointer_expr(self, var_to_pointer_expr: VarToPointerExpr):
+        start_index, word = self.environment.get(var_to_pointer_expr.name)
+        self.write(f"mov rax, MEMORY + {start_index}")
+        self.write(f"push rax")
+
+    # handle dereference (unsafe code LOL)
+    def visit_dereference_expr(self, dereference_expr: DereferenceExpr):
+        self.execute(dereference_expr.expr)
+        # push value at memory address of top of stack
+        self.write("xor rax, rax")
+        self.write("pop rax")
+        self.write("mov rax, [rax]")
+        self.write("push rax")
+
+    

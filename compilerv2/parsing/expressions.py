@@ -51,3 +51,20 @@ class VarExpr(Expr):
     
     def accept(self, visitor: ExprVisitor):
         return visitor.visit_var_expr(self)
+
+# class to represent a variable to pointer expression like &x
+class VarToPointerExpr(Expr):
+    def __init__(self, name: Token):
+        self.name = name
+    
+    def accept(self, visitor: ExprVisitor):
+        return visitor.visit_var_to_pointer_expr(self)
+    
+# class to represent a dereference expression like *x
+class DereferenceExpr(Expr):
+    def __init__(self, expr: Expr):
+        self.expr = expr
+    
+    def accept(self, visitor: ExprVisitor):
+        return visitor.visit_dereference_expr(self)
+
