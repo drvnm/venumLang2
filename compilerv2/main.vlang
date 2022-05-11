@@ -1,5 +1,6 @@
-byte my_byte = 10 + 20 * 3;
-print my_byte;
-
-my_byte *= 2;
-print my_byte;
+byte x = 0;
+{
+  byte x = x + 2;
+  print x;
+}
+print x;

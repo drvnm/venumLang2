@@ -148,9 +148,18 @@ class Parser():
         self.consume(tokens.SEMICOLON, "Expected ';' after expression.")
         return ExprStmt(expr)
 
+    def block(self) -> Stmt:
+        statements = []
+        while not self.check(tokens.RIGHT_BRACE) and not self.is_at_end():
+            statements.append(self.declaration())
+        self.consume(tokens.RIGHT_BRACE, "Expected '}' after block.")
+        return BlockStmt(statements)
+
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
             return self.print_stmt()
+        if self.match(tokens.LEFT_BRACE):
+            return self.block()
         return self.expression_stmt()
     
     def var_declaration(self) -> Stmt:

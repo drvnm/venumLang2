@@ -265,3 +265,16 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"mov [MEMORY + {start_index}], r10")
         # push end result
         self.write("push r10")
+    
+    def execute_block(self, block: BlockStmt, environment: Environment):
+        prev = self.environment
+        self.environment = environment
+        for statement in block.statements:
+            self.execute(statement)
+        self.environment = prev
+
+    # handles block statements
+    def visit_block_stmt(self, block_stmt: BlockStmt):
+        env = Environment()
+        env.set_environment(self.environment)
+        self.execute_block(block_stmt, env)

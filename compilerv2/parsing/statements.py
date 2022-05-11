@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 from .expressions import *
 
 class Stmt(ABC):
@@ -32,3 +33,11 @@ class VarStmt(Stmt):
     
     def accept(self, visitor):
         visitor.visit_var_stmt(self)
+
+# represents a block of statements
+class BlockStmt(Stmt):
+    def __init__(self, statements: List[Stmt]):
+        self.statements = statements
+
+    def accept(self, visitor):
+        visitor.visit_block_stmt(self)

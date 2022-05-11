@@ -67,32 +67,24 @@
       leave
       ret
  _start:
-   push 3
-   push 20
-   pop rax ; multiply left by right
-   pop rbx
-   mul rbx
+   push 0
+   pop rax ; store variable x
+   mov [MEMORY + 0], rax
+   push 2
+   xor rax, rax
+   mov AL, BYTE [MEMORY + 0]
    push rax
-   push 10
    pop rax ; add right to left
    pop rbx
    add rax, rbx
    push rax
-   pop rax ; store variable my_byte
-   mov [MEMORY + 0], rax
+   pop rax ; store variable x
+   mov [MEMORY + 1], rax
    xor rax, rax
-   mov AL, BYTE [MEMORY + 0]
+   mov AL, BYTE [MEMORY + 1]
    push rax
    pop rdi ; print statement
    call print
-   push 2
-   xor rax, rax ; assign value to variable my_byte
-   pop rax
-   xor r10, r10
-   mov r10, [MEMORY + 0]
-   imul r10, rax
-   mov [MEMORY + 0], r10
-   push r10
    xor rax, rax
    mov AL, BYTE [MEMORY + 0]
    push rax

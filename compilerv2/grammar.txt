@@ -6,20 +6,23 @@ varDecl     -> type IDENTIFIER ("=" expression)? ";"
 
 statement   -> exprStmt
             | printStmt
+            | block
 
-exprStmt    -> expr ";";
+block       -> "{" decleration* "}"
+
+exprStmt    -> expression ";";
 printStmt   -> "print" expression ";";
 
 expression  -> assigment;
-assigment   -> IDENTIFIER "=" expression 
+assigment   -> IDENTIFIER ("=" | "+=" | "*=" | "/=") expression 
             | equality;
 equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )*
 term        -> factor ( ( "+" | "-") factor )*
 factor      -> unary ( ( "*" | "/"  ) unary )*
-unary       -> ( "!" | "-" ) unary | primary
+unary       -> ( "!" | "-" ) unary | primary            
+                                                                                 reference shuld be unary
 primary     -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | "&"? IDENTIFIER | "*" expression
-
 type        -> "BYTE" | "SHORT" | "INT" | "LONG"
 
 

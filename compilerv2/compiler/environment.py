@@ -8,6 +8,7 @@ class Environment:
     def __init__(self):
         self.variables = {}
         self.memory_index = 0
+        self.enclosing = None
     
     def define(self, var: VarStmt):
         name = var.name.lexeme
@@ -22,4 +23,14 @@ class Environment:
     def get(self, name: Token) -> int:
         if name.lexeme in self.variables:
             return self.variables[name.lexeme]
-        error(name, f'Undefined variable {name.lexeme}')
+        else:
+            if self.enclosing != None:
+                return self.enclosing.get(name)
+            else:
+                error(name, f'Variable {name.lexeme} not defined')
+    
+    # set environment for parent blocks
+    def set_environment(self, enclosing: 'Environment'):
+        self.enclosing = enclosing
+        self.memory_index = enclosing.memory_index
+
