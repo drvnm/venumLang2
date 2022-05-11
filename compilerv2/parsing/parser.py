@@ -7,7 +7,7 @@ from .expressions import *
 from .statements import *
 
 types = [tokens.BYTE, tokens.SHORT, tokens.INT, tokens.LONG, tokens.BOOL, tokens.STRING]
-
+inc_dec_tokens = [tokens.EQUAL, tokens.PLUS_EQUAL, tokens.MINUS_EQUAL, tokens.STAR_EQUAL, tokens.SLASH_EQUAL]
 
 class Parser():
     def __init__(self, tokens: List[Token]):
@@ -73,7 +73,7 @@ class Parser():
             return VarToPointerExpr(token)
         
         # if no valid token is found, throw error
-        self.error(self.peek(), "Expected expression.")
+        error(self.peek(), "Expected expression.")
 
     def unary(self) -> Expr:
         if self.match(tokens.MINUS, tokens.BANG):
@@ -121,8 +121,21 @@ class Parser():
             expr = BinaryExpr(expr, operator, right)
         return expr
 
-    def expression(self) -> Expr:
+    def assignment(self) -> Expr:
         expr = self.equality()
+
+        if self.match(*inc_dec_tokens):
+            operator = self.previous()
+            right = self.assignment()
+            if isinstance(expr, VarExpr):
+                return AssignmentExpr(expr.name, operator, right)
+            
+            error(operator, "Invalid assignment target.")
+        
+        return expr
+
+    def expression(self) -> Expr:
+        expr = self.assignment()
         return expr
     
     def print_stmt(self) -> Stmt:

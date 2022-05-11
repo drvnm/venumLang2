@@ -68,3 +68,12 @@ class DereferenceExpr(Expr):
     def accept(self, visitor: ExprVisitor):
         return visitor.visit_dereference_expr(self)
 
+# class to represent assignment expression like x = 2
+class AssignmentExpr(Expr):
+    def __init__(self, name: Token, operator: tokens, value: Expr):
+        self.operator = operator
+        self.name = name
+        self.value = value
+    
+    def accept(self, visitor: ExprVisitor):
+        return visitor.visit_assignment_expr(self)

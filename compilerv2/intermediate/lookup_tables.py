@@ -21,6 +21,10 @@ two_char_tokens = {
     '>': '=',
     '|': '|',
     '&': '&',
+    '+': '=',
+    '-': '=',
+    '*': '=',
+    '/': '=',
 }
 
 optional_to_token = {
@@ -34,6 +38,10 @@ optional_to_token = {
     '!': tokens.BANG,
     '||': tokens.OR,
     '&&': tokens.AND,
+    '+=': tokens.PLUS_EQUAL,
+    '-=': tokens.MINUS_EQUAL,
+    '*=': tokens.STAR_EQUAL,
+    '/=': tokens.SLASH_EQUAL,
 }
 
 

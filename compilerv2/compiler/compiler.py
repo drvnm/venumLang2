@@ -233,4 +233,35 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("mov rax, [rax]")
         self.write("push rax")
 
-    
+    # handle assignment types
+    def visit_assignment_expr(self, assign_expr: AssignmentExpr):
+        self.execute(assign_expr.value)
+        operator = assign_expr.operator.type
+        start_index, word = self.environment.get(assign_expr.name)
+        
+        self.write(f"xor rax, rax ; assign value to variable {assign_expr.name.lexeme}")
+        self.write("pop rax")
+        if operator == tokens.EQUAL:
+            self.write(f"mov [MEMORY + {start_index}], rax")
+        elif operator == tokens.PLUS_EQUAL:
+            self.write("xor r10, r10")
+            self.write(f"mov r10, [MEMORY + {start_index}]")
+            self.write(f"add r10, rax")
+            self.write(f"mov [MEMORY + {start_index}], r10")
+        elif operator == tokens.MINUS_EQUAL:
+            self.write("xor r10, r10")
+            self.write(f"mov r10, [MEMORY + {start_index}]")
+            self.write(f"sub r10, rax")
+            self.write(f"mov [MEMORY + {start_index}], r10")
+        elif operator == tokens.STAR_EQUAL:
+            self.write("xor r10, r10")
+            self.write(f"mov r10, [MEMORY + {start_index}]")
+            self.write(f"imul r10, rax")
+            self.write(f"mov [MEMORY + {start_index}], r10")
+        elif operator == tokens.SLASH_EQUAL:
+            self.write("xor r10, r10")
+            self.write(f"mov r10, [MEMORY + {start_index}]")
+            self.write(f"idiv rax")
+            self.write(f"mov [MEMORY + {start_index}], r10")
+        # push end result
+        self.write("push r10")

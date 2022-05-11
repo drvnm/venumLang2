@@ -35,4 +35,3 @@ class Runner():
         compiler = Compiler()
         compiler.compile(exprs)
 
-        # print(lexer.tokens)

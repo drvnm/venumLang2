@@ -10,7 +10,9 @@ statement   -> exprStmt
 exprStmt    -> expr ";";
 printStmt   -> "print" expression ";";
 
-expression  -> equality
+expression  -> assigment;
+assigment   -> IDENTIFIER "=" expression 
+            | equality;
 equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )*
 term        -> factor ( ( "+" | "-") factor )*
@@ -19,14 +21,6 @@ unary       -> ( "!" | "-" ) unary | primary
 primary     -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | "&"? IDENTIFIER | "*" expression
 
 type        -> "BYTE" | "SHORT" | "INT" | "LONG"
-
-
-
-
-
-
-
-
 
 
 

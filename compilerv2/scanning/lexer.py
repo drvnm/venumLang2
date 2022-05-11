@@ -91,16 +91,22 @@ class Lexer:
                 if self.get_current_char() == '\n':
                     self.line += 1
                 self.advance()
-            
+
             if self.at_end():
                 self.add_token(tokens.EOF, None)
                 return
 
             # handle single char tokens, like + ( ) { }
             if (char := self.get_current_char()) in single_char_tokens:
-                token = single_char_tokens[char]
-                self.add_token(token, char)
-                self.advance()
+                if self.peek_next_char() == '=':
+                    self.add_token(
+                        optional_to_token[char + self.peek_next_char()], char + self.peek_next_char())
+                    self.advance()
+                    self.advance()
+                else:
+                    token = single_char_tokens[char]
+                    self.add_token(token, char)
+                    self.advance()
 
             # handle 2 char tokens like == and !=
             elif char in two_char_tokens:
@@ -131,7 +137,6 @@ class Lexer:
 
             elif char.isalnum() or char == '_':
                 self.identifier()
-
 
             else:
                 error(

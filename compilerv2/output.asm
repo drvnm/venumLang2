@@ -67,42 +67,34 @@
       leave
       ret
  _start:
-   push 1
+   push 3
+   push 20
+   pop rax ; multiply left by right
+   pop rbx
+   mul rbx
+   push rax
+   push 10
+   pop rax ; add right to left
+   pop rbx
+   add rax, rbx
+   push rax
    pop rax ; store variable my_byte
    mov [MEMORY + 0], rax
-   push 2
-   pop rax ; store variable my_short
-   mov [MEMORY + 1], rax
-   push 3
-   pop rax ; store variable my_int
-   mov [MEMORY + 3], rax
-   push 4
-   pop rax ; store variable my_long
-   mov [MEMORY + 7], rax
    xor rax, rax
    mov AL, BYTE [MEMORY + 0]
    push rax
-   xor rax, rax
-   mov RAX, QWORD [MEMORY + 7]
-   push rax
-   pop rax ; add right to left
-   pop rbx
-   add rax, rbx
-   push rax
    pop rdi ; print statement
    call print
-   mov rax, MEMORY + 0
-   push rax
-   mov rax, MEMORY + 7
-   push rax
-   pop rax ; add right to left
-   pop rbx
-   add rax, rbx
-   push rax
-   pop rdi ; print statement
-   call print
+   push 2
+   xor rax, rax ; assign value to variable my_byte
+   pop rax
+   xor r10, r10
+   mov r10, [MEMORY + 0]
+   imul r10, rax
+   mov [MEMORY + 0], r10
+   push r10
    xor rax, rax
-   mov EAX, DWORD [MEMORY + 3]
+   mov AL, BYTE [MEMORY + 0]
    push rax
    pop rdi ; print statement
    call print

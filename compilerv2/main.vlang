@@ -1,8 +1,5 @@
-byte my_byte = 1;
-short my_short = 2;
-int my_int = 3;
-long my_long = 4;
+byte my_byte = 10 + 20 * 3;
+print my_byte;
 
-print my_long + my_byte;
-print &my_long + &my_byte;
-print my_int;
+my_byte *= 2;
+print my_byte;
