@@ -155,6 +155,11 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"pop rbx")
             self.write(f"add rax, rbx")
             self.write(f"push rax")
+        elif binary_expr.operator.type == tokens.PERCENT:
+            self.write(f"pop rax ; modulo right from left")
+            self.write(f"pop rbx")
+            self.write(f"idiv rbx")
+            self.write(f"push rax")
         elif binary_expr.operator.type == tokens.SLASH:
             self.write(f"pop rax ; divide left by right")
             self.write(f"pop rbx")
@@ -169,18 +174,31 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"pop rax ; compare left to right")
             self.write(f"pop rbx")
             self.write(f"cmp rax, rbx")
+            self.write(f"setg al")
+            self.write(f"movzx rax, al")
+            self.write(f"push rax")
+
         elif binary_expr.operator.type == tokens.GREATER_EQUAL:
             self.write(f"pop rax ; compare left to right")
             self.write(f"pop rbx")
             self.write(f"cmp rax, rbx")
+            self.write(f"setge al")
+            self.write(f"movzx rax, al")
+            self.write(f"push rax")
         elif binary_expr.operator.type == tokens.LESS:
             self.write(f"pop rax ; compare left to right")
             self.write(f"pop rbx")
             self.write(f"cmp rax, rbx")
+            self.write("setle al")
+            self.write("movzx rax, al")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.LESS_EQUAL:
             self.write(f"pop rax ; compare left to right")
             self.write(f"pop rbx")
             self.write(f"cmp rax, rbx")
+            self.write(f"setle al")
+            self.write(f"movzx rax, al")
+            self.write(f"push rax")
         elif binary_expr.operator.type == tokens.BANG_EQUAL:
             self.write(f"pop rax ; compare left to right")
             self.write(f"pop rbx")
@@ -322,6 +340,14 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.execute(if_stmt.else_branch)
         self.write(f".L{if_stmt.end_id}: ; END IF STMT", False)
         
+    def visit_while_stmt(self, while_stmt: WhileStmt):
+        self.write(f".L{while_stmt.label_index}: ; WHILE START")
+        self.execute(while_stmt.condition)
+        self.write("pop rax ; while condition start")
+        self.write("cmp rax, 0")
+        self.write(f"je .L{while_stmt.end_index}")
+        self.execute(while_stmt.body)
+        self.write(f"jmp .L{while_stmt.label_index}")
+        self.write(f".L{while_stmt.end_index}: ; WHILE END")
 
-
-            
+    

@@ -67,90 +67,12 @@
       leave
       ret
  _start:
-   push 234
+   push 254350340
    pop rax ; store variable x
    mov [MEMORY + 0], rax
-   push 3
    xor rax, rax
-   mov AL, BYTE [MEMORY + 0]
+   mov RAX, QWORD [MEMORY + 0]
    push rax
-   pop rax ; compare left to right
-   pop rbx
-   cmp rax, rbx
-   sete al
-   movzx rax, al
-   push rax
-   pop rax ; if condition start
-   cmp rax, 0
-   je .L16
-   push 1
-   pop rdi ; print statement
-   call print
-   jmp .L68
-   .L16:
-   push 2
-   xor rax, rax
-   mov AL, BYTE [MEMORY + 0]
-   push rax
-   pop rax ; compare left to right
-   pop rbx
-   cmp rax, rbx
-   sete al
-   movzx rax, al
-   push rax
-   pop rax ; elif condition start
-   cmp rax, 0
-   je .L27
-   push 2
-   pop rdi ; print statement
-   call print
-   jmp .L68
-   .L27:
-   push 234
-   xor rax, rax
-   mov AL, BYTE [MEMORY + 0]
-   push rax
-   pop rax ; compare left to right
-   pop rbx
-   cmp rax, rbx
-   sete al
-   movzx rax, al
-   push rax
-   pop rax ; elif condition start
-   cmp rax, 0
-   je .L62 ; jump to else
-   push 0
-   pop rax ; if condition start
-   cmp rax, 0
-   je .L43
-   push 1
-   pop rdi ; print statement
-   call print
-   jmp .L58
-   .L43:
-   push 1
-   pop rax ; elif condition start
-   cmp rax, 0
-   je .L52 ; jump to else
-   push 44
-   pop rdi ; print statement
-   call print
-   jmp .L58
- .L52:
-   push 0
-   pop rdi ; print statement
-   call print
- .L58: ; END IF STMT
-   push 3
-   pop rdi ; print statement
-   call print
-   jmp .L68
- .L62:
-   push 4
-   pop rdi ; print statement
-   call print
- .L68: ; END IF STMT
-   push 33
    pop rdi ; print statement
    call print
    ; end of program

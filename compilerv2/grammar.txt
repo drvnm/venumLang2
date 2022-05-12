@@ -8,6 +8,9 @@ statement   -> exprStmt
             | printStmt
             | block
             | ifStmt
+            | whileStmt
+
+whileStmt   -> "while" "(" expression ")" statement
 
 ifStmt      -> "if" "(" expression ")"
                 statement

@@ -98,7 +98,7 @@ class Parser():
     def term(self) -> Expr:
         expr = self.factor()
 
-        while self.match(tokens.PLUS, tokens.MINUS):
+        while self.match(tokens.PLUS, tokens.MINUS, tokens.PERCENT):
             operator = self.previous()
             right = self.factor()
             expr = BinaryExpr(expr, operator, right)
@@ -187,6 +187,17 @@ class Parser():
         if else_branch:
             stmt.else_id = else_id
         return stmt
+    
+    def while_stmt(self) -> Stmt:
+        while_index = self.current - 1
+        self.consume(tokens.LEFT_PAREN, "Expected '(' after 'while'.")
+        condition = self.expression()
+        self.consume(tokens.RIGHT_PAREN, "Expected ')' after while condition.")
+        body = self.statement()
+        end_index = self.current
+
+        stmt = WhileStmt(condition, body, while_index, end_index)
+        return stmt
 
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
@@ -195,6 +206,8 @@ class Parser():
             return self.block()
         if self.match(tokens.IF):
             return self.if_stmt()
+        if self.match(tokens.WHILE):
+            return self.while_stmt()
         return self.expression_stmt()
 
     def var_declaration(self) -> Stmt:

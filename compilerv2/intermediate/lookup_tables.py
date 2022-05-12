@@ -12,6 +12,7 @@ single_char_tokens = {
     ';': tokens.SEMICOLON,
     '*': tokens.STAR,
     '&' : tokens.AMPERSAND,
+    '%' : tokens.PERCENT, 
 }
 
 two_char_tokens = {

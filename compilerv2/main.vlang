@@ -1,24 +1,20 @@
-byte x = 234;
+long x = 254350340;
+// fizzbuzz
+// while(x != 2543500) {
+//     print x ;
+//     if(x * 1 == x) {
+//         // print 2;
+//         if(x * 2 == x) {
+//             print 3;
+//         }
+//         else {
+//             // print 66;
+//         }
+//     }
+//     else {
+//         print 44;
+//     }
+//     x += 1;
+// }
 
-if(x == 3) 
-{
-    print 1;
-} 
-elif(x == 2) {
-    print 2;
-}
-elif(x == 234) {
-    if(false) {
-        print 1;
-    } 
-    elif(true) {
-        print 44;
-    }
-    else {
-        print 0;
-    }
-}
-else { 
-    print 4;
-}
-print 33;
+print x;

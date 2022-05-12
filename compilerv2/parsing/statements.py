@@ -52,3 +52,14 @@ class IfStmt(Stmt):
     
     def accept(self, visitor):
         visitor.visit_if_stmt(self)
+
+# class to represent while statements
+class WhileStmt(Stmt):
+    def __init__(self, condition: Expr, body: Stmt, label_index: int, end_index: int):
+        self.condition = condition
+        self.body = body
+        self.label_index = label_index
+        self.end_index = end_index
+    
+    def accept(self, visitor):
+        visitor.visit_while_stmt(self)
