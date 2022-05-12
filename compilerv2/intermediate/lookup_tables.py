@@ -60,6 +60,7 @@ word_to_keyword = {
     'this': tokens.THIS,
     'true': tokens.TRUE,
     'while': tokens.WHILE,
+    'elif': tokens.ELIF,
 
     'byte': tokens.BYTE,	
     'short': tokens.SHORT,

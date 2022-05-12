@@ -14,6 +14,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.output_file = "output"
         self.environment = Environment()
         self.mem_size = 64_00
+        self.branch_index = 0
 
     # writes line to asm file
     def write(self, line: str, indent: int = True):
@@ -184,10 +185,17 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"pop rax ; compare left to right")
             self.write(f"pop rbx")
             self.write(f"cmp rax, rbx")
+            self.write("setne al")
+            self.write("movzx rax, al")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.EQUAL_EQUAL:
             self.write(f"pop rax ; compare left to right")
             self.write(f"pop rbx")
             self.write(f"cmp rax, rbx")
+            self.write(f"sete al")
+            self.write(f"movzx rax, al")
+            self.write(f"push rax")
+
 
     def visit_print_stmt(self, print_stmt: PrintStmt):
         self.execute(print_stmt.expr)
@@ -278,3 +286,42 @@ class Compiler(ExprVisitor, StmtVisitor):
         env = Environment()
         env.set_environment(self.environment)
         self.execute_block(block_stmt, env)
+
+    # handles if statements
+    def visit_if_stmt(self, if_stmt: IfStmt):
+        elif_amount = len(if_stmt.elif_statements)
+        indecies = 1
+        self.execute(if_stmt.condition)
+        self.write("pop rax ; if condition start")
+        self.write("cmp rax, 0")
+        if if_stmt.elif_statements:
+            self.write(f"je .L{if_stmt.elif_statements[0][2]}")
+        elif if_stmt.else_branch:
+            self.write(f"je .L{if_stmt.else_id}")
+        else:
+            self.write(f"je .L{if_stmt.end_id}")
+        self.execute(if_stmt.then_branch)
+        self.write(f"jmp .L{if_stmt.end_id}")
+        for cond, branch, index in if_stmt.elif_statements:
+            self.write(f".L{index}:")
+            self.execute(cond)
+            self.write("pop rax ; elif condition start")
+            self.write("cmp rax, 0")
+            if indecies == elif_amount:
+                if if_stmt.else_branch:
+                    self.write(f"je .L{if_stmt.else_id} ; jump to else")
+                else:
+                    self.write(f"je .L{if_stmt.end_id} ; jump to end of if stmt")
+            else:
+                self.write(f"je .L{if_stmt.elif_statements[indecies][2]}")
+                indecies += 1
+            self.execute(branch)	
+            self.write(f"jmp .L{if_stmt.end_id}")
+        if if_stmt.else_branch:
+            self.write(f".L{if_stmt.else_id}:", False)
+            self.execute(if_stmt.else_branch)
+        self.write(f".L{if_stmt.end_id}: ; END IF STMT", False)
+        
+
+
+            

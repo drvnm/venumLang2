@@ -95,9 +95,19 @@ class Lexer:
             if self.at_end():
                 self.add_token(tokens.EOF, None)
                 return
+                
+            char = self.get_current_char()  
+            # handle / for comments and divide
+            if char == '/':
+                if self.peek_next_char() == '/':
+                    while not self.at_end() and self.get_current_char() != '\n':
+                        self.advance()
+                else:
+                    self.add_token(tokens.SLASH, char)
+                    self.advance()
 
             # handle single char tokens, like + ( ) { }
-            if (char := self.get_current_char()) in single_char_tokens:
+            elif char in single_char_tokens:
                 if self.peek_next_char() == '=':
                     self.add_token(
                         optional_to_token[char + self.peek_next_char()], char + self.peek_next_char())
@@ -120,14 +130,7 @@ class Lexer:
                     self.add_token(token, char)
                     self.advance()
 
-            # handle / for comments and divide
-            elif char == '/':
-                if self.peek_next_char() == '/':
-                    while not self.at_end() and self.get_current_char() != '\n':
-                        self.advance()
-                else:
-                    self.add_token(tokens.SLASH, char)
-                    self.advance()
+           
 
             elif char == '"':
                 self.string()

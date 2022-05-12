@@ -41,3 +41,14 @@ class BlockStmt(Stmt):
 
     def accept(self, visitor):
         visitor.visit_block_stmt(self)
+
+# class that represents if statement, with elifs and else statements
+class IfStmt(Stmt):
+    def __init__(self, condition: Expr, then_branch: Stmt, elif_statements: List[Stmt], else_branch: Stmt):
+        self.condition = condition
+        self.then_branch = then_branch
+        self.else_branch = else_branch
+        self.elif_statements = elif_statements
+    
+    def accept(self, visitor):
+        visitor.visit_if_stmt(self)

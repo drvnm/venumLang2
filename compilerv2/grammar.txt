@@ -7,6 +7,12 @@ varDecl     -> type IDENTIFIER ("=" expression)? ";"
 statement   -> exprStmt
             | printStmt
             | block
+            | ifStmt
+
+ifStmt      -> "if" "(" expression ")"
+                statement
+                ("elif" "(" expression ")" statement)*
+                ("else" statement)?
 
 block       -> "{" decleration* "}"
 

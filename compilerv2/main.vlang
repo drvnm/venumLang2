@@ -1,6 +1,24 @@
-byte x = 0;
+byte x = 234;
+
+if(x == 3) 
 {
-  byte x = x + 2;
-  print x;
+    print 1;
+} 
+elif(x == 2) {
+    print 2;
 }
-print x;
+elif(x == 234) {
+    if(false) {
+        print 1;
+    } 
+    elif(true) {
+        print 44;
+    }
+    else {
+        print 0;
+    }
+}
+else { 
+    print 4;
+}
+print 33;
