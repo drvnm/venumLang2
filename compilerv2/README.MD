@@ -57,3 +57,28 @@ for(short x = 0; x < 10; x += 1) {
     print x;
 }
 ```
+# table of operations
+here is a pretty table of operations:
+| Operation | Description |
+| :-------: | :--------: |
+| + | addition |
+| - | subtraction |
+| * | multiplication |
+| / | division |
+| % | modulus |
+| == | equality |
+| != | inequality |
+| < | less than |
+| > | greater than |
+| <= | less than or equal to |
+| >= | greater than or equal to |
+| && | logical and (TODO) |
+| || | logical or (TODO) |
+| ! | logical not |
+| = | assignment |
+| += | addition assignment |
+| -= | subtraction assignment |
+| *= | multiplication assignment |
+| /= | division assignment |
+| & | address of |
+| * | dereference |
