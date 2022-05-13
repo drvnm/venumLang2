@@ -1,6 +1,0 @@
-for(byte x = 0; x < 100; x+=1) {
-    for(byte y = 0; y < 100; y+=1) {
-      print y;
-    }
-    print x;
-}
