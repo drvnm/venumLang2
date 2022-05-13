@@ -67,14 +67,38 @@
       leave
       ret
  _start:
-   push 254350340
+   push 0
    pop rax ; store variable x
    mov [MEMORY + 0], rax
+   .L0: ; WHILE START
+   push 100
    xor rax, rax
-   mov RAX, QWORD [MEMORY + 0]
+   mov AL, BYTE [MEMORY + 0]
+   push rax
+   pop rax ; compare left to right
+   pop rbx
+   cmp rax, rbx
+   setle al
+   movzx rax, al
+   push rax
+   pop rax ; while condition start
+   cmp rax, 0
+   je .L18
+   xor rax, rax
+   mov AL, BYTE [MEMORY + 0]
    push rax
    pop rdi ; print statement
    call print
+   push 1
+   xor rax, rax ; assign value to variable x
+   pop rax
+   xor r10, r10
+   mov r10, [MEMORY + 0]
+   add r10, rax
+   mov [MEMORY + 0], r10
+   push r10
+   jmp .L0
+   .L18: ; WHILE END
    ; end of program
    mov rax, 60
    mov rdi, 0

@@ -9,6 +9,13 @@ statement   -> exprStmt
             | block
             | ifStmt
             | whileStmt
+            | forStmt
+
+forStmt     -> "for" "(" (varDecl | exprStmt | ";")
+                expression? ";"
+                expression? ")" statement
+
+            
 
 whileStmt   -> "while" "(" expression ")" statement
 

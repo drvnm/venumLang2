@@ -27,3 +27,33 @@ int x = 2000;
 }
 print x; // prints 2000
 ```
+
+# branching 
+venumlang has support for if, elif, and else statements:
+```cpp
+short x = 20 + 20 * 2;
+if(x == 20) {
+    print 1;
+}
+else if(x == 40) {
+    print 2;
+}
+else {
+    print 3; // will print 3
+}
+```
+
+# loops
+venumlang has support for while and for loops:
+```cpp
+short x = 0;
+while(x < 10) {
+    print x;
+    x = x + 1;
+}
+```
+```cpp
+for(short x = 0; x < 10; x += 1) {
+    print x;
+}
+```

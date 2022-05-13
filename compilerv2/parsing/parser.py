@@ -198,6 +198,40 @@ class Parser():
 
         stmt = WhileStmt(condition, body, while_index, end_index)
         return stmt
+    
+    def for_stmt(self) -> Stmt:
+        for_index = self.current - 1
+        self.consume(tokens.LEFT_PAREN, "Expected '(' after 'for'.")
+        initializer = None
+        if self.match(tokens.SEMICOLON):
+            initializer = None
+        elif self.match(*types):
+            initializer = self.var_declaration()
+        else:
+            initializer = self.expression_stmt()
+        
+        condition = None
+        if not self.check(tokens.SEMICOLON):
+            condition = self.expression()
+        self.consume(tokens.SEMICOLON, "Expected ';' after for condition.")
+
+        increment = None
+        if not self.check(tokens.RIGHT_PAREN):
+            increment = self.expression()
+        self.consume(tokens.RIGHT_PAREN, "Expected ')' after for increment.")
+
+        body = self.statement() # while loob body
+        end_index = self.current
+
+        if increment != None: # put increment after body
+            body = BlockStmt([body, ExprStmt(increment)])
+        if condition == None:
+            condition = LiteralExpr(True)
+        body = WhileStmt(condition, body, for_index, end_index)
+        if initializer != None:
+            body = BlockStmt([initializer, body])
+        
+        return body
 
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
@@ -208,6 +242,8 @@ class Parser():
             return self.if_stmt()
         if self.match(tokens.WHILE):
             return self.while_stmt()
+        if self.match(tokens.FOR):
+            return self.for_stmt()
         return self.expression_stmt()
 
     def var_declaration(self) -> Stmt:
