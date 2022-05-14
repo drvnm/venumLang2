@@ -1,13 +1,9 @@
 func int factorial(int n) {
-  int fact = 0;
-  int i = 0;
-
-  while(i < n) {
-    fact = fact * i;
-    i = i + 1;
-    print i;
+  int fact = 1;
+  for (int i = 1; i <= n; i += 1) {
+    fact *= i;
   }
-
+  print fact;
 }
 
-factorial(100);
+factorial(5);

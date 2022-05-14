@@ -282,27 +282,27 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write(f"xor rax, rax ; assign value to variable {assign_expr.name.lexeme}")
         self.write("pop rax")
         if operator == tokens.EQUAL:
-            self.write(f"mov [MEMORY + {start_index}], rax")
+            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.PLUS_EQUAL:
             self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
-            self.write(f"add r10, rax")
-            self.write(f"mov [MEMORY + {start_index}], r10")
+            self.write(f"add rax, r10")
+            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.MINUS_EQUAL:
             self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
-            self.write(f"sub r10, rax")
-            self.write(f"mov [MEMORY + {start_index}], r10")
+            self.write(f"sub rax, r10")
+            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.STAR_EQUAL:
             self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
-            self.write(f"imul r10, rax")
-            self.write(f"mov [MEMORY + {start_index}], r10")
+            self.write(f"imul rax, r10")
+            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.SLASH_EQUAL:
             self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"idiv rax")
-            self.write(f"mov [MEMORY + {start_index}], r10")
+            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         # push end result
         self.write("push r10")
     
