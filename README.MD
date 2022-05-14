@@ -2,6 +2,17 @@
 this subrepo will contain the code for the second venumlang compiler
 the difference between this compiler and the first compiler will be the use of a recursive descent parser.
 
+# roadmap checklist (for now)
+- [X] recursive descent parser, with good grammar
+- [X] variable declarations
+- [X] function declarations
+- [X] branching
+- [X] loops
+- [X] compiler
+- [ ] native functions
+- [ ] module system
+- [ ] type checker
+- [ ] OOP-like syntax
 # types
 At the moment, venumlang supports the following primitive types:
 byte, short, int, long
@@ -57,6 +68,22 @@ for(short x = 0; x < 10; x += 1) {
     print x;
 }
 ```
+
+# functions
+venumlang has support for functions:
+```cpp
+func int factorial(int n) {
+  int fact = 1;
+  for (int i = 1; i <= n; i += 1) {
+    fact *= i;
+  }
+  print fact;
+}
+
+factorial(5); // should print 120
+>> 120;
+```
+
 # table of operations
 here is a pretty table of operations:
 | Operation | Description |
