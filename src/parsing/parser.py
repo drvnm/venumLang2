@@ -16,6 +16,11 @@ class Parser():
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.current = 0
+        
+        # data for keeping track of loops
+        self.in_loop = False
+        self.loop_index_begin = 0
+        self.loop_index_end = 0
 
     # returns last - 1 token
     def previous(self) -> Token:
@@ -78,12 +83,32 @@ class Parser():
         # if no valid token is found, throw error
         error(self.peek(), "Expected expression.")
 
+    def finish_call(self, expr: Expr) -> Expr:
+        args = []
+        if not self.check(tokens.RIGHT_PAREN):
+            while True:
+                args.append(self.expression())
+                if self.match(tokens.RIGHT_PAREN):
+                    return CallExpr(expr, args)
+                self.consume(tokens.COMMA, "Expected ',' after function argument.")
+
+        self.consume(tokens.RIGHT_PAREN, "Expected ')' after function arguments.")      
+        return CallExpr(expr, args)
+    
+    def call(self) -> Expr:
+        expr = self.primary()
+
+        if self.match(tokens.LEFT_PAREN) and isinstance(expr, VarExpr):
+           expr = self.finish_call(expr)
+
+        return expr
+
     def unary(self) -> Expr:
         if self.match(tokens.MINUS, tokens.BANG):
             operator = self.previous()
             right = self.unary()
             return UnaryExpr(operator, right)
-        return self.primary()
+        return self.call()
 
     def factor(self) -> Expr:
         expr = self.unary()
@@ -190,17 +215,20 @@ class Parser():
     
     def while_stmt(self) -> Stmt:
         while_index = self.current - 1
+        self.loop_index_begin = while_index
         self.consume(tokens.LEFT_PAREN, "Expected '(' after 'while'.")
         condition = self.expression()
         self.consume(tokens.RIGHT_PAREN, "Expected ')' after while condition.")
-        body = self.statement()
+        self.in_loop = True # let parser know that were in a loop
+        body = self.statement() 
         end_index = self.current
-
         stmt = WhileStmt(condition, body, while_index, end_index)
+        self.in_loop = False
         return stmt
     
     def for_stmt(self) -> Stmt:
         for_index = self.current - 1
+        self.loop_index_begin = for_index
         self.consume(tokens.LEFT_PAREN, "Expected '(' after 'for'.")
         initializer = None
         if self.match(tokens.SEMICOLON):
@@ -220,8 +248,10 @@ class Parser():
             increment = self.expression()
         self.consume(tokens.RIGHT_PAREN, "Expected ')' after for increment.")
 
+        self.in_loop = True # let parser know that were in a loop
         body = self.statement() # while loob body
         end_index = self.current
+        self.in_loop = False
 
         if increment != None: # put increment after body
             body = BlockStmt([body, ExprStmt(increment)])
@@ -232,6 +262,18 @@ class Parser():
             body = BlockStmt([initializer, body])
         
         return body
+
+    def break_stmt(self) -> Stmt:
+        self.consume(tokens.SEMICOLON, "Expected ';' after 'break'.")
+        if not self.in_loop:
+            error(self.previous(), "Cannot use 'break' outside of loop.")
+        return BreakStmt()
+    
+    def continue_stmt(self) -> Stmt:
+        self.consume(tokens.SEMICOLON, "Expected ';' after 'continue'.")
+        if not self.in_loop:
+            error(self.previous(), "Cannot use 'continue' outside of loop.")
+        return ContinueStmt(self.loop_index_begin)
 
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
@@ -244,6 +286,10 @@ class Parser():
             return self.while_stmt()
         if self.match(tokens.FOR):
             return self.for_stmt()
+        if self.match(tokens.BREAK):
+            return self.break_stmt()
+        if self.match(tokens.CONTINUE):
+            return self.continue_stmt()
         return self.expression_stmt()
 
     def var_declaration(self) -> Stmt:
@@ -258,10 +304,43 @@ class Parser():
         self.consume(tokens.SEMICOLON,
                      "Expected ';' after variable declaration.")
         return VarStmt(type_, name, expr, size)
+    
+    def func_declaration(self) -> Stmt:
+        if not self.match(*types):
+            error(self.peek(), "Expected return type after 'func'.")
+        return_type = self.previous()
+        name = self.consume(tokens.IDENTIFIER, "Expected function name.")
+        return_type = None
+        self.consume(tokens.LEFT_PAREN, "Expected '(' after function name.")
+        params = []
+        if not self.check(tokens.RIGHT_PAREN):
+            # check if parameter type wasn given
+            if not self.match(*types):
+                error(self.peek(), "Expected type before parameter name.")
+            type_ = self.previous()
+            arg_name = self.consume(tokens.IDENTIFIER, "Expected parameter name.")
+            size = type_to_size[type_.type]
+            param = VarStmt(type_, arg_name, None, size)
+            params.append(param)
+            while self.match(tokens.COMMA):
+                if not self.match(*types):
+                    error(self.peek(), "Expected type before parameter name.")
+                type_ = self.previous()
+                arg_name = self.consume(tokens.IDENTIFIER, "Expected parameter name.")
+                size = type_to_size[type_.type]
+                param = VarStmt(type_, arg_name, None, size)
+                params.append(param)
+        self.consume(tokens.RIGHT_PAREN, "Expected ')' after parameters.")
+        self.consume(tokens.LEFT_BRACE, "Expected '{' before function body.")
+        body = self.block()
+        return FuncStmt(name, params, body, return_type)
+
 
     def declaration(self) -> Stmt:
         if self.match(*types):
             return self.var_declaration()
+        if self.match(tokens.FUNC):
+            return self.func_declaration()
         return self.statement()
 
     def parse(self) -> List[Stmt]:

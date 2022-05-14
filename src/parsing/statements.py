@@ -63,3 +63,32 @@ class WhileStmt(Stmt):
     
     def accept(self, visitor):
         visitor.visit_while_stmt(self)
+
+# class to represent a break out of loop statement
+class BreakStmt(Stmt):
+    def __init__(self, label_index: int):
+        self.label_index = label_index
+    
+    def accept(self, visitor):
+        visitor.visit_break_stmt(self)
+
+    
+# class to represent a continue out of loop statement
+class ContinueStmt(Stmt):
+    def __init__(self, label_index: int):
+        self.label_index = label_index
+    
+    def accept(self, visitor):
+        visitor.visit_continue_stmt(self)
+
+
+# represents a function declaration
+class FuncStmt(Stmt):
+    def __init__(self, name: Token, parameters: List[VarStmt], body: List[Stmt], return_type: tokens):
+        self.name = name
+        self.parameters = parameters
+        self.body = body
+        self.return_type = return_type
+    
+    def accept(self, visitor):
+        visitor.visit_func_stmt(self)

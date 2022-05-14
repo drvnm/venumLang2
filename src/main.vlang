@@ -1,6 +1,13 @@
-for(byte x = 0; x < 100; x+=1) {
-    for(byte y = 0; y < 100; y+=1) {
-      print y;
-    }
-    print x;
+func int factorial(int n) {
+  int fact = 0;
+  int i = 0;
+
+  while(i < n) {
+    fact = fact * i;
+    i = i + 1;
+    print i;
+  }
+
 }
+
+factorial(100);

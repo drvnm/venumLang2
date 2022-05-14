@@ -1,6 +1,7 @@
 import subprocess
 from typing import List
 from .environment import Environment
+from scanning.error import error
 from visitors.visitor import *
 from parsing.statements import *
 from parsing.expressions import *
@@ -13,13 +14,25 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.file = open("output.asm", "w")
         self.output_file = "output"
         self.environment = Environment()
+        self.globals = self.environment
         self.mem_size = 64_00
         self.branch_index = 0
+
+        # function call data
+        self.args_registers = [
+            "rdi", "rsi", "rdx",
+            "rcx", "r8", "r9"
+        ]
+        self.subroutines = ""
+        self.is_subroutine = False
 
     # writes line to asm file
     def write(self, line: str, indent: int = True):
         indent = "  " if indent else ""
-        self.file.write(f" {indent}{line}\n")
+        if self.is_subroutine:
+            self.subroutines += f" {indent}{line}\n"
+        else:
+            self.file.write(f" {indent}{line}\n")
 
     # writes begin of asm file
     def write_header(self):
@@ -100,10 +113,12 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("mov rax, 60")
         self.write("mov rdi, 0")
         self.write("syscall")
+        self.write(self.subroutines) # write global functions
 
         # section for variables
         self.write("section .bss", False)
         self.write(f"MEMORY: resb {self.mem_size}")
+        
 
     def compile(self, statements: List[Stmt]):
         self.write_header()
@@ -146,73 +161,72 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.execute(binary_expr.left)
 
         if binary_expr.operator.type == tokens.MINUS:
-            self.write(f"pop rax ; subtract right from left")
-            self.write(f"pop rbx")
-            self.write(f"sub rax, rbx")
-            self.write(f"push rax")
+            self.write("pop rax ; subtract right from left")
+            self.write("pop rbx")
+            self.write("sub rax, rbx")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.PLUS:
-            self.write(f"pop rax ; add right to left")
-            self.write(f"pop rbx")
-            self.write(f"add rax, rbx")
-            self.write(f"push rax")
+            self.write("pop rax ; add right to left")
+            self.write("pop rbx")
+            self.write("add rax, rbx")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.PERCENT:
-            self.write(f"pop rax ; modulo right from left")
-            self.write(f"pop rbx")
-            self.write(f"idiv rbx")
-            self.write(f"push rax")
+            self.write("pop rax ; modulo right from left")
+            self.write("pop rbx")
+            self.write("idiv rbx")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.SLASH:
-            self.write(f"pop rax ; divide left by right")
-            self.write(f"pop rbx")
-            self.write(f"div rbx")
-            self.write(f"push rax")
+            self.write("pop rax ; divide left by right")
+            self.write("pop rbx")
+            self.write("div rbx")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.STAR:
-            self.write(f"pop rax ; multiply left by right")
-            self.write(f"pop rbx")
-            self.write(f"mul rbx")
-            self.write(f"push rax")
+            self.write("pop rax ; multiply left by right")
+            self.write("pop rbx")
+            self.write("mul rbx")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.GREATER:
-            self.write(f"pop rax ; compare left to right")
-            self.write(f"pop rbx")
-            self.write(f"cmp rax, rbx")
-            self.write(f"setg al")
-            self.write(f"movzx rax, al")
-            self.write(f"push rax")
-
+            self.write("pop rax ; compare left to right")
+            self.write("pop rbx")
+            self.write("cmp rax, rbx")
+            self.write("setg al")
+            self.write("movzx rax, al")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.GREATER_EQUAL:
-            self.write(f"pop rax ; compare left to right")
-            self.write(f"pop rbx")
-            self.write(f"cmp rax, rbx")
-            self.write(f"setge al")
-            self.write(f"movzx rax, al")
-            self.write(f"push rax")
+            self.write("pop rax ; compare left to right")
+            self.write("pop rbx")
+            self.write("cmp rax, rbx")
+            self.write("setge al")
+            self.write("movzx rax, al")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.LESS:
-            self.write(f"pop rax ; compare left to right")
-            self.write(f"pop rbx")
-            self.write(f"cmp rax, rbx")
-            self.write("setle al")
+            self.write("pop rax ; compare left to right")
+            self.write("pop rbx")
+            self.write("cmp rax, rbx")
+            self.write("setl al")
             self.write("movzx rax, al")
             self.write("push rax")
         elif binary_expr.operator.type == tokens.LESS_EQUAL:
-            self.write(f"pop rax ; compare left to right")
-            self.write(f"pop rbx")
-            self.write(f"cmp rax, rbx")
-            self.write(f"setle al")
-            self.write(f"movzx rax, al")
-            self.write(f"push rax")
+            self.write("pop rax ; compare left to right")
+            self.write("pop rbx")
+            self.write("cmp rax, rbx")
+            self.write("setle al")
+            self.write("movzx rax, al")
+            self.write("push rax")
         elif binary_expr.operator.type == tokens.BANG_EQUAL:
-            self.write(f"pop rax ; compare left to right")
-            self.write(f"pop rbx")
-            self.write(f"cmp rax, rbx")
+            self.write("pop rax ; compare left to right")
+            self.write("pop rbx")
+            self.write("cmp rax, rbx")
             self.write("setne al")
             self.write("movzx rax, al")
             self.write("push rax")
         elif binary_expr.operator.type == tokens.EQUAL_EQUAL:
-            self.write(f"pop rax ; compare left to right")
-            self.write(f"pop rbx")
-            self.write(f"cmp rax, rbx")
-            self.write(f"sete al")
-            self.write(f"movzx rax, al")
-            self.write(f"push rax")
+            self.write("pop rax ; compare left to right")
+            self.write("pop rbx")
+            self.write("cmp rax, rbx")
+            self.write("sete al")
+            self.write("movzx rax, al")
+            self.write("push rax")
 
 
     def visit_print_stmt(self, print_stmt: PrintStmt):
@@ -349,5 +363,38 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.execute(while_stmt.body)
         self.write(f"jmp .L{while_stmt.label_index}")
         self.write(f".L{while_stmt.end_index}: ; WHILE END")
-
     
+    # handle break/continue statements
+    def visit_continue_stmt(self, continue_stmt: ContinueStmt):
+        self.write(f"jmp .L{continue_stmt.label_index}")
+
+    def visit_call_expr(self, call_expr: CallExpr):
+        # handle arguments
+        original_function = self.globals.get_function(call_expr.callee.name)
+        if len(call_expr.arguments) != len(original_function.parameters):
+            error(call_expr.callee.name, f"Incorrect number of arguments passed to function {call_expr.callee.name.lexeme} (COMPILE TIME ERROR)")
+        
+        for index, argument in enumerate(call_expr.arguments):
+            self.execute(argument)
+            self.write(f"pop {self.args_registers[index]}")
+        self.write(f"call {call_expr.callee.name.lexeme}")
+    
+    def visit_func_stmt(self, func_stmt: FuncStmt):
+        self.globals.define_function(func_stmt)
+        self.is_subroutine = True # let compiler know we are in a subroutine
+        self.write(f"{func_stmt.name.lexeme}:", False)
+        self.write("push rbp")
+        self.write("mov rbp, rsp")
+        env = Environment()
+        env.set_environment(self.globals)
+        num_args = len(func_stmt.parameters)
+        for param in range(num_args):
+            func_param = func_stmt.parameters[param]
+            env.define(func_param)
+            start_index, word = env.get(func_param.name)
+            register = self.args_registers[param]
+            self.write(f"mov [MEMORY + {start_index}], {register}")
+        self.execute_block(func_stmt.body, env)
+        self.write("leave")
+        self.write("ret")
+        self.is_subroutine = False # let compiler know we are not in a subroutine

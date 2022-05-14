@@ -62,7 +62,9 @@ word_to_keyword = {
     'true': tokens.TRUE,
     'while': tokens.WHILE,
     'elif': tokens.ELIF,
-
+    'continue': tokens.CONTINUE,
+    'break': tokens.BREAK,
+    'func': tokens.FUNC,
     'byte': tokens.BYTE,	
     'short': tokens.SHORT,
     'int': tokens.INT,

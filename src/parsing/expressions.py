@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import List
 from intermediate.tokens import *
 from visitors.visitor import ExprVisitor
+
 
 # base class for every kind of expression
 class Expr(ABC):
@@ -77,3 +79,12 @@ class AssignmentExpr(Expr):
     
     def accept(self, visitor: ExprVisitor):
         return visitor.visit_assignment_expr(self)
+
+# class to represent a function call expression like f(x, y)
+class CallExpr(Expr):
+    def __init__(self, callee: VarExpr, arguments: List[Expr]):
+        self.callee = callee
+        self.arguments = arguments
+    
+    def accept(self, visitor: ExprVisitor):
+        return visitor.visit_call_expr(self)

@@ -1,6 +1,7 @@
 program     -> decleration* EOF;
 
 decleration -> varDecl | statement
+            | funDeclr;
 
 varDecl     -> type IDENTIFIER ("=" expression)? ";"
 
@@ -10,6 +11,13 @@ statement   -> exprStmt
             | ifStmt
             | whileStmt
             | forStmt
+            | continueStmt
+            | breakStmt
+
+funDeclr    -> "func" function;
+function    -> TYPES IDENTIFIER "(" params? ")" block;
+params      -> TYPES IDENTIFIER ("," TYPES IDENTIFIER)*;
+
 
 forStmt     -> "for" "(" (varDecl | exprStmt | ";")
                 expression? ";"
@@ -24,6 +32,9 @@ ifStmt      -> "if" "(" expression ")"
                 ("elif" "(" expression ")" statement)*
                 ("else" statement)?
 
+continueStmt -> "continue" ";"
+breakStmt    -> "break" ";"
+
 block       -> "{" decleration* "}"
 
 exprStmt    -> expression ";";
@@ -36,7 +47,10 @@ equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )*
 term        -> factor ( ( "+" | "-") factor )*
 factor      -> unary ( ( "*" | "/"  ) unary )*
-unary       -> ( "!" | "-" ) unary | primary            
+unary       -> ( "!" | "-" ) unary | call
+
+call        -> primary ( "(" arguments? ")" )
+arguments   -> expression ( "," expression )*
                                                                                  reference shuld be unary
 primary     -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | "&"? IDENTIFIER | "*" expression
 type        -> "BYTE" | "SHORT" | "INT" | "LONG"

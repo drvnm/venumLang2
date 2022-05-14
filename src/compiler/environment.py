@@ -1,4 +1,4 @@
-from parsing.statements import VarStmt
+from parsing.statements import FuncStmt, VarStmt
 from scanning.error import error
 from intermediate.tokens import *
 from intermediate.lookup_tables import *
@@ -9,6 +9,7 @@ class Environment:
         self.variables = {}
         self.memory_index = 0
         self.enclosing = None
+        self.functions = {}
     
     def define(self, var: VarStmt):
         name = var.name.lexeme
@@ -33,4 +34,22 @@ class Environment:
     def set_environment(self, enclosing: 'Environment'):
         self.enclosing = enclosing
         self.memory_index = enclosing.memory_index
+    
+    # define function
+    def define_function(self, function: FuncStmt):
+        name = function.name.lexeme
+        if name in self.functions:
+            error(function.name, f'Function {name} already defined')
+        self.functions[name] = function
+    
+    # get function
+    def get_function(self, name: Token) -> FuncStmt:
+        if name.lexeme in self.functions:
+            return self.functions[name.lexeme]
+        else:
+            if self.enclosing != None:
+                return self.enclosing.get_function(name)
+            else:
+                error(name, f'Function {name.lexeme} not defined')
+
 
