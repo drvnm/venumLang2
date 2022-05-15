@@ -13,6 +13,10 @@ statement   -> exprStmt
             | forStmt
             | continueStmt
             | breakStmt
+            | syscallStmt
+
+syscallStmt -> syscall NUMBER sysarg+ ";"
+sysarg      -> expression ("," expression)*
 
 funDeclr    -> "func" function;
 function    -> TYPES IDENTIFIER "(" params? ")" block;

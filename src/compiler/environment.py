@@ -11,7 +11,18 @@ class Environment:
         self.enclosing = None
         self.functions = {}
     
+    def define_string(self, var: VarStmt):
+        name = var.name.lexeme
+        if name in self.variables:
+            error(var.name, f'Variable {name} already defined')
+        self.variables[name] = [self.memory_index, 'QWORD']
+        self.memory_index += 8
+    
     def define(self, var: VarStmt):
+        # check if the variable is a string
+        if var.type.type == tokens.STR:
+            self.define_string(var)
+            return
         name = var.name.lexeme
         size = var.size
         if name in self.variables:

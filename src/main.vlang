@@ -1,9 +1,5 @@
-func int factorial(int n) {
-  int fact = 1;
-  for (int i = 1; i <= n; i += 1) {
-    fact *= i;
-  }
-  print fact;
+func int mkdir(str folder_name) {
+  syscall 83 folder_name, 1;
 }
 
-factorial(5);
+mkdir("./test");

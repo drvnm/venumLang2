@@ -15,9 +15,9 @@ tokens = enum.Enum('tokens', """
 
         AND CLASS ELSE FALSE FOR IF IN NULL OR
         PRINT RETURN SUPER THIS TRUE LET WHILE
-        ELIF CONTINUE BREAK FUNC
+        ELIF CONTINUE BREAK FUNC SYSCALL
 
-        BYTE SHORT INT LONG BOOL
+        BYTE SHORT INT LONG BOOL STR
 
         EOF
                     """)

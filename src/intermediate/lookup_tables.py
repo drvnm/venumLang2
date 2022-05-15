@@ -49,6 +49,7 @@ optional_to_token = {
 word_to_keyword = {
     'and': tokens.AND,
     'class': tokens.CLASS,
+    'syscall': tokens.SYSCALL,
     'else': tokens.ELSE,
     'false': tokens.FALSE,
     'for': tokens.FOR,
@@ -70,6 +71,7 @@ word_to_keyword = {
     'int': tokens.INT,
     'long': tokens.LONG,
     'bool': tokens.BOOL,
+    'str': tokens.STR,
 }
 
 type_to_size = {
@@ -78,6 +80,7 @@ type_to_size = {
     tokens.INT: 4,
     tokens.LONG: 8,
     tokens.BOOL: 1,
+    tokens.STR: 8,
 }
 
 size_to_word = {

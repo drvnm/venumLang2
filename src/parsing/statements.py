@@ -92,3 +92,12 @@ class FuncStmt(Stmt):
     
     def accept(self, visitor):
         visitor.visit_func_stmt(self)
+
+# represents a syscall being made 
+class SyscallStmt(Stmt):
+    def __init__(self, syscall_number: int, args: List[Expr]):
+        self.syscall_number = syscall_number
+        self.args = args
+    
+    def accept(self, visitor):
+        visitor.visit_syscall_stmt(self)

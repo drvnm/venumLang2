@@ -67,6 +67,29 @@
       leave
       ret
  _start:
-   push 5
+   push str_0
    pop rdi
-   call factorial
+   call mkdir
+   ; end of program
+   mov rax, 60
+   mov rdi, 0
+   syscall
+    mkdir:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 0], rdi
+   xor rax, rax
+   mov RAX, QWORD [MEMORY + 0]
+   push rax
+   pop rdi
+   push 1
+   pop rsi
+   mov rax, 83
+   syscall
+   leave
+   ret
+
+ section .bss
+   MEMORY: resb 6400
+ section .data
+   str_0: db "./test", 0

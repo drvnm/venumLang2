@@ -18,6 +18,10 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.mem_size = 64_00
         self.branch_index = 0
 
+        # string data
+        self.string_counter = 0
+        self.strings = []
+
         # function call data
         self.args_registers = [
             "rdi", "rsi", "rdx",
@@ -25,6 +29,12 @@ class Compiler(ExprVisitor, StmtVisitor):
         ]
         self.subroutines = ""
         self.is_subroutine = False
+
+        # syscall data
+        self.syscall_registers = [
+            "rdi", "rsi", "rdx",
+            "r10", "r8", "r9"
+        ]
 
     # writes line to asm file
     def write(self, line: str, indent: int = True):
@@ -118,6 +128,11 @@ class Compiler(ExprVisitor, StmtVisitor):
         # section for variables
         self.write("section .bss", False)
         self.write(f"MEMORY: resb {self.mem_size}")
+
+        # string section and static memory
+        self.write("section .data", False)
+        for index, string in enumerate(self.strings):
+            self.write(f"str_{index}: db \"{string}\", 0")
         
 
     def compile(self, statements: List[Stmt]):
@@ -140,6 +155,10 @@ class Compiler(ExprVisitor, StmtVisitor):
             expr.value, Token) else expr.value
         if isinstance(literal, bool):
             literal = 1 if literal else 0
+        elif expr.value.type == tokens.STRING:
+            self.strings.append(literal)
+            literal = f"str_{self.string_counter}"
+            self.string_counter += 1
         self.write(f"push {literal}")
 
     def visit_unary_expr(self, unary_expr: UnaryExpr):
@@ -398,3 +417,10 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("leave")
         self.write("ret")
         self.is_subroutine = False # let compiler know we are not in a subroutine
+    
+    def visit_syscall_stmt(self, syscall_stmt: SyscallStmt):
+        for index, arg in enumerate(syscall_stmt.args):
+            self.execute(arg)
+            self.write(f"pop {self.syscall_registers[index]}")
+        self.write(f"mov rax, {syscall_stmt.syscall_number}")
+        self.write("syscall")

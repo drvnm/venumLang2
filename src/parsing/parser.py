@@ -7,7 +7,7 @@ from .expressions import *
 from .statements import *
 
 types = [tokens.BYTE, tokens.SHORT, tokens.INT,
-         tokens.LONG, tokens.BOOL, tokens.STRING]
+         tokens.LONG, tokens.BOOL, tokens.STR]
 inc_dec_tokens = [tokens.EQUAL, tokens.PLUS_EQUAL,
                   tokens.MINUS_EQUAL, tokens.STAR_EQUAL, tokens.SLASH_EQUAL]
 
@@ -79,6 +79,8 @@ class Parser():
         if self.match(tokens.AMPERSAND):
             token = self.consume(tokens.IDENTIFIER, "Expected variable name.")
             return VarToPointerExpr(token)
+        if self.match(tokens.STRING):
+            return LiteralExpr(self.previous())
 
         # if no valid token is found, throw error
         error(self.peek(), "Expected expression.")
@@ -274,6 +276,19 @@ class Parser():
         if not self.in_loop:
             error(self.previous(), "Cannot use 'continue' outside of loop.")
         return ContinueStmt(self.loop_index_begin)
+    
+    def syscall_stmt(self) -> Stmt:
+        self.consume(tokens.NUMBER, "Expected number after 'syscall' (syscall ID).")
+        syscall_id = self.previous().literal
+        args = []
+        if not self.check(tokens.SEMICOLON):
+            args.append(self.expression())
+            while self.match(tokens.COMMA):
+                args.append(self.expression())
+        self.consume(tokens.SEMICOLON, "Expected ';' after syscall arguments.")
+        if len(args) == 0:
+            error(self.previous(), "Expected at least one argument after syscall ID.")
+        return SyscallStmt(syscall_id, args)
 
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
@@ -290,16 +305,21 @@ class Parser():
             return self.break_stmt()
         if self.match(tokens.CONTINUE):
             return self.continue_stmt()
+        if self.match(tokens.SYSCALL):
+            return self.syscall_stmt()
         return self.expression_stmt()
 
     def var_declaration(self) -> Stmt:
         type_ = self.previous()
-        size = type_to_size[type_.type]
+        size = type_to_size.get(type_.type, None)
         name = self.consume(tokens.IDENTIFIER, "Expected variable name.")
         expr = None
 
         if self.match(tokens.EQUAL):
             expr = self.expression()
+
+        if type_ == tokens.STR and expr == None:
+            expr = '0'
 
         self.consume(tokens.SEMICOLON,
                      "Expected ';' after variable declaration.")
