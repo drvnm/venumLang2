@@ -73,6 +73,16 @@ class Lexer:
             self.add_token(tokens.NUMBER, number, float(number))
         else:
             self.add_token(tokens.NUMBER, number, int(number))
+    
+    def char(self) -> None:
+        self.advance() # skip '
+        char = self.get_current_char()
+        self.advance() # skip char
+        if self.get_current_char() != "'":
+            error(self.tokens[-1], 'Unterminated char')
+        else:
+            self.advance()
+            self.add_token(tokens.CHAR, char, char)
 
     def identifier(self) -> None:
         identifier = ''
@@ -134,6 +144,9 @@ class Lexer:
 
             elif char == '"':
                 self.string()
+            
+            elif char == "'":
+                self.char()
 
             elif char.isdigit():
                 self.number()

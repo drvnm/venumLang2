@@ -13,6 +13,8 @@ single_char_tokens = {
     '*': tokens.STAR,
     '&' : tokens.AMPERSAND,
     '%' : tokens.PERCENT, 
+    '[': tokens.LEFT_SQUARE,
+    ']': tokens.RIGHT_SQUARE,
 }
 
 two_char_tokens = {

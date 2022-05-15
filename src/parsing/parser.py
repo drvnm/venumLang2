@@ -16,7 +16,7 @@ class Parser():
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.current = 0
-        
+
         # data for keeping track of loops
         self.in_loop = False
         self.loop_index_begin = 0
@@ -81,6 +81,10 @@ class Parser():
             return VarToPointerExpr(token)
         if self.match(tokens.STRING):
             return LiteralExpr(self.previous())
+        if self.match(tokens.CHAR):
+            char = self.previous()
+            char.literal = ord(char.literal)
+            return LiteralExpr(char)
 
         # if no valid token is found, throw error
         error(self.peek(), "Expected expression.")
@@ -92,16 +96,34 @@ class Parser():
                 args.append(self.expression())
                 if self.match(tokens.RIGHT_PAREN):
                     return CallExpr(expr, args)
-                self.consume(tokens.COMMA, "Expected ',' after function argument.")
+                self.consume(
+                    tokens.COMMA, "Expected ',' after function argument.")
 
-        self.consume(tokens.RIGHT_PAREN, "Expected ')' after function arguments.")      
+        self.consume(tokens.RIGHT_PAREN,
+                     "Expected ')' after function arguments.")
         return CallExpr(expr, args)
-    
+
+    def array_access(self, expr: Expr) -> Expr:
+        index = self.expression()
+        self.consume(tokens.RIGHT_SQUARE, "Expected ']' after array index.")
+
+        if self.match(*inc_dec_tokens):
+            operator = self.previous()
+            val = self.expression()
+            node = AssignmentExpr(expr.name, operator, val, "array", index)
+            return node
+
+        return ArrayAccessExpr(expr.name, index)
+
     def call(self) -> Expr:
         expr = self.primary()
 
+        if self.match(tokens.LEFT_SQUARE):
+            print("test")
+            return self.array_access(expr)
+
         if self.match(tokens.LEFT_PAREN) and isinstance(expr, VarExpr):
-           expr = self.finish_call(expr)
+            expr = self.finish_call(expr)
 
         return expr
 
@@ -153,6 +175,8 @@ class Parser():
 
     def assignment(self) -> Expr:
         expr = self.equality()
+        
+        
 
         if self.match(*inc_dec_tokens):
             operator = self.previous()
@@ -214,22 +238,22 @@ class Parser():
         if else_branch:
             stmt.else_id = else_id
         return stmt
-    
+
     def while_stmt(self) -> Stmt:
         while_index = self.current - 1
         self.loop_index_begin = while_index
         self.consume(tokens.LEFT_PAREN, "Expected '(' after 'while'.")
         condition = self.expression()
         self.consume(tokens.RIGHT_PAREN, "Expected ')' after while condition.")
-        self.in_loop = True # let parser know that were in a loop
-        body = self.statement() 
+        self.in_loop = True  # let parser know that were in a loop
+        body = self.statement()
         end_index = self.current
         stmt = WhileStmt(condition, body, while_index, end_index)
         self.in_loop = False
         return stmt
-    
+
     def for_stmt(self) -> Stmt:
-        for_index = self.current - 1
+        for_index = self.current 
         self.loop_index_begin = for_index
         self.consume(tokens.LEFT_PAREN, "Expected '(' after 'for'.")
         initializer = None
@@ -239,7 +263,7 @@ class Parser():
             initializer = self.var_declaration()
         else:
             initializer = self.expression_stmt()
-        
+
         condition = None
         if not self.check(tokens.SEMICOLON):
             condition = self.expression()
@@ -250,19 +274,19 @@ class Parser():
             increment = self.expression()
         self.consume(tokens.RIGHT_PAREN, "Expected ')' after for increment.")
 
-        self.in_loop = True # let parser know that were in a loop
-        body = self.statement() # while loob body
+        self.in_loop = True  # let parser know that were in a loop
+        body = self.statement()  # while loob body
         end_index = self.current
         self.in_loop = False
 
-        if increment != None: # put increment after body
+        if increment != None:  # put increment after body
             body = BlockStmt([body, ExprStmt(increment)])
         if condition == None:
             condition = LiteralExpr(True)
         body = WhileStmt(condition, body, for_index, end_index)
         if initializer != None:
             body = BlockStmt([initializer, body])
-        
+
         return body
 
     def break_stmt(self) -> Stmt:
@@ -270,15 +294,16 @@ class Parser():
         if not self.in_loop:
             error(self.previous(), "Cannot use 'break' outside of loop.")
         return BreakStmt()
-    
+
     def continue_stmt(self) -> Stmt:
         self.consume(tokens.SEMICOLON, "Expected ';' after 'continue'.")
         if not self.in_loop:
             error(self.previous(), "Cannot use 'continue' outside of loop.")
         return ContinueStmt(self.loop_index_begin)
-    
+
     def syscall_stmt(self) -> Stmt:
-        self.consume(tokens.NUMBER, "Expected number after 'syscall' (syscall ID).")
+        self.consume(
+            tokens.NUMBER, "Expected number after 'syscall' (syscall ID).")
         syscall_id = self.previous().literal
         args = []
         if not self.check(tokens.SEMICOLON):
@@ -315,7 +340,29 @@ class Parser():
         name = self.consume(tokens.IDENTIFIER, "Expected variable name.")
         expr = None
 
+        # parse array size if it is an array
+        if self.match(tokens.LEFT_SQUARE):
+            expr = self.consume(tokens.NUMBER, "Expected array size.")
+            self.consume(tokens.RIGHT_SQUARE, "Expected ']' after array size.")
+
+        initializers = []
+
         if self.match(tokens.EQUAL):
+            if expr:  # array
+                self.consume(tokens.LEFT_BRACE,
+                             "Expected '{' after array init.")
+                while not self.check(tokens.RIGHT_BRACE):
+                    if len(initializers) > expr.literal:
+                        error(self.peek(), "Array size exceeded.")
+                    initializers.append(self.expression())
+                    if self.match(tokens.COMMA):
+                        continue
+                    if self.match(tokens.RIGHT_BRACE):
+                        self.consume(tokens.SEMICOLON,
+                                     "Expected ';' after array init.")
+                        break
+                    error(self.peek(), "Expected ',' or '}' after array initializer.")
+                return ArrayStmt(type_, name, initializers, expr.literal * size)
             expr = self.expression()
 
         if type_ == tokens.STR and expr == None:
@@ -323,8 +370,12 @@ class Parser():
 
         self.consume(tokens.SEMICOLON,
                      "Expected ';' after variable declaration.")
+
+        if isinstance(expr, Token):  # uninitialized array
+            return ArrayStmt(type_, name, [], expr.literal * size)
+
         return VarStmt(type_, name, expr, size)
-    
+
     def func_declaration(self) -> Stmt:
         if not self.match(*types):
             error(self.peek(), "Expected return type after 'func'.")
@@ -338,7 +389,8 @@ class Parser():
             if not self.match(*types):
                 error(self.peek(), "Expected type before parameter name.")
             type_ = self.previous()
-            arg_name = self.consume(tokens.IDENTIFIER, "Expected parameter name.")
+            arg_name = self.consume(
+                tokens.IDENTIFIER, "Expected parameter name.")
             size = type_to_size[type_.type]
             param = VarStmt(type_, arg_name, None, size)
             params.append(param)
@@ -346,7 +398,8 @@ class Parser():
                 if not self.match(*types):
                     error(self.peek(), "Expected type before parameter name.")
                 type_ = self.previous()
-                arg_name = self.consume(tokens.IDENTIFIER, "Expected parameter name.")
+                arg_name = self.consume(
+                    tokens.IDENTIFIER, "Expected parameter name.")
                 size = type_to_size[type_.type]
                 param = VarStmt(type_, arg_name, None, size)
                 params.append(param)
@@ -354,7 +407,6 @@ class Parser():
         self.consume(tokens.LEFT_BRACE, "Expected '{' before function body.")
         body = self.block()
         return FuncStmt(name, params, body, return_type)
-
 
     def declaration(self) -> Stmt:
         if self.match(*types):

@@ -67,29 +67,38 @@
       leave
       ret
  _start:
-   push str_0
-   pop rdi
-   call mkdir
+   push 104
+   xor rax, rax
+   pop rax ; store array initializer
+   mov [(MEMORY + 0) + 0], rax
+   push 101
+   xor rax, rax
+   pop rax ; store array initializer
+   mov [(MEMORY + 0) + 1], rax
+   push 108
+   xor rax, rax
+   pop rax ; store array initializer
+   mov [(MEMORY + 0) + 2], rax
+   push 108
+   xor rax, rax
+   pop rax ; store array initializer
+   mov [(MEMORY + 0) + 3], rax
+   push 111
+   xor rax, rax
+   pop rax ; store array initializer
+   mov [(MEMORY + 0) + 4], rax
+   push 4
+   pop r10 ; array index
+   xor rax, rax
+   mov AL, BYTE [(MEMORY + 0) + r10 * 1]
+   push rax
+   pop rdi ; print statement
+   call print
    ; end of program
    mov rax, 60
    mov rdi, 0
    syscall
-    mkdir:
-   push rbp
-   mov rbp, rsp
-   mov [MEMORY + 0], rdi
-   xor rax, rax
-   mov RAX, QWORD [MEMORY + 0]
-   push rax
-   pop rdi
-   push 1
-   pop rsi
-   mov rax, 83
-   syscall
-   leave
-   ret
-
+   
  section .bss
    MEMORY: resb 6400
  section .data
-   str_0: db "./test", 0

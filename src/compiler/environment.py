@@ -1,4 +1,5 @@
-from parsing.statements import FuncStmt, VarStmt
+from typing import List
+from parsing.statements import ArrayStmt, FuncStmt, VarStmt
 from scanning.error import error
 from intermediate.tokens import *
 from intermediate.lookup_tables import *
@@ -10,6 +11,7 @@ class Environment:
         self.memory_index = 0
         self.enclosing = None
         self.functions = {}
+        self.arrays = {}
     
     def define_string(self, var: VarStmt):
         name = var.name.lexeme
@@ -31,8 +33,8 @@ class Environment:
         self.variables[name] = [self.memory_index, word]
         self.memory_index += size
 
-    # return memory index of variable
-    def get(self, name: Token) -> int:
+    # return memory index of variable and word
+    def get(self, name: Token):
         if name.lexeme in self.variables:
             return self.variables[name.lexeme]
         else:
@@ -62,5 +64,13 @@ class Environment:
                 return self.enclosing.get_function(name)
             else:
                 error(name, f'Function {name.lexeme} not defined')
+
+    # defining arrays
+    def define_array(self, arr: ArrayStmt):
+        name = arr.name.lexeme
+        if name in self.variables:
+            error(arr.name, f'Variable {name} already defined')
+        self.variables[name] = [self.memory_index, arr]
+        self.memory_index += arr.size
 
 

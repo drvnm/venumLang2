@@ -123,7 +123,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("mov rax, 60")
         self.write("mov rdi, 0")
         self.write("syscall")
-        self.write(self.subroutines) # write global functions
+        self.write(self.subroutines)  # write global functions
 
         # section for variables
         self.write("section .bss", False)
@@ -133,7 +133,6 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("section .data", False)
         for index, string in enumerate(self.strings):
             self.write(f"str_{index}: db \"{string}\", 0")
-        
 
     def compile(self, statements: List[Stmt]):
         self.write_header()
@@ -247,7 +246,6 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write("movzx rax, al")
             self.write("push rax")
 
-
     def visit_print_stmt(self, print_stmt: PrintStmt):
         self.execute(print_stmt.expr)
 
@@ -265,18 +263,31 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"pop rax ; store variable {var_stmt.name.lexeme}")
         else:
             self.write(f"mov rax, 0 ; store variable {var_stmt.name.lexeme}")
-        self.environment.define(var_stmt) # calculate address
+        self.environment.define(var_stmt)  # calculate address
         start_index, word = self.environment.get(var_stmt.name)
         self.write(f"mov [MEMORY + {start_index}], rax")
 
+    def visit_array_stmt(self, array_stmt: ArrayStmt):
+        self.environment.define_array(array_stmt)
+        start_index = self.environment.get(array_stmt.name)[0]
+        size = type_to_size[array_stmt.type.type]
+
+        # store array inital values, if any
+        for index, expr in enumerate(array_stmt.exprs):
+            self.execute(expr)
+            self.write("xor rax, rax")
+            self.write("pop rax ; store array initializer")
+            self.write(f"mov [(MEMORY + {start_index}) + {index * size}], rax")
+
     # loads a variable from .bss
+
     def visit_var_expr(self, var_expr: VarExpr):
         start_index, word = self.environment.get(var_expr.name)
         register = word_to_register[word]
         self.write("xor rax, rax")
         self.write(f"mov {register}, {word} [MEMORY + {start_index}]")
         self.write(f"push rax")
-    
+
     # handle references
     def visit_var_to_pointer_expr(self, var_to_pointer_expr: VarToPointerExpr):
         start_index, word = self.environment.get(var_to_pointer_expr.name)
@@ -292,39 +303,63 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("mov rax, [rax]")
         self.write("push rax")
 
+    def modify_array(self, index: int, arr_obj: ArrayStmt, operator: tokens):
+        size = type_to_size[arr_obj.type.type]
+        word = size_to_word[size]
+        register = word_to_register[word]
+        self.write("pop r9 ; index of array modification")
+        self.write("xor rax, rax")
+        self.write("pop rax")
+        if operator == tokens.EQUAL:
+            self.write(f"mov [(MEMORY + {index}) + r9 * {size}], {register}")
+
+
     # handle assignment types
     def visit_assignment_expr(self, assign_expr: AssignmentExpr):
         self.execute(assign_expr.value)
         operator = assign_expr.operator.type
+
+        if assign_expr.mode == "array":
+            self.execute(assign_expr.index)
+            index, arr_obj = self.environment.get(assign_expr.name)
+            self.modify_array(index, arr_obj, operator)
+            return
+
         start_index, word = self.environment.get(assign_expr.name)
-        
-        self.write(f"xor rax, rax ; assign value to variable {assign_expr.name.lexeme}")
+
+        self.write(
+            f"xor rax, rax ; assign value to variable {assign_expr.name.lexeme}")
         self.write("pop rax")
         if operator == tokens.EQUAL:
-            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
+            self.write(
+                f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.PLUS_EQUAL:
             self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"add rax, r10")
-            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
+            self.write(
+                f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.MINUS_EQUAL:
             self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"sub rax, r10")
-            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
+            self.write(
+                f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.STAR_EQUAL:
             self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"imul rax, r10")
-            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
+            self.write(
+                f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.SLASH_EQUAL:
             self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"idiv rax")
-            self.write(f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
+            self.write(
+                f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         # push end result
         self.write("push r10")
-    
+
     def execute_block(self, block: BlockStmt, environment: Environment):
         prev = self.environment
         self.environment = environment
@@ -362,17 +397,18 @@ class Compiler(ExprVisitor, StmtVisitor):
                 if if_stmt.else_branch:
                     self.write(f"je .L{if_stmt.else_id} ; jump to else")
                 else:
-                    self.write(f"je .L{if_stmt.end_id} ; jump to end of if stmt")
+                    self.write(
+                        f"je .L{if_stmt.end_id} ; jump to end of if stmt")
             else:
                 self.write(f"je .L{if_stmt.elif_statements[indecies][2]}")
                 indecies += 1
-            self.execute(branch)	
+            self.execute(branch)
             self.write(f"jmp .L{if_stmt.end_id}")
         if if_stmt.else_branch:
             self.write(f".L{if_stmt.else_id}:", False)
             self.execute(if_stmt.else_branch)
         self.write(f".L{if_stmt.end_id}: ; END IF STMT", False)
-        
+
     def visit_while_stmt(self, while_stmt: WhileStmt):
         self.write(f".L{while_stmt.label_index}: ; WHILE START")
         self.execute(while_stmt.condition)
@@ -382,7 +418,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.execute(while_stmt.body)
         self.write(f"jmp .L{while_stmt.label_index}")
         self.write(f".L{while_stmt.end_index}: ; WHILE END")
-    
+
     # handle break/continue statements
     def visit_continue_stmt(self, continue_stmt: ContinueStmt):
         self.write(f"jmp .L{continue_stmt.label_index}")
@@ -391,16 +427,17 @@ class Compiler(ExprVisitor, StmtVisitor):
         # handle arguments
         original_function = self.globals.get_function(call_expr.callee.name)
         if len(call_expr.arguments) != len(original_function.parameters):
-            error(call_expr.callee.name, f"Incorrect number of arguments passed to function {call_expr.callee.name.lexeme} (COMPILE TIME ERROR)")
-        
+            error(call_expr.callee.name,
+                  f"Incorrect number of arguments passed to function {call_expr.callee.name.lexeme} (COMPILE TIME ERROR)")
+
         for index, argument in enumerate(call_expr.arguments):
             self.execute(argument)
             self.write(f"pop {self.args_registers[index]}")
         self.write(f"call {call_expr.callee.name.lexeme}")
-    
+
     def visit_func_stmt(self, func_stmt: FuncStmt):
         self.globals.define_function(func_stmt)
-        self.is_subroutine = True # let compiler know we are in a subroutine
+        self.is_subroutine = True  # let compiler know we are in a subroutine
         self.write(f"{func_stmt.name.lexeme}:", False)
         self.write("push rbp")
         self.write("mov rbp, rsp")
@@ -416,11 +453,23 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.execute_block(func_stmt.body, env)
         self.write("leave")
         self.write("ret")
-        self.is_subroutine = False # let compiler know we are not in a subroutine
-    
+        self.is_subroutine = False  # let compiler know we are not in a subroutine
+
     def visit_syscall_stmt(self, syscall_stmt: SyscallStmt):
         for index, arg in enumerate(syscall_stmt.args):
             self.execute(arg)
             self.write(f"pop {self.syscall_registers[index]}")
         self.write(f"mov rax, {syscall_stmt.syscall_number}")
         self.write("syscall")
+
+    def visit_array_access_expr(self, array_access_expr: ArrayAccessExpr):
+        index, arr_obj = self.environment.get(array_access_expr.name)
+        size = type_to_size[arr_obj.type.type]
+        word = size_to_word[size]
+        register = word_to_register[word]
+        self.execute(array_access_expr.index)
+        self.write("pop r10 ; array index")
+        self.write("xor rax, rax")
+        self.write(
+            f"mov {register}, {word} [(MEMORY + {index}) + r10 * {size}]")
+        self.write("push rax")

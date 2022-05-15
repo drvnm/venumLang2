@@ -23,7 +23,7 @@ class ExprStmt(Stmt):
     def accept(self, visitor):
         visitor.visit_expr_stmt(self)
 
-# represents a variable declaration like var x = <expr>;
+# represents a variable declaration like int x = <expr>;
 class VarStmt(Stmt):
     def __init__(self, type: tokens, name: Token, expr: Expr, size: int):
         self.type = type
@@ -33,6 +33,17 @@ class VarStmt(Stmt):
     
     def accept(self, visitor):
         visitor.visit_var_stmt(self)
+
+# represents a array declaration like int x[<expr>] = <expr>;
+class ArrayStmt(Stmt):
+    def __init__(self, type: tokens, name: Token, exprs: List[Expr], size: int):
+        self.type = type
+        self.name = name
+        self.exprs = exprs
+        self.size = size
+    
+    def accept(self, visitor):
+        visitor.visit_array_stmt(self)
 
 # represents a block of statements
 class BlockStmt(Stmt):

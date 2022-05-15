@@ -3,7 +3,8 @@ program     -> decleration* EOF;
 decleration -> varDecl | statement
             | funDeclr;
 
-varDecl     -> type IDENTIFIER ("=" expression)? ";"
+varDecl     -> type IDENTIFIER ("[" NUMBER "]")* ("=" expression)? ";"
+
 
 statement   -> exprStmt
             | printStmt
@@ -45,7 +46,7 @@ exprStmt    -> expression ";";
 printStmt   -> "print" expression ";";
 
 expression  -> assigment;
-assigment   -> IDENTIFIER ("=" | "+=" | "*=" | "/=") expression 
+assigment   -> IDENTIFIER ("[" expression "]")? ("=" | "+=" | "*=" | "/=") expression 
             | equality;
 equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )*
@@ -53,10 +54,11 @@ term        -> factor ( ( "+" | "-") factor )*
 factor      -> unary ( ( "*" | "/"  ) unary )*
 unary       -> ( "!" | "-" ) unary | call
 
-call        -> primary ( "(" arguments? ")" )
+call        -> primary ( ( "(" arguments? ")" ) | ( "[" expression "]" ) )
 arguments   -> expression ( "," expression )*
                                                                                  reference shuld be unary
 primary     -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | "&"? IDENTIFIER | "*" expression
+            | IDENTIFIER "
 type        -> "BYTE" | "SHORT" | "INT" | "LONG"
 
 
