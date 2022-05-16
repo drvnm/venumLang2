@@ -67,57 +67,67 @@
       leave
       ret
  _start:
+   push str_0
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call strlen
+   push rax
+   pop rdi ; print statement
+   call print
    push str_1
    xor rdi, rdi
    pop rdi ; func call arg
-   push 4
-   xor rsi, rsi
-   pop rsi ; func call arg
-   call print_line
+   call strlen
    push rax
-   push str_2
-   xor rdi, rdi
-   pop rdi ; func call arg
-   push 3
-   xor rsi, rsi
-   pop rsi ; func call arg
-   call print_line
-   push rax
+   pop rdi ; print statement
+   call print
    ; end of program
    mov rax, 60
    mov rdi, 0
    syscall
-    print_line:
+    strlen:
    push rbp
    mov rbp, rsp
    mov [MEMORY + 0], rdi
-   mov [MEMORY + 8], esi
-   push 1
-   pop rdi
+   push 0
+   pop rax ; store variable index
+   mov [MEMORY + 8], eax
+   xor rax, rax
+   .L13: ; WHILE START
+   push 0
    xor rax, rax ; begin loading from var
    mov rax, QWORD [MEMORY + 0]
    push rax
-   pop rsi
+   xor r10, r10
+   xor r9, r9
+   pop r9 ; array pointer
    xor rax, rax ; begin loading from var
    mov eax, DWORD [MEMORY + 8]
    push rax
-   pop rdx
-   mov rax, 1
-   syscall
+   xor rax, rax
+   pop r10 ; array index
+   mov al, [r9 + r10 * 1]
    push rax
-   pop rax ; store variable x
-   mov [MEMORY + 12], al
-   push 1
-   pop rdi
-   push str_0
-   pop rsi
-   push 1
-   pop rdx
-   mov rax, 1
-   syscall
+   pop rax ; compare left to right
+   pop rbx
+   cmp rax, rbx
+   setg al
+   movzx rax, al
    push rax
+   pop rax ; while condition start
+   cmp rax, 0
+   je .L28
+   push 1
+   xor rax, rax ; assign value to variable
+   pop rax
+   xor r10, r10
+   mov r10, [MEMORY + 8]
+   add rax, r10
+   mov [MEMORY + 8], DWORD eax
+   jmp .L13
+   .L28: ; WHILE END
    xor rax, rax ; begin loading from var
-   mov al, BYTE [MEMORY + 12]
+   mov eax, DWORD [MEMORY + 8]
    push rax
    pop rax ; return value
    leave
@@ -128,6 +138,5 @@
  section .bss
    MEMORY: resb 6400
  section .data
-   str_0: db `\n`, 0
+   str_0: db `hello`, 0
    str_1: db `test`, 0
-   str_2: db `yay`, 0

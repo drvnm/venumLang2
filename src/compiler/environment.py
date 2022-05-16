@@ -9,7 +9,6 @@ class Environment:
     memory_index = 0
     def __init__(self):
         self.variables = {}
-        Environment.memory_index = 0
         self.enclosing = None
         self.functions = {}
         self.arrays = {}
@@ -18,7 +17,7 @@ class Environment:
         name = var.name.lexeme
         if name in self.variables:
             error(var.name, f'Variable {name} already defined')
-        self.variables[name] = [Environment.memory_index, 'QWORD']
+        self.variables[name] = [Environment.memory_index, 'QWORD', True]
         Environment.memory_index += 8
     
     def define(self, var: VarStmt):
@@ -31,7 +30,7 @@ class Environment:
         if name in self.variables:
             error(var.name, f'Variable {name} already defined')
         word = size_to_word[size]
-        self.variables[name] = [Environment.memory_index, word]
+        self.variables[name] = [Environment.memory_index, word, False]
         Environment.memory_index += size
 
     # return memory index of variable and word
@@ -47,7 +46,7 @@ class Environment:
     # set environment for parent blocks
     def set_environment(self, enclosing: 'Environment'):
         self.enclosing = enclosing
-        Environment.memory_index = enclosing.memory_index
+        Environment.memory_index = Environment.memory_index
     
     # define function
     def define_function(self, function: FuncStmt):
@@ -71,7 +70,7 @@ class Environment:
         name = arr.name.lexeme
         if name in self.variables:
             error(arr.name, f'Variable {name} already defined')
-        self.variables[name] = [Environment.memory_index, arr]
+        self.variables[name] = [Environment.memory_index, arr, False]
         Environment.memory_index += arr.size
 
 

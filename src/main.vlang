@@ -1,8 +1,19 @@
-func int print_line(str string, int length) {
-    byte x = syscall 1 1, string, length;
-    syscall 1 1, "\n", 1;
-    return x;
+
+
+
+func int strlen(str string) {
+    int index = 0;
+    while(string[index] > 0) {
+        index += 1;
+    }
+
+    return index;
 }
 
-print_line("test", 4);
-print_line("yay", 3);
+print strlen("hello");
+print strlen("test");
+
+
+
+
+
