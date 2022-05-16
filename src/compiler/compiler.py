@@ -265,11 +265,13 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"mov rax, 0 ; store variable {var_stmt.name.lexeme}")
         self.environment.define(var_stmt)  # calculate address
         start_index, word = self.environment.get(var_stmt.name)
-        self.write(f"mov [MEMORY + {start_index}], rax")
+        register = word_to_register_size[word + "rax"]
+        self.write(f"mov [MEMORY + {start_index}], {register}")
 
     def visit_array_stmt(self, array_stmt: ArrayStmt):
         self.environment.define_array(array_stmt)
-        start_index = self.environment.get(array_stmt.name)[0]
+        start_index, arr_obj = self.environment.get(array_stmt.name)
+        size = type_to_size[arr_obj.type.type]
         size = type_to_size[array_stmt.type.type]
 
         # store array inital values, if any
@@ -280,11 +282,18 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"mov [(MEMORY + {start_index}) + {index * size}], rax")
 
     # loads a variable from .bss
-
     def visit_var_expr(self, var_expr: VarExpr):
         start_index, word = self.environment.get(var_expr.name)
-        register = word_to_register[word]
-        self.write("xor rax, rax")
+        register = word_to_register.get(word) or 'rax'
+        self.write("xor rax, rax ; begin loading from var")
+
+        if isinstance(word, ArrayStmt):
+            if hasattr(word, 'is_in_func'):
+                self.write(f"mov {register}, QWORD [MEMORY + {start_index}]")
+            else:
+                self.write(f"mov {register}, MEMORY + {start_index}")
+            self.write("push rax")
+            return
         self.write(f"mov {register}, {word} [MEMORY + {start_index}]")
         self.write(f"push rax")
 
@@ -303,34 +312,40 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("mov rax, [rax]")
         self.write("push rax")
 
-    def modify_array(self, index: int, arr_obj: ArrayStmt, operator: tokens):
+    def modify_array(self, arr_obj: ArrayStmt, operator: tokens):
         size = type_to_size[arr_obj.type.type]
         word = size_to_word[size]
         register = word_to_register[word]
-        self.write("pop r9 ; index of array modification")
         self.write("xor rax, rax")
-        self.write("pop rax")
+        self.write("pop rax") # val
         if operator == tokens.EQUAL:
-            self.write(f"mov [(MEMORY + {index}) + r9 * {size}], {register}")
-
+            self.write(f"mov [rdi], {word} {register}")
 
     # handle assignment types
-    def visit_assignment_expr(self, assign_expr: AssignmentExpr):
-        self.execute(assign_expr.value)
-        operator = assign_expr.operator.type
 
+    def visit_assignment_expr(self, assign_expr: AssignmentExpr):
+        self.execute(assign_expr.value) # push value of assigment
+        operator = assign_expr.operator.type
         if assign_expr.mode == "array":
             self.execute(assign_expr.index)
+            self.write("pop rax") # index
             index, arr_obj = self.environment.get(assign_expr.name)
-            self.modify_array(index, arr_obj, operator)
+            size = type_to_size[arr_obj.type.type]
+            self.write(f"imul rax, {size}") # offset
+            if hasattr(arr_obj, 'is_in_func'):
+                self.write(f"mov rdi, QWORD [(MEMORY + {index})]") # calc index of assigment
+            else:
+                self.write(f"mov rdi, (MEMORY + {index})")
+            self.write("add rdi, rax")
+            self.modify_array(arr_obj, operator)
             return
 
         start_index, word = self.environment.get(assign_expr.name)
 
-        self.write(
-            f"xor rax, rax ; assign value to variable {assign_expr.name.lexeme}")
+        self.write(f"xor rax, rax ; assign value to variable")
         self.write("pop rax")
         if operator == tokens.EQUAL:
+            
             self.write(
                 f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.PLUS_EQUAL:
@@ -431,8 +446,10 @@ class Compiler(ExprVisitor, StmtVisitor):
                   f"Incorrect number of arguments passed to function {call_expr.callee.name.lexeme} (COMPILE TIME ERROR)")
 
         for index, argument in enumerate(call_expr.arguments):
+            register = self.args_registers[index]
             self.execute(argument)
-            self.write(f"pop {self.args_registers[index]}")
+            self.write(f"xor {register}, {register}")
+            self.write(f"pop {register} ; func call arg")
         self.write(f"call {call_expr.callee.name.lexeme}")
 
     def visit_func_stmt(self, func_stmt: FuncStmt):
@@ -446,10 +463,14 @@ class Compiler(ExprVisitor, StmtVisitor):
         num_args = len(func_stmt.parameters)
         for param in range(num_args):
             func_param = func_stmt.parameters[param]
-            env.define(func_param)
+            env.define(func_param) if isinstance(func_param, VarStmt) else env.define_array(func_param)
             start_index, word = env.get(func_param.name)
+            if isinstance(word, ArrayStmt):
+                word = 'QWORD'
             register = self.args_registers[param]
+            register = word_to_register_size[word + register]
             self.write(f"mov [MEMORY + {start_index}], {register}")
+           
         self.execute_block(func_stmt.body, env)
         self.write("leave")
         self.write("ret")
@@ -467,9 +488,14 @@ class Compiler(ExprVisitor, StmtVisitor):
         size = type_to_size[arr_obj.type.type]
         word = size_to_word[size]
         register = word_to_register[word]
+        var = VarExpr(array_access_expr.name)
+        self.visit_var_expr(var)
+        self.write("xor r9, r9")
+        self.write("pop r9 ; array pointer")
         self.execute(array_access_expr.index)
         self.write("pop r10 ; array index")
         self.write("xor rax, rax")
-        self.write(
-            f"mov {register}, {word} [(MEMORY + {index}) + r10 * {size}]")
+        self.write(f"mov {register}, {word} [r9 + r10 * {size}]")
         self.write("push rax")
+        
+

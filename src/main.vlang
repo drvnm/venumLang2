@@ -5,6 +5,35 @@
 // str folder = "./test";
 // mkdir(folder);
 
-byte arr[5] = {'h', 'e', 'l', 'l', 'o'};
 
-print &arr[4];
+
+
+// func int test(byte x[]) {
+//     print x ;
+// }
+
+
+
+// byte arr[1] = {2};
+// print arr; 
+
+
+// test(arr);
+// print arr[0];
+
+
+
+func int swap(byte arr[], byte x) 
+{
+    byte temp = arr[0];
+    arr[0] = arr[1];
+    arr[1] = temp;
+}
+
+byte arr[4] = {1 , 2};
+
+swap(arr, 100);
+
+for(int i = 0; i < 4; i += 1) {
+    print arr[i];
+}

@@ -6,9 +6,10 @@ from intermediate.lookup_tables import *
 
 # class that will hold data states
 class Environment:
+    memory_index = 0
     def __init__(self):
         self.variables = {}
-        self.memory_index = 0
+        Environment.memory_index = 0
         self.enclosing = None
         self.functions = {}
         self.arrays = {}
@@ -17,8 +18,8 @@ class Environment:
         name = var.name.lexeme
         if name in self.variables:
             error(var.name, f'Variable {name} already defined')
-        self.variables[name] = [self.memory_index, 'QWORD']
-        self.memory_index += 8
+        self.variables[name] = [Environment.memory_index, 'QWORD']
+        Environment.memory_index += 8
     
     def define(self, var: VarStmt):
         # check if the variable is a string
@@ -30,8 +31,8 @@ class Environment:
         if name in self.variables:
             error(var.name, f'Variable {name} already defined')
         word = size_to_word[size]
-        self.variables[name] = [self.memory_index, word]
-        self.memory_index += size
+        self.variables[name] = [Environment.memory_index, word]
+        Environment.memory_index += size
 
     # return memory index of variable and word
     def get(self, name: Token):
@@ -46,7 +47,7 @@ class Environment:
     # set environment for parent blocks
     def set_environment(self, enclosing: 'Environment'):
         self.enclosing = enclosing
-        self.memory_index = enclosing.memory_index
+        Environment.memory_index = enclosing.memory_index
     
     # define function
     def define_function(self, function: FuncStmt):
@@ -70,7 +71,7 @@ class Environment:
         name = arr.name.lexeme
         if name in self.variables:
             error(arr.name, f'Variable {name} already defined')
-        self.variables[name] = [self.memory_index, arr]
-        self.memory_index += arr.size
+        self.variables[name] = [Environment.memory_index, arr]
+        Environment.memory_index += arr.size
 
 

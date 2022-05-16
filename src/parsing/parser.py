@@ -119,7 +119,6 @@ class Parser():
         expr = self.primary()
 
         if self.match(tokens.LEFT_SQUARE):
-            print("test")
             return self.array_access(expr)
 
         if self.match(tokens.LEFT_PAREN) and isinstance(expr, VarExpr):
@@ -392,8 +391,14 @@ class Parser():
             arg_name = self.consume(
                 tokens.IDENTIFIER, "Expected parameter name.")
             size = type_to_size[type_.type]
-            param = VarStmt(type_, arg_name, None, size)
-            params.append(param)
+            if self.match(tokens.LEFT_SQUARE):
+                self.consume(tokens.RIGHT_SQUARE, "Expected ']' after array parameter.")
+                param = ArrayStmt(type_, arg_name, [], 8)
+                param.is_in_func = True
+                params.append(param)
+            else:
+                param = VarStmt(type_, arg_name, None, size)
+                params.append(param)
             while self.match(tokens.COMMA):
                 if not self.match(*types):
                     error(self.peek(), "Expected type before parameter name.")
@@ -401,8 +406,14 @@ class Parser():
                 arg_name = self.consume(
                     tokens.IDENTIFIER, "Expected parameter name.")
                 size = type_to_size[type_.type]
-                param = VarStmt(type_, arg_name, None, size)
-                params.append(param)
+                if self.match(tokens.LEFT_SQUARE):
+                    self.consume(tokens.RIGHT_SQUARE, "Expected ']' after array parameter.")
+                    param = ArrayStmt(type_, arg_name, [], 8)
+                    param.is_in_func = True
+                    params.append(param)
+                else:
+                    param = VarStmt(type_, arg_name, None, size)
+                    params.append(param)
         self.consume(tokens.RIGHT_PAREN, "Expected ')' after parameters.")
         self.consume(tokens.LEFT_BRACE, "Expected '{' before function body.")
         body = self.block()

@@ -67,38 +67,117 @@
       leave
       ret
  _start:
-   push 104
+   push 1
    xor rax, rax
    pop rax ; store array initializer
-   mov [(MEMORY + 0) + 0], rax
-   push 101
+   mov [(MEMORY + 10) + 0], rax
+   push 2
    xor rax, rax
    pop rax ; store array initializer
-   mov [(MEMORY + 0) + 1], rax
-   push 108
-   xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 0) + 2], rax
-   push 108
-   xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 0) + 3], rax
-   push 111
-   xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 0) + 4], rax
+   mov [(MEMORY + 10) + 1], rax
+   xor rax, rax ; begin loading from var
+   mov rax, MEMORY + 10
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push 100
+   xor rsi, rsi
+   pop rsi ; func call arg
+   call swap
+   push 0
+   pop rax ; store variable i
+   mov [MEMORY + 0], eax
+   .L59: ; WHILE START
    push 4
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 0]
+   push rax
+   pop rax ; compare left to right
+   pop rbx
+   cmp rax, rbx
+   setl al
+   movzx rax, al
+   push rax
+   pop rax ; while condition start
+   cmp rax, 0
+   je .L81
+   xor rax, rax ; begin loading from var
+   mov rax, MEMORY + 10
+   push rax
+   xor r9, r9
+   pop r9 ; array pointer
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 0]
+   push rax
    pop r10 ; array index
    xor rax, rax
-   mov AL, BYTE [(MEMORY + 0) + r10 * 1]
+   mov al, BYTE [r9 + r10 * 1]
    push rax
    pop rdi ; print statement
    call print
+   push 1
+   xor rax, rax ; assign value to variable
+   pop rax
+   xor r10, r10
+   mov r10, [MEMORY + 0]
+   add rax, r10
+   mov [MEMORY + 0], DWORD eax
+   push r10
+   jmp .L59
+   .L81: ; WHILE END
    ; end of program
    mov rax, 60
    mov rdi, 0
    syscall
-   
+    swap:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 0], rdi
+   mov [MEMORY + 8], sil
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 0]
+   push rax
+   xor r9, r9
+   pop r9 ; array pointer
+   push 0
+   pop r10 ; array index
+   xor rax, rax
+   mov al, BYTE [r9 + r10 * 1]
+   push rax
+   pop rax ; store variable temp
+   mov [MEMORY + 9], al
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 0]
+   push rax
+   xor r9, r9
+   pop r9 ; array pointer
+   push 1
+   pop r10 ; array index
+   xor rax, rax
+   mov al, BYTE [r9 + r10 * 1]
+   push rax
+   push 0
+   pop rax
+   imul rax, 1
+   mov rdi, QWORD [(MEMORY + 0)]
+   add rdi, rax
+   xor rax, rax
+   pop rax
+   mov [rdi], BYTE al
+   xor rax, rax ; begin loading from var
+   mov al, BYTE [MEMORY + 9]
+   push rax
+   push 1
+   pop rax
+   imul rax, 1
+   mov rdi, QWORD [(MEMORY + 0)]
+   add rdi, rax
+   xor rax, rax
+   pop rax
+   mov [rdi], BYTE al
+   leave
+   ret
+
  section .bss
    MEMORY: resb 6400
  section .data
