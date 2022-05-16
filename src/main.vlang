@@ -1,39 +1,8 @@
-// func int mkdir(str folder_name) {
-//   syscall 83 folder_name, 1;
-// }
-
-// str folder = "./test";
-// mkdir(folder);
-
-
-
-
-// func int test(byte x[]) {
-//     print x ;
-// }
-
-
-
-// byte arr[1] = {2};
-// print arr; 
-
-
-// test(arr);
-// print arr[0];
-
-
-
-func int swap(byte arr[], byte x) 
-{
-    byte temp = arr[0];
-    arr[0] = arr[1];
-    arr[1] = temp;
+func int print_line(str string, int length) {
+    byte x = syscall 1 1, string, length;
+    syscall 1 1, "\n", 1;
+    return x;
 }
 
-byte arr[4] = {1 , 2};
-
-swap(arr, 100);
-
-for(int i = 0; i < 4; i += 1) {
-    print arr[i];
-}
+print_line("test", 4);
+print_line("yay", 3);

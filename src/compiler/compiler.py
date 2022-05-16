@@ -132,7 +132,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         # string section and static memory
         self.write("section .data", False)
         for index, string in enumerate(self.strings):
-            self.write(f"str_{index}: db \"{string}\", 0")
+            self.write(f"str_{index}: db `{string}`, 0")
 
     def compile(self, statements: List[Stmt]):
         self.write_header()
@@ -451,6 +451,7 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"xor {register}, {register}")
             self.write(f"pop {register} ; func call arg")
         self.write(f"call {call_expr.callee.name.lexeme}")
+        self.write("push rax")
 
     def visit_func_stmt(self, func_stmt: FuncStmt):
         self.globals.define_function(func_stmt)
@@ -482,6 +483,7 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"pop {self.syscall_registers[index]}")
         self.write(f"mov rax, {syscall_stmt.syscall_number}")
         self.write("syscall")
+        self.write(f"push rax")
 
     def visit_array_access_expr(self, array_access_expr: ArrayAccessExpr):
         index, arr_obj = self.environment.get(array_access_expr.name)
@@ -499,3 +501,9 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("push rax")
         
 
+    def visit_return_stmt(self, return_stmt: ReturnStmt):
+        if return_stmt.value:
+            self.execute(return_stmt.value)
+            self.write("pop rax ; return value")
+        self.write("leave")
+        self.write("ret")

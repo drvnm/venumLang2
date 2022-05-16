@@ -112,3 +112,11 @@ class SyscallStmt(Stmt):
     
     def accept(self, visitor):
         visitor.visit_syscall_stmt(self)
+    
+# represents a return statement
+class ReturnStmt(Stmt):
+    def __init__(self, value: Expr):
+        self.value = value
+    
+    def accept(self, visitor):
+        visitor.visit_return_stmt(self)

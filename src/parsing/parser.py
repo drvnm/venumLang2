@@ -85,6 +85,8 @@ class Parser():
             char = self.previous()
             char.literal = ord(char.literal)
             return LiteralExpr(char)
+        if self.match(tokens.SYSCALL):
+            return self.syscall_stmt()
 
         # if no valid token is found, throw error
         error(self.peek(), "Expected expression.")
@@ -309,10 +311,16 @@ class Parser():
             args.append(self.expression())
             while self.match(tokens.COMMA):
                 args.append(self.expression())
-        self.consume(tokens.SEMICOLON, "Expected ';' after syscall arguments.")
+
         if len(args) == 0:
             error(self.previous(), "Expected at least one argument after syscall ID.")
         return SyscallStmt(syscall_id, args)
+    
+    def return_stmt(self) -> Stmt:
+        expr = None
+        if not self.check(tokens.SEMICOLON):
+            expr = self.expression_stmt()
+        return ReturnStmt(expr)
 
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
@@ -329,8 +337,9 @@ class Parser():
             return self.break_stmt()
         if self.match(tokens.CONTINUE):
             return self.continue_stmt()
-        if self.match(tokens.SYSCALL):
-            return self.syscall_stmt()
+        if self.match(tokens.RETURN):
+            return self.return_stmt()
+    
         return self.expression_stmt()
 
     def var_declaration(self) -> Stmt:
@@ -425,6 +434,7 @@ class Parser():
         if self.match(tokens.FUNC):
             return self.func_declaration()
         return self.statement()
+       
 
     def parse(self) -> List[Stmt]:
         statements = []

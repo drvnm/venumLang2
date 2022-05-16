@@ -15,6 +15,9 @@ statement   -> exprStmt
             | continueStmt
             | breakStmt
             | syscallStmt
+            | returnStmt
+        
+returnStmt  -> "return" expression? ";"
 
 syscallStmt -> syscall NUMBER sysarg+ ";"
 sysarg      -> expression ("," expression)*
