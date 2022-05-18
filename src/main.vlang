@@ -1,6 +1,4 @@
 
-
-
 func int strlen(str string) {
     int index = 0;
     while(string[index] > 0) {
@@ -10,9 +8,88 @@ func int strlen(str string) {
     return index;
 }
 
-print strlen("hello");
-print strlen("test");
 
+
+func int printline(str string) {
+    int length = strlen(string);
+    int result = syscall 1 1, string, length;
+    syscall 1 1, "\n", 1;
+    return result;
+}
+
+func int printstring(str string) {
+    int length = strlen(string);
+    int result = syscall 1 1, string, length;
+    return result;
+}
+
+
+func bool strcomp(str str1, str str2) {
+    int length1 = strlen(str1);
+    int length2 = strlen(str2);
+    if(length1 != length2) {
+        return false;
+    } 
+    for(int i = 0; i < length1; i += 1) {
+        if(str1[i] != str2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+// create a socket
+func int socket(int arg1, int arg2, int arg3) {
+    int result = syscall 41 arg1, arg2, arg3;
+    return result;
+}
+
+func int bind(int fd, int ptr, int size) {
+    int result = syscall 49 fd, ptr, size;
+    return result;
+}
+
+func int listen(int fd, int backlog) {
+    int result = syscall 50 fd, backlog;
+    return result;
+}
+
+func int accept(int fd, int ptr, int size) {
+    int result = syscall 288 fd, ptr, size;
+    return result;
+}
+
+
+func int exit(int status) {
+    return syscall 60 status;
+}
+
+// server data
+short AF_INET = 2;
+short PORT = 45060;
+int INADDR_ANY = 0;
+int SOCK_STREAM = 1;
+
+byte arr[5] = {1, 2, 3, 4, 5};
+
+int sersock = socket(AF_INET, SOCK_STREAM, 0);
+printstring("fd is: ");
+print sersock;
+
+if(bind(sersock, &AF_INET, 16) < 0) {
+    printline("bind error");
+    exit(1);
+} 
+if(listen(sersock, 1) < 0) {
+    printline("listen error");
+    exit(1);
+}
+
+if(accept(sersock, &AF_INET, 16) < 0) {
+    printline("accept error");
+    exit(1);
+}
 
 
 

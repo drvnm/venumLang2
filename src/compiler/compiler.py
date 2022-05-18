@@ -17,7 +17,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.output_file = "output"
         self.environment = Environment()
         self.globals = self.environment
-        self.mem_size = 64_00
+        self.mem_size = 64_000
         self.branch_index = 0
 
         # string data
@@ -50,16 +50,14 @@ class Compiler(ExprVisitor, StmtVisitor):
     def write_header(self):
         self.write("section .text", False)
         self.write("global _start")
-        self.write("section .text")
-        self.write("   global _start")
-
-        self.write("print:")
-        self.write("   push    rbp")
-        self.write("   mov     rbp, rsp")
-        self.write("   sub     rsp, 64")
-        self.write("   mov     DWORD   [rbp-52], edi")
-        self.write("   mov     DWORD   [rbp-4], 1")
-        self.write("   mov     eax, DWORD   [rbp-4]")
+        
+        self.write("print:", False)
+        self.write("push    rbp")
+        self.write("mov     rbp, rsp")
+        self.write("sub     rsp, 64")
+        self.write("mov     DWORD   [rbp-52], edi")
+        self.write("mov     DWORD   [rbp-4], 1")
+        self.write("mov     eax, DWORD   [rbp-4]")
         self.write("   movsx   rdx, eax")
         self.write("   mov     eax, 32")
         self.write("   sub     rax, rdx")
@@ -275,15 +273,17 @@ class Compiler(ExprVisitor, StmtVisitor):
     def visit_array_stmt(self, array_stmt: ArrayStmt):
         self.environment.define_array(array_stmt)
         start_index, arr_obj, is_str = self.environment.get(array_stmt.name)
-        size = type_to_size[arr_obj.type.type]
         size = type_to_size[array_stmt.type.type]
+        word = size_to_word[size]
+
+        register = word_to_register_size[word + "rax"]
 
         # store array inital values, if any
         for index, expr in enumerate(array_stmt.exprs):
             self.execute(expr)
             self.write("xor rax, rax")
             self.write("pop rax ; store array initializer")
-            self.write(f"mov [(MEMORY + {start_index}) + {index * size}], rax")
+            self.write(f"mov [(MEMORY + {start_index}) + {index * size}], {register}")
 
     # loads a variable from .bss
     def visit_var_expr(self, var_expr: VarExpr):
@@ -303,7 +303,7 @@ class Compiler(ExprVisitor, StmtVisitor):
 
     # handle references
     def visit_var_to_pointer_expr(self, var_to_pointer_expr: VarToPointerExpr):
-        start_index, word = self.environment.get(var_to_pointer_expr.name)
+        start_index, word, is_str = self.environment.get(var_to_pointer_expr.name)
         self.write(f"mov rax, MEMORY + {start_index}")
         self.write(f"push rax")
 
@@ -456,6 +456,7 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(f"pop {register} ; func call arg")
         self.write(f"call {call_expr.callee.name.lexeme}")
         self.write("push rax")
+        self.write(f"xor rax, rax")
 
     def visit_func_stmt(self, func_stmt: FuncStmt):
         self.globals.define_function(func_stmt)
@@ -509,6 +510,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write(f"mov {register}, [r9 + r10 * {size}]")
 
         self.write("push rax")
+        self.write("xor r10, r10")
         
 
     def visit_return_stmt(self, return_stmt: ReturnStmt):
