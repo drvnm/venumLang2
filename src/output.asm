@@ -67,47 +67,34 @@
  _start:
    push 2
    pop rax ; store variable AF_INET
-   mov [MEMORY + 136], ax
+   mov [MEMORY + 198], ax
    xor rax, rax
-   push 45060
+   push 16415
    pop rax ; store variable PORT
-   mov [MEMORY + 138], ax
+   mov [MEMORY + 200], ax
    xor rax, rax
    push 0
    pop rax ; store variable INADDR_ANY
-   mov [MEMORY + 140], eax
+   mov [MEMORY + 202], eax
    xor rax, rax
    push 1
    pop rax ; store variable SOCK_STREAM
-   mov [MEMORY + 144], eax
+   mov [MEMORY + 206], eax
    xor rax, rax
-   push 1
+   push 16
+   pop rax ; store variable length
+   mov [MEMORY + 210], eax
    xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 148) + 0], al
-   push 2
+   mov rax, 0 ; store variable newsock
+   mov [MEMORY + 214], eax
    xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 148) + 1], al
-   push 3
-   xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 148) + 2], al
-   push 4
-   xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 148) + 3], al
-   push 5
-   xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 148) + 4], al
    xor rax, rax ; begin loading from var
-   mov ax, WORD [MEMORY + 136]
+   mov ax, WORD [MEMORY + 198]
    push rax
    xor rdi, rdi
    pop rdi ; func call arg
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 144]
+   mov eax, DWORD [MEMORY + 206]
    push rax
    xor rsi, rsi
    pop rsi ; func call arg
@@ -118,7 +105,7 @@
    push rax
    xor rax, rax
    pop rax ; store variable sersock
-   mov [MEMORY + 153], eax
+   mov [MEMORY + 218], eax
    xor rax, rax
    push str_1
    xor rdi, rdi
@@ -127,17 +114,17 @@
    push rax
    xor rax, rax
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 153]
+   mov eax, DWORD [MEMORY + 218]
    push rax
    pop rdi ; print statement
    call print
    push 0
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 153]
+   mov eax, DWORD [MEMORY + 218]
    push rax
    xor rdi, rdi
    pop rdi ; func call arg
-   mov rax, MEMORY + 136
+   mov rax, MEMORY + 198
    push rax
    xor rsi, rsi
    pop rsi ; func call arg
@@ -155,7 +142,7 @@
    push rax
    pop rax ; if condition start
    cmp rax, 0
-   je .L387
+   je .L539
    push str_2
    xor rdi, rdi
    pop rdi ; func call arg
@@ -168,11 +155,11 @@
    call exit
    push rax
    xor rax, rax
-   jmp .L387
- .L387: ; END IF STMT
+   jmp .L539
+ .L539: ; END IF STMT
    push 0
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 153]
+   mov eax, DWORD [MEMORY + 218]
    push rax
    xor rdi, rdi
    pop rdi ; func call arg
@@ -190,7 +177,7 @@
    push rax
    pop rax ; if condition start
    cmp rax, 0
-   je .L410
+   je .L562
    push str_3
    xor rdi, rdi
    pop rdi ; func call arg
@@ -203,24 +190,29 @@
    call exit
    push rax
    xor rax, rax
-   jmp .L410
- .L410: ; END IF STMT
+   jmp .L562
+ .L562: ; END IF STMT
    push 0
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 153]
+   mov eax, DWORD [MEMORY + 218]
    push rax
    xor rdi, rdi
    pop rdi ; func call arg
-   mov rax, MEMORY + 136
+   mov rax, MEMORY + 198
    push rax
    xor rsi, rsi
    pop rsi ; func call arg
-   push 16
+   mov rax, MEMORY + 210
+   push rax
    xor rdx, rdx
    pop rdx ; func call arg
    call accept
    push rax
    xor rax, rax
+   xor rax, rax ; assign value to variable
+   pop rax
+   mov [MEMORY + 214], eax
+   push rax
    pop rax ; compare left to right
    pop rbx
    cmp rax, rbx
@@ -229,7 +221,7 @@
    push rax
    pop rax ; if condition start
    cmp rax, 0
-   je .L436
+   je .L593
    push str_4
    xor rdi, rdi
    pop rdi ; func call arg
@@ -242,8 +234,141 @@
    call exit
    push rax
    xor rax, rax
-   jmp .L436
- .L436: ; END IF STMT
+   jmp .L601
+ .L593:
+   push str_5
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call printline
+   push rax
+   xor rax, rax
+ .L601: ; END IF STMT
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 214]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   xor rax, rax ; begin loading from var
+   mov rax, MEMORY + 222
+   push rax
+   xor rsi, rsi
+   pop rsi ; func call arg
+   push 1024
+   xor rdx, rdx
+   pop rdx ; func call arg
+   call read
+   push rax
+   xor rax, rax
+   pop rax ; store variable result
+   mov [MEMORY + 1246], eax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov rax, MEMORY + 222
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push 32
+   xor rsi, rsi
+   pop rsi ; func call arg
+   push 2
+   xor rdx, rdx
+   pop rdx ; func call arg
+   call chop_by_char
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov rax, MEMORY + 222
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call printline
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 214]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push str_6
+   xor rsi, rsi
+   pop rsi ; func call arg
+   call send_to_client
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 214]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push str_7
+   xor rsi, rsi
+   pop rsi ; func call arg
+   call send_to_client
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 214]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push str_8
+   xor rsi, rsi
+   pop rsi ; func call arg
+   call send_to_client
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 214]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push str_9
+   xor rsi, rsi
+   pop rsi ; func call arg
+   call send_to_client
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 214]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push str_10
+   xor rsi, rsi
+   pop rsi ; func call arg
+   call send_to_client
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 214]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push str_11
+   xor rsi, rsi
+   pop rsi ; func call arg
+   call send_to_client
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 214]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   push str_12
+   xor rsi, rsi
+   pop rsi ; func call arg
+   call send_to_client
+   push rax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 218]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call close
+   push rax
+   xor rax, rax
    ; end of program
    mov rax, 60
    mov rdi, 0
@@ -288,6 +413,7 @@
    mov r10, [MEMORY + 8]
    add rax, r10
    mov [MEMORY + 8], DWORD eax
+   push rax
    jmp .L13
    .L28: ; WHILE END
    xor rax, rax ; begin loading from var
@@ -314,14 +440,17 @@
    mov [MEMORY + 20], eax
    xor rax, rax
    push 1
+   xor rdi, rdi
    pop rdi
    xor rax, rax ; begin loading from var
    mov rax, QWORD [MEMORY + 12]
    push rax
+   xor rsi, rsi
    pop rsi
    xor rax, rax ; begin loading from var
    mov eax, DWORD [MEMORY + 20]
    push rax
+   xor rdx, rdx
    pop rdx
    mov rax, 1
    syscall
@@ -330,10 +459,13 @@
    mov [MEMORY + 24], eax
    xor rax, rax
    push 1
+   xor rdi, rdi
    pop rdi
    push str_0
+   xor rsi, rsi
    pop rsi
    push 1
+   xor rdx, rdx
    pop rdx
    mov rax, 1
    syscall
@@ -362,14 +494,17 @@
    mov [MEMORY + 36], eax
    xor rax, rax
    push 1
+   xor rdi, rdi
    pop rdi
    xor rax, rax ; begin loading from var
    mov rax, QWORD [MEMORY + 28]
    push rax
+   xor rsi, rsi
    pop rsi
    xor rax, rax ; begin loading from var
    mov eax, DWORD [MEMORY + 36]
    push rax
+   xor rdx, rdx
    pop rdx
    mov rax, 1
    syscall
@@ -503,6 +638,7 @@
    mov r10, [MEMORY + 68]
    add rax, r10
    mov [MEMORY + 68], DWORD eax
+   push rax
    jmp .L141
    .L174: ; WHILE END
    push 1
@@ -511,32 +647,160 @@
    ret
    leave
    ret
+ chop_by_char:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 72], rdi
+   mov [MEMORY + 80], sil
+   mov [MEMORY + 81], dl
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 72]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call strlen
+   push rax
+   xor rax, rax
+   pop rax ; store variable length
+   mov [MEMORY + 82], eax
+   xor rax, rax
+   push 0
+   pop rax ; store variable i
+   mov [MEMORY + 86], eax
+   xor rax, rax
+   .L203: ; WHILE START
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 82]
+   push rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 86]
+   push rax
+   pop rax ; compare left to right
+   pop rbx
+   cmp rax, rbx
+   setl al
+   movzx rax, al
+   push rax
+   pop rax ; while condition start
+   cmp rax, 0
+   je .L254
+   xor rax, rax ; begin loading from var
+   mov al, BYTE [MEMORY + 80]
+   push rax
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 72]
+   push rax
+   xor r10, r10
+   xor r9, r9
+   pop r9 ; array pointer
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 86]
+   push rax
+   xor rax, rax
+   pop r10 ; array index
+   mov al, [r9 + r10 * 1]
+   push rax
+   xor r10, r10
+   pop rax ; compare left to right
+   pop rbx
+   cmp rax, rbx
+   sete al
+   movzx rax, al
+   push rax
+   xor rax, rax
+   pop rax ; if condition start
+   cmp rax, 0
+   je .L253
+   push 1
+   xor rax, rax ; begin loading from var
+   mov al, BYTE [MEMORY + 81]
+   push rax
+   pop rax ; subtract right from left
+   pop rbx
+   sub rax, rbx
+   push rax
+   xor rax, rax ; assign value to variable
+   pop rax
+   mov [MEMORY + 81], al
+   push rax
+   push 0
+   xor rax, rax ; begin loading from var
+   mov al, BYTE [MEMORY + 81]
+   push rax
+   pop rax ; compare left to right
+   pop rbx
+   cmp rax, rbx
+   sete al
+   movzx rax, al
+   push rax
+   xor rax, rax
+   pop rax ; if condition start
+   cmp rax, 0
+   je .L252
+   push 0
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 86]
+   push rax
+   pop rax
+   imul rax, 1
+   mov rdi, QWORD [(MEMORY + 72)]
+   add rdi, rax
+   xor rax, rax
+   pop rax
+   mov [rdi], BYTE al
+   push 1
+   pop rax ; return value
+   leave
+   ret
+   jmp .L252
+ .L252: ; END IF STMT
+   jmp .L253
+ .L253: ; END IF STMT
+   push 1
+   xor rax, rax ; assign value to variable
+   pop rax
+   xor r10, r10
+   mov r10, [MEMORY + 86]
+   add rax, r10
+   mov [MEMORY + 86], DWORD eax
+   push rax
+   jmp .L203
+   .L254: ; WHILE END
+   push 0
+   pop rax ; return value
+   leave
+   ret
+   leave
+   ret
  socket:
    push rbp
    mov rbp, rsp
-   mov [MEMORY + 72], edi
-   mov [MEMORY + 76], esi
-   mov [MEMORY + 80], edx
+   mov [MEMORY + 90], edi
+   mov [MEMORY + 94], esi
+   mov [MEMORY + 98], edx
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 72]
+   mov eax, DWORD [MEMORY + 90]
    push rax
+   xor rdi, rdi
    pop rdi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 76]
+   mov eax, DWORD [MEMORY + 94]
    push rax
+   xor rsi, rsi
    pop rsi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 80]
+   mov eax, DWORD [MEMORY + 98]
    push rax
+   xor rdx, rdx
    pop rdx
    mov rax, 41
    syscall
    push rax
    pop rax ; store variable result
-   mov [MEMORY + 84], eax
+   mov [MEMORY + 102], eax
    xor rax, rax
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 84]
+   mov eax, DWORD [MEMORY + 102]
    push rax
    pop rax ; return value
    leave
@@ -546,29 +810,32 @@
  bind:
    push rbp
    mov rbp, rsp
-   mov [MEMORY + 88], edi
-   mov [MEMORY + 92], esi
-   mov [MEMORY + 96], edx
+   mov [MEMORY + 106], edi
+   mov [MEMORY + 110], esi
+   mov [MEMORY + 114], edx
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 88]
+   mov eax, DWORD [MEMORY + 106]
    push rax
+   xor rdi, rdi
    pop rdi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 92]
+   mov eax, DWORD [MEMORY + 110]
    push rax
+   xor rsi, rsi
    pop rsi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 96]
+   mov eax, DWORD [MEMORY + 114]
    push rax
+   xor rdx, rdx
    pop rdx
    mov rax, 49
    syscall
    push rax
    pop rax ; store variable result
-   mov [MEMORY + 100], eax
+   mov [MEMORY + 118], eax
    xor rax, rax
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 100]
+   mov eax, DWORD [MEMORY + 118]
    push rax
    pop rax ; return value
    leave
@@ -578,24 +845,26 @@
  listen:
    push rbp
    mov rbp, rsp
-   mov [MEMORY + 104], edi
-   mov [MEMORY + 108], esi
+   mov [MEMORY + 122], edi
+   mov [MEMORY + 126], esi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 104]
+   mov eax, DWORD [MEMORY + 122]
    push rax
+   xor rdi, rdi
    pop rdi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 108]
+   mov eax, DWORD [MEMORY + 126]
    push rax
+   xor rsi, rsi
    pop rsi
    mov rax, 50
    syscall
    push rax
    pop rax ; store variable result
-   mov [MEMORY + 112], eax
+   mov [MEMORY + 130], eax
    xor rax, rax
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 112]
+   mov eax, DWORD [MEMORY + 130]
    push rax
    pop rax ; return value
    leave
@@ -605,29 +874,32 @@
  accept:
    push rbp
    mov rbp, rsp
-   mov [MEMORY + 116], edi
-   mov [MEMORY + 120], esi
-   mov [MEMORY + 124], edx
+   mov [MEMORY + 134], edi
+   mov [MEMORY + 138], esi
+   mov [MEMORY + 142], edx
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 116]
+   mov eax, DWORD [MEMORY + 134]
    push rax
+   xor rdi, rdi
    pop rdi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 120]
+   mov eax, DWORD [MEMORY + 138]
    push rax
+   xor rsi, rsi
    pop rsi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 124]
+   mov eax, DWORD [MEMORY + 142]
    push rax
+   xor rdx, rdx
    pop rdx
-   mov rax, 288
+   mov rax, 43
    syscall
    push rax
    pop rax ; store variable result
-   mov [MEMORY + 128], eax
+   mov [MEMORY + 146], eax
    xor rax, rax
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 128]
+   mov eax, DWORD [MEMORY + 146]
    push rax
    pop rax ; return value
    leave
@@ -637,13 +909,117 @@
  exit:
    push rbp
    mov rbp, rsp
-   mov [MEMORY + 132], edi
+   mov [MEMORY + 150], edi
    xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 132]
+   mov eax, DWORD [MEMORY + 150]
    push rax
+   xor rdi, rdi
    pop rdi
    mov rax, 60
    syscall
+   push rax
+   pop rax ; return value
+   leave
+   ret
+   leave
+   ret
+ read:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 154], edi
+   mov [MEMORY + 158], esi
+   mov [MEMORY + 162], edx
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 154]
+   push rax
+   xor rdi, rdi
+   pop rdi
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 158]
+   push rax
+   xor rsi, rsi
+   pop rsi
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 162]
+   push rax
+   xor rdx, rdx
+   pop rdx
+   mov rax, 0
+   syscall
+   push rax
+   pop rax ; store variable result
+   mov [MEMORY + 166], eax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 166]
+   push rax
+   pop rax ; return value
+   leave
+   ret
+   leave
+   ret
+ close:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 170], edi
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 170]
+   push rax
+   xor rdi, rdi
+   pop rdi
+   mov rax, 6
+   syscall
+   push rax
+   pop rax ; store variable result
+   mov [MEMORY + 174], eax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 174]
+   push rax
+   pop rax ; return value
+   leave
+   ret
+   leave
+   ret
+ send_to_client:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 178], edi
+   mov [MEMORY + 182], rsi
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 182]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call strlen
+   push rax
+   xor rax, rax
+   pop rax ; store variable length
+   mov [MEMORY + 190], eax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 178]
+   push rax
+   xor rdi, rdi
+   pop rdi
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 182]
+   push rax
+   xor rsi, rsi
+   pop rsi
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 190]
+   push rax
+   xor rdx, rdx
+   pop rdx
+   mov rax, 1
+   syscall
+   push rax
+   pop rax ; store variable result
+   mov [MEMORY + 194], eax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 194]
    push rax
    pop rax ; return value
    leave
@@ -659,3 +1035,11 @@
    str_2: db `bind error`, 0
    str_3: db `listen error`, 0
    str_4: db `accept error`, 0
+   str_5: db `accepted`, 0
+   str_6: db `HTTP/1.1 200 OK\r\n`, 0
+   str_7: db `Server: Go-http-server\r\n`, 0
+   str_8: db `Content-Length: 88\r\n`, 0
+   str_9: db `Content-Type: text/html\r\n`, 0
+   str_10: db `Connection: Closed\r\n`, 0
+   str_11: db `\r\n`, 0
+   str_12: db `<h1>Hello World!</h1>\r\n`, 0

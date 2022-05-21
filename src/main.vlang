@@ -39,6 +39,21 @@ func bool strcomp(str str1, str str2) {
 }
 
 
+func bool chop_by_char(byte st[], byte delim, byte nth_seen) {
+    int length = strlen(st);
+    for(int i = 0; i < length; i += 1) {
+        if(st[i] == delim) {
+            nth_seen = nth_seen - 1;
+            if(nth_seen == 0) {
+                st[i] = 0;
+                return true;
+            }
+            
+        }
+    }
+    return false;
+}
+
 // create a socket
 func int socket(int arg1, int arg2, int arg3) {
     int result = syscall 41 arg1, arg2, arg3;
@@ -56,7 +71,7 @@ func int listen(int fd, int backlog) {
 }
 
 func int accept(int fd, int ptr, int size) {
-    int result = syscall 288 fd, ptr, size;
+    int result = syscall 43 fd, ptr, size;
     return result;
 }
 
@@ -65,13 +80,33 @@ func int exit(int status) {
     return syscall 60 status;
 }
 
+// // reads data from fd
+func int read(int fd, int ptr, int size) {
+    int result = syscall 0 fd, ptr, size;
+    return result;
+}
+
+func int close(int fd) {
+    int result = syscall 6 fd;
+    return result;
+}
+
+func int send_to_client(int fd, str content) {
+    int length = strlen(content);
+    int result = syscall 1 fd, content, length;
+    return result;
+}
+
+
 // server data
 short AF_INET = 2;
-short PORT = 45060;
+short PORT = 16415;
 int INADDR_ANY = 0;
 int SOCK_STREAM = 1;
 
-byte arr[5] = {1, 2, 3, 4, 5};
+int length = 16;
+int newsock;
+
 
 int sersock = socket(AF_INET, SOCK_STREAM, 0);
 printstring("fd is: ");
@@ -86,11 +121,26 @@ if(listen(sersock, 1) < 0) {
     exit(1);
 }
 
-if(accept(sersock, &AF_INET, 16) < 0) {
+if((newsock = accept(sersock, &AF_INET, &length)) < 0) {
     printline("accept error");
     exit(1);
+} else {
+    printline("accepted");
 }
 
+    byte buffer[1024];
+    int result = read(newsock, buffer, 1024);
+    chop_by_char(buffer, ' ', 2);
+    printline(buffer);
+    // send web response
+    send_to_client(newsock, "HTTP/1.1 200 OK\r\n");
+    send_to_client(newsock, "Server: Go-http-server\r\n");
+    send_to_client(newsock, "Content-Length: 88\r\n");
+    send_to_client(newsock, "Content-Type: text/html\r\n");
+    send_to_client(newsock, "Connection: Closed\r\n");
+    send_to_client(newsock, "\r\n");
+    send_to_client(newsock, "<h1>Hello World!</h1>\r\n");
 
 
+close(sersock);
 

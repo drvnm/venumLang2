@@ -78,6 +78,10 @@ class Lexer:
         self.advance() # skip '
         char = self.get_current_char()
         self.advance() # skip char
+        if char == '\\':
+            char += self.get_current_char()
+            char = char.encode().decode('unicode_escape')
+            self.advance()
         if self.get_current_char() != "'":
             error(self.tokens[-1], 'Unterminated char')
         else:

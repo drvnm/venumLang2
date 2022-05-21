@@ -333,7 +333,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         if assign_expr.mode == "array":
             self.execute(assign_expr.index)
             self.write("pop rax") # index
-            index, arr_obj = self.environment.get(assign_expr.name)
+            index, arr_obj, is_str = self.environment.get(assign_expr.name)
             size = type_to_size[arr_obj.type.type]
             self.write(f"imul rax, {size}") # offset
             if hasattr(arr_obj, 'is_in_func'):
@@ -377,7 +377,7 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(
                 f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         # push end result
-        # self.write("push r10")
+        self.write("push rax")
 
     def execute_block(self, block: BlockStmt, environment: Environment):
         prev = self.environment
@@ -485,7 +485,9 @@ class Compiler(ExprVisitor, StmtVisitor):
     def visit_syscall_stmt(self, syscall_stmt: SyscallStmt):
         for index, arg in enumerate(syscall_stmt.args):
             self.execute(arg)
-            self.write(f"pop {self.syscall_registers[index]}")
+            reg = self.args_registers[index]
+            self.write(f"xor {reg}, {reg}")
+            self.write(f"pop {reg}")
         self.write(f"mov rax, {syscall_stmt.syscall_number}")
         self.write("syscall")
         self.write(f"push rax")
