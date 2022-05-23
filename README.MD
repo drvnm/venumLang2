@@ -96,8 +96,8 @@ venumlang has support for inline assembly:
 ```cpp
 short x = 100;
 asm {
-    mov ax, WORD $x; // use $ to get the value of a variable
-    mov rax, &x; // use & to get the memory address of x
+    "mov ax, WORD $x" // use $ to get the value of a variable
+    "mov rax, &x" // use & to get the memory address of x
 }
 ```
 
