@@ -74,6 +74,8 @@ word_to_keyword = {
     'long': tokens.LONG,
     'bool': tokens.BOOL,
     'str': tokens.STR,
+    'struct': tokens.STRUCT,
+    'asm': tokens.ASM,
 }
 
 type_to_size = {

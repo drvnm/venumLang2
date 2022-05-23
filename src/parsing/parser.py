@@ -21,6 +21,8 @@ class Parser():
         self.loop_index_begin = 0
         self.loop_index_end = 0
 
+        self.structs = {}
+
     # returns last - 1 token
     def previous(self) -> Token:
         return self.tokens[self.current - 1]
@@ -320,6 +322,14 @@ class Parser():
         if not self.check(tokens.SEMICOLON):
             expr = self.expression_stmt()
         return ReturnStmt(expr)
+    
+    def asm_stmt(self) -> Stmt:
+        self.consume(tokens.LEFT_BRACE, "Expected '{' after 'asm'.")
+        lines = []
+        while not self.check(tokens.RIGHT_BRACE) and not self.is_at_end():
+            lines.append(self.consume(tokens.STRING, "Expected string after 'asm'"))
+        self.consume(tokens.RIGHT_BRACE, "Expected '}' after 'asm'.")
+        return AsmStmt(lines)
 
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
@@ -338,6 +348,8 @@ class Parser():
             return self.continue_stmt()
         if self.match(tokens.RETURN):
             return self.return_stmt()
+        if self.match(tokens.ASM):
+            return self.asm_stmt()
     
         return self.expression_stmt()
 
@@ -383,6 +395,7 @@ class Parser():
 
         return VarStmt(type_, name, expr, size)
 
+    # i do be writing duplicate code
     def func_declaration(self) -> Stmt:
         if not self.match(*types):
             error(self.peek(), "Expected return type after 'func'.")
@@ -427,11 +440,40 @@ class Parser():
         body = self.block()
         return FuncStmt(name, params, body, return_type)
 
+    def struct_fields(self) -> List[VarStmt]:
+        fields = []
+        while not self.check(tokens.RIGHT_BRACE):
+            if self.match(*types):
+                fields.append(self.var_declaration())
+
+        return fields
+    
+    def struct_declaration(self) -> Stmt:
+        name = self.consume(tokens.IDENTIFIER, "Expected struct name.")
+        self.consume(tokens.LEFT_BRACE, "Expected '{' before struct body.")
+        fields = self.struct_fields() # struct_fields takes care of }
+        self.consume(tokens.RIGHT_BRACE, "Expected '}' after struct body.")
+        self.consume(tokens.SEMICOLON, "Expected ';' after struct declaration.")
+        stmt = StructStmt(name, fields)
+        self.structs[name.literal] = stmt
+        return stmt
+
+    def struct_creation(self) -> Stmt:
+        name = self.consume(tokens.IDENTIFIER, "Expected variable name after struct name.")
+        initializers = []
+        if self.match(tokens.LEFT_BRACE):
+            pass
+        fields = self.struct_fields()
+
     def declaration(self) -> Stmt:
         if self.match(*types):
             return self.var_declaration()
         if self.match(tokens.FUNC):
             return self.func_declaration()
+        if self.match(tokens.STRUCT):
+            return self.struct_declaration()
+        if self.peek().lexeme in self.structs:
+            return self.struct_creation()
         return self.statement()
        
 

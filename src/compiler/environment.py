@@ -1,17 +1,40 @@
 from typing import List
-from parsing.statements import ArrayStmt, FuncStmt, VarStmt
+from parsing.statements import *
 from scanning.error import error
 from intermediate.tokens import *
 from intermediate.lookup_tables import *
+
+class DataHolder:
+    def __init__(self, type: tokens, name: Token, expr: Expr, size: int):
+        self.type = type
+        self.name = name
+        self.size = size
+
+class StructData(DataHolder):
+    def __init__(self, name: Token, members: List[DataHolder]):
+        self.name = name
+        self.members = members
+
+class DataDeclr:
+    def __init__(self, name: str, size: int):
+        self.name = name
+        self.size = size
+
+class StructDeclr(DataDeclr):
+    def __init__(self, name: str, size: int, members: List[DataDeclr]):
+        super().__init__(name, size)
+        self.members = members
 
 # class that will hold data states
 class Environment:
     memory_index = 0
     def __init__(self):
-        self.variables = {}
         self.enclosing = None
+
+        self.variables = {}
         self.functions = {}
         self.arrays = {}
+        self.structs = {}
     
     def define_string(self, var: VarStmt):
         name = var.name.lexeme
@@ -73,4 +96,9 @@ class Environment:
         self.variables[name] = [Environment.memory_index, arr, False]
         Environment.memory_index += arr.size
 
-
+    # define struct
+    def define_struct(self, struct: StructStmt):
+        size = sum([type_to_size[nam_tok.type.type] for nam_tok in struct.fields])
+        struct_object = StructDeclr(struct.name.lexeme, size, struct.fields)
+        self.structs[struct.name.lexeme] = struct_object
+        

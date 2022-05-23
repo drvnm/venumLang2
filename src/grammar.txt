@@ -1,10 +1,10 @@
 program     -> decleration* EOF;
 
 decleration -> varDecl | statement
-            | funDeclr;
+            | funDeclr | structDeclr;
 
 varDecl     -> type IDENTIFIER ("[" NUMBER "]")* ("=" expression)? ";"
-
+structDeclr -> "struct" IDENTIFIER "{" varDecl* "}" ";"
 
 statement   -> exprStmt
             | printStmt
@@ -16,6 +16,12 @@ statement   -> exprStmt
             | breakStmt
             | syscallStmt
             | returnStmt
+            | structCreateStmt
+            | asmStmt;
+
+asmStmt     -> "asm" "{" STRING* "}" ";" 
+
+structCreateStmt -> CUSTOMTYPE IDENTIFIER ("{" expression* "}")? ";"
         
 returnStmt  -> "return" expression? ";"
 
