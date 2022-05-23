@@ -22,8 +22,11 @@ At the moment, venumlang supports the following primitive types:
 byte, short, int, long
 
 # variables
+venumlang has some native types and arrays. For now, arrays are only 1-dimensional. The size of an array also has to be a number.
 ```cpp
 int x = 3 + 3; // bind 6 to x;
+int arr[100];
+int arr2[2] = {1, 2}; 
 ```
 
 ### memory address of and dereferencing
@@ -86,6 +89,16 @@ func int factorial(int n) {
 
 factorial(5); // should print 120
 >> 120;
+```
+
+# inline assembly
+venumlang has support for inline assembly:
+```cpp
+short x = 100;
+asm {
+    mov ax, WORD $x; // use $ to get the value of a variable
+    mov rax, &x; // use & to get the memory address of x
+}
 ```
 
 # table of operations

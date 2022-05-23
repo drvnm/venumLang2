@@ -74,13 +74,3 @@
    mov [MEMORY + 4], rax
    xor rax, rax
    xor rdi, rdi
-   mov rdi, [MEMORY + 4]
-   call print
-   ; end of program
-   mov rax, 60
-   mov rdi, 0
-   syscall
-   
- section .bss
-   MEMORY: resb 64000
- section .data
