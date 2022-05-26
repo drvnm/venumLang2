@@ -135,3 +135,5 @@ word_to_register_size = {
     'DWORDr10': 'r10d',
     'QWORDr10': 'r10',
 }
+
+preprocessing_words = ['import', 'define', 'ifdef', 'endif']

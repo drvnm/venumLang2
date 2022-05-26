@@ -371,7 +371,7 @@ class Parser():
                 self.consume(tokens.LEFT_BRACE,
                              "Expected '{' after array init.")
                 while not self.check(tokens.RIGHT_BRACE):
-                    if len(initializers) > expr.literal:
+                    if len(initializers) + 1 > expr.literal:
                         error(self.peek(), "Array size exceeded.")
                     initializers.append(self.expression())
                     if self.match(tokens.COMMA):

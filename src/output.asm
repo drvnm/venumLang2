@@ -65,12 +65,42 @@
       leave
       ret
  _start:
-   push 100
-   pop rax ; store variable x
-   mov [MEMORY + 0], eax
+   push 1
    xor rax, rax
-   push 200
-   pop rax ; store variable y
-   mov [MEMORY + 4], rax
+   pop rax ; store array initializer
+   mov [(MEMORY + 0) + 0], eax
+   push 2
    xor rax, rax
-   xor rdi, rdi
+   pop rax ; store array initializer
+   mov [(MEMORY + 0) + 4], eax
+   push 69
+   push 420
+   pop rax ; multiply left by right
+   pop rbx
+   mul rbx
+   push rax
+   push 34
+   push 2
+   push 12
+   pop rax ; multiply left by right
+   pop rbx
+   mul rbx
+   push rax
+   pop rax ; add right to left
+   pop rbx
+   add rax, rbx
+   push rax
+   pop rax ; add right to left
+   pop rbx
+   add rax, rbx
+   push rax
+   pop rdi ; print statement
+   call print
+   ; end of program
+   mov rax, 60
+   mov rdi, 0
+   syscall
+   
+ section .bss
+   MEMORY: resb 64000
+ section .data

@@ -101,6 +101,14 @@ asm {
 }
 ```
 
+# macros
+venumlang has support for 1 lined macros:
+```python
+@macro x 12 * 2 + 34 + 420 * 69
+print x;
+>> 29038
+````
+
 # table of operations
 here is a pretty table of operations:
 | Operation | Description |
@@ -126,3 +134,5 @@ here is a pretty table of operations:
 | /= | division assignment |
 | & | address of |
 | * | dereference |
+
+

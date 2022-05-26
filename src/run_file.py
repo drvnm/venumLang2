@@ -2,6 +2,7 @@ import sys
 from scanning.lexer import Lexer
 from visitors.ast_printer import AstPrinter
 from compiler.compiler import Compiler
+from preproccesor.preprocessor import PreProcessor
 from parsing.parser import *
 from parsing.expressions import *
 
@@ -27,8 +28,10 @@ class Runner():
     @staticmethod
     def run_file(path: str) -> None:
         file = open(path, 'r')
-        source = file.read()
-
+        source = file.readlines()
+        pre_processor = PreProcessor(source)
+        pre_processor.preprocess()
+        source = pre_processor.final_source
         lexer = Lexer(source)
         lexer.scan()
         exprs = Parser(lexer.tokens).parse()
