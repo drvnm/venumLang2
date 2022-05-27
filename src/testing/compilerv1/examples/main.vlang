@@ -1,0 +1,62 @@
+include "stdlib/network.vlang"
+include "stdlib/io.vlang"
+include "stdlib/string.vlang"
+
+const SOCK_STREAM 1
+var buff char[1000]
+var fd int_64
+
+"./home.html" str_to_pointer() open_file() fd! // open file
+1000 buff fd* read_file() print // read content into buff
+fd* close_file()
+
+struct server
+    int_16
+    int_16
+    int_32
+end
+
+
+AF_INET server.0! // AF_INET
+14619 server.1! // PORT
+INADDR_ANY server.2! // IP
+
+// late variables
+var LPOINTER int_32 0 LPOINTER!
+var socket_number int_64
+var conn_fd int_64
+
+0 SOCK_STREAM server.0* open_socket() socket_number!
+socket_number* 0 < if
+    "Couldnt create socket\n" puts
+    1 exit
+else
+    "Socket created, is: " puts socket_number* print 
+end
+
+// bind socket
+16 server.0 socket_number* bind() 0 != if
+    "Couldnt bind socket\n" puts
+    exit
+else
+    "Socket bound\n" puts
+end
+
+5 socket_number* listen() 0 != if
+    "Couldnt listen to socket\n" puts
+    exit
+else
+    "Socket listening\n" puts
+end
+
+LPOINTER server.0 socket_number* accept() conn_fd!
+conn_fd* 0 < if
+    "Couldnt accept connection\n" puts
+    exit
+else
+    "Connection accepted, is: " puts conn_fd* print "\n" puts
+end
+
+1000 buff conn_fd* fputs() // serves file
+
+

@@ -1,3 +1,4 @@
+import os
 import re
 from typing import List
 from scanning.error import error
@@ -7,8 +8,9 @@ from intermediate.lookup_tables import *
 
 # preprocessor, takes string and passes output to scanner
 class PreProcessor:
-    def __init__(self, file_source: str):
+    def __init__(self, file_source: str, absolute_path: str):
         self.source_lines = file_source
+        self.absolute_path = absolute_path
         self.env = PreEnv()  # preprocessor data holder
         self.line_num = 0
         self.final_source = ''
@@ -18,7 +20,7 @@ class PreProcessor:
         if line_len < length:
             error(self.line_num + 1, message)
         return line_len
-    
+
     # parses a word to remove non alphanumeric characters
     def parse_line(self, word: str) -> List[str]:
         words = re.split(r'([\W ])', word)
@@ -26,7 +28,7 @@ class PreProcessor:
             if word in self.env.data:
                 words[idx] = self.env.data[word]
         return words
-        
+
     # defines a new macro
     def macro(self, splitted_line: List[str]) -> None:
         line_len = self.expect(splitted_line, 2, 'Invalid macro definition')
@@ -35,7 +37,7 @@ class PreProcessor:
             self.env.set(macro_name, '')
         else:
             macro_body = ' '.join(splitted_line[2:])
-            macro_body = macro_body.replace('\n', '') # remove newline if any
+            macro_body = macro_body.replace('\n', '')  # remove newline if any
             self.env.set(macro_name, macro_body)
 
     def import_file(self, splitted_line: List[str]) -> str:
@@ -47,17 +49,23 @@ class PreProcessor:
                 break
         if not found_str:
             error(self.line_num + 1, 'Invalid import statement')
-        file_name = word.replace('"', '') 
-        try:           
+        file_name = word.replace('"', '')
+        file_name = self.absolute_path.replace(
+            os.path.basename(self.absolute_path), file_name)
+        try:
             with open(file_name, 'r') as file:
                 file_source = file.readlines()
-                pre_processor = PreProcessor(file_source)
+                absolute_path = os.path.abspath(file_name)
+                if self.env.has_included(absolute_path):
+                    return ''
+                pre_processor = PreProcessor(file_source, absolute_path)
                 pre_processor.preprocess()
                 self.env.updata_from_env(pre_processor.env)
+                self.env.include(absolute_path)
+                
                 return pre_processor.final_source
         except FileNotFoundError:
             error(self.line_num + 1, f'File {file_name} not found')
-
 
     def preprocess(self) -> None:
         for line_num, line in enumerate(self.source_lines):
@@ -77,8 +85,6 @@ class PreProcessor:
                 splitted_line = self.parse_line(' '.join(splitted_line))
 
             self.final_source += ''.join(splitted_line)
-        
+
         # print('----')
         # print(self.final_source)
-
-    

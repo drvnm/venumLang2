@@ -1,0 +1,29 @@
+include "./stdlib/sys.vlang"
+
+const AF_INET 2
+const INADDR_ANY 0
+
+// open socket
+func open_socket() int int int in
+    SYS_SOCKET syscall4
+    return
+end
+
+// bind socket to port
+func bind() int int int in
+    SYS_BIND syscall4
+    return
+end
+
+
+// listen to socket
+func listen() int int in
+    SYS_LISTEN syscall4
+    return
+end
+
+// accept connection
+func accept() int int int in
+    SYS_ACCEPT syscall4
+    return
+end

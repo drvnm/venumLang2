@@ -1,0 +1,4 @@
+// takes a string, and removes its length from the stack
+func str_to_pointer() int int in
+    swap pop return
+end

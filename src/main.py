@@ -1,4 +1,5 @@
 import sys
+import os
 from scanning.lexer import Lexer
 from scanning.lexer import Lexer
 from visitors.ast_printer import AstPrinter
@@ -16,9 +17,10 @@ def main():
 
     elif len(cmd_args) == 1:
         file_path = cmd_args[0]
+        absolute_path = os.path.abspath(file_path)
         file = open(file_path, 'r')
         source = file.readlines()
-        pre_processor = PreProcessor(source)
+        pre_processor = PreProcessor(source, absolute_path)
         pre_processor.preprocess()
         source = pre_processor.final_source
         lexer = Lexer(source)

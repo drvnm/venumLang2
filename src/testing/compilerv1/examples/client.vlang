@@ -1,0 +1,94 @@
+// // var buffer int_64 // only 8 byte buffer for now, untill i introduce arrays
+// // // constants
+
+// // var AF_INET int_16 2 AF_INET WRITE
+// // var PORT int_16 14619 PORT WRITE 
+// // var INADDR_ANY int_32 16777343 INADDR_ANY WRITE 
+
+
+// // func SOCK_STREAM in 1 return end
+
+// // // late variables
+// // var socket_number int_64
+// // var conn_fd int_64
+
+
+// // // bind socket
+// // func open_socket int int int in
+// //     41 syscall4
+// //     return
+// // end
+
+// // // bind socket
+// // func bind int int int in
+// //     49 syscall4
+// //     return
+// // end
+
+// // func fputs int int int in
+// //     1 syscall4
+// //     return
+// // end
+
+// // func listen int int  in
+// //     50 syscall4
+// //     return
+// // end
+
+// // func accept int int int in
+// //     43 syscall4
+// //     return
+// // end
+
+
+
+
+
+// // // creating socket
+// // 0 SOCK_STREAM AF_INET load open_socket socket_number write
+// // socket_number load 0 < if
+// //     "Couldnt create socket\n" puts
+// // else
+// //     "Socket created, is: " puts socket_number load print 
+// // end
+
+// // 16 AF_INET socket_number load 42 syscall4 print
+
+// // while 1 do
+// //     8 buffer 0 0 syscall4 
+// //     8 buffer socket_number load fputs
+// //     8 buffer conn_fd load 0 syscall4 
+// //     8 buffer puts
+
+// // end
+
+// // // func streq int int int int in
+// // //     var p1 int_64 p1 write
+// // //     var length1 int_64 length1 write
+// // //     var p2 int_64 p2 write
+// // //     var length2 int_64 length2 write
+
+// // //     var buff int_64 0 buff write
+
+// // //     length1 load length2 load != if
+// // //         0 return
+// // //     else
+// // //     4 p1 load puts
+// // //     while buff load 5 < do 
+
+// // //             1 p1 load buff load +  puts
+// // //             "\n" puts
+// // //             buff load 1 + buff write
+// // //         end
+// // //     end
+// // // end 
+
+// // // "test" "test" streq
+
+// // include "include3.vlang"
+
+// func printTest in "t\n" puts end 
+// var x int_64
+// 2 x write
+
+include "./main.vlang"
