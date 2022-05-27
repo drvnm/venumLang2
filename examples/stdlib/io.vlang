@@ -1,3 +1,5 @@
+@import "./string.vlang"
+
 func int println(str string) {
     int length = strlen(string);
     int result = syscall 1 1, string, length;

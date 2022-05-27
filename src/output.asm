@@ -65,21 +65,13 @@
       leave
       ret
  _start:
-   push str_0
+   push str_1
    xor rdi, rdi
    pop rdi ; func call arg
-   call strlen
+   call println
    push rax
    xor rax, rax
-   pop rax ; store variable test
-   mov [MEMORY + 40], eax
-   xor rax, rax
-   xor rax, rax ; begin loading from var
-   mov eax, DWORD [MEMORY + 40]
-   push rax
-   pop rdi ; print statement
-   call print
-   push 10
+   push 1000
    pop rdi ; print statement
    call print
    push 10
@@ -267,8 +259,105 @@
    ret
    leave
    ret
+ println:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 40], rdi
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 40]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call strlen
+   push rax
+   xor rax, rax
+   pop rax ; store variable length
+   mov [MEMORY + 48], eax
+   xor rax, rax
+   push 1
+   xor rdi, rdi
+   pop rdi
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 40]
+   push rax
+   xor rsi, rsi
+   pop rsi
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 48]
+   push rax
+   xor rdx, rdx
+   pop rdx
+   mov rax, 1
+   syscall
+   push rax
+   pop rax ; store variable result
+   mov [MEMORY + 52], eax
+   xor rax, rax
+   push 1
+   xor rdi, rdi
+   pop rdi
+   push str_0
+   xor rsi, rsi
+   pop rsi
+   push 1
+   xor rdx, rdx
+   pop rdx
+   mov rax, 1
+   syscall
+   push rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 52]
+   push rax
+   pop rax ; return value
+   leave
+   ret
+   leave
+   ret
+ printstr:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 56], rdi
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 56]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call strlen
+   push rax
+   xor rax, rax
+   pop rax ; store variable length
+   mov [MEMORY + 64], eax
+   xor rax, rax
+   push 1
+   xor rdi, rdi
+   pop rdi
+   xor rax, rax ; begin loading from var
+   mov rax, QWORD [MEMORY + 56]
+   push rax
+   xor rsi, rsi
+   pop rsi
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 64]
+   push rax
+   xor rdx, rdx
+   pop rdx
+   mov rax, 1
+   syscall
+   push rax
+   pop rax ; store variable result
+   mov [MEMORY + 68], eax
+   xor rax, rax
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 68]
+   push rax
+   pop rax ; return value
+   leave
+   ret
+   leave
+   ret
 
  section .bss
    MEMORY: resb 64000
  section .data
-   str_0: db `hello`, 0
+   str_0: db `\n`, 0
+   str_1: db `test`, 0

@@ -121,14 +121,6 @@ class ReturnStmt(Stmt):
     def accept(self, visitor):
         visitor.visit_return_stmt(self)
 
-# represents a struct declaration
-class StructStmt(Stmt):
-    def __init__(self, name: Token, fields: List[VarStmt]):
-        self.name = name
-        self.fields = fields
-    
-    def accept(self, visitor):
-        visitor.visit_struct_stmt(self)
     
 # class to represent a inline assembly statement
 class AsmStmt(Stmt):

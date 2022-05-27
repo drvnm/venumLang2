@@ -21,7 +21,6 @@ class Parser():
         self.loop_index_begin = 0
         self.loop_index_end = 0
 
-        self.structs = {}
 
     # returns last - 1 token
     def previous(self) -> Token:
@@ -440,40 +439,12 @@ class Parser():
         body = self.block()
         return FuncStmt(name, params, body, return_type)
 
-    def struct_fields(self) -> List[VarStmt]:
-        fields = []
-        while not self.check(tokens.RIGHT_BRACE):
-            if self.match(*types):
-                fields.append(self.var_declaration())
-
-        return fields
     
-    def struct_declaration(self) -> Stmt:
-        name = self.consume(tokens.IDENTIFIER, "Expected struct name.")
-        self.consume(tokens.LEFT_BRACE, "Expected '{' before struct body.")
-        fields = self.struct_fields() # struct_fields takes care of }
-        self.consume(tokens.RIGHT_BRACE, "Expected '}' after struct body.")
-        self.consume(tokens.SEMICOLON, "Expected ';' after struct declaration.")
-        stmt = StructStmt(name, fields)
-        self.structs[name.literal] = stmt
-        return stmt
-
-    def struct_creation(self) -> Stmt:
-        name = self.consume(tokens.IDENTIFIER, "Expected variable name after struct name.")
-        initializers = []
-        if self.match(tokens.LEFT_BRACE):
-            pass
-        fields = self.struct_fields()
-
     def declaration(self) -> Stmt:
         if self.match(*types):
             return self.var_declaration()
         if self.match(tokens.FUNC):
             return self.func_declaration()
-        if self.match(tokens.STRUCT):
-            return self.struct_declaration()
-        if self.peek().lexeme in self.structs:
-            return self.struct_creation()
         return self.statement()
        
 
