@@ -76,6 +76,7 @@ word_to_keyword = {
     'str': tokens.STR,
     'struct': tokens.STRUCT,
     'asm': tokens.ASM,
+    'import': tokens.IMPORT,
 }
 
 type_to_size = {

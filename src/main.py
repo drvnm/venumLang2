@@ -20,10 +20,10 @@ def main():
     pre_processor = PreProcessor(source, absolute_path)
     pre_processor.preprocess()
     source = pre_processor.final_source
-    lexer = Lexer(source)
+    lexer = Lexer(source, absolute_path)
     lexer.scan()
     exprs = Parser(lexer.tokens).parse()
-    compiler = Compiler(args.output)
+    compiler = Compiler(file_path, args.output)
     compiler.compile(exprs)
 
 

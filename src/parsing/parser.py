@@ -329,6 +329,12 @@ class Parser():
             lines.append(self.consume(tokens.STRING, "Expected string after 'asm'"))
         self.consume(tokens.RIGHT_BRACE, "Expected '}' after 'asm'.")
         return AsmStmt(lines)
+    
+    def import_stmt(self) -> Stmt:
+        self.consume(tokens.STRING, "Expected string after 'import'.")
+        filename = self.previous()
+        self.consume(tokens.SEMICOLON, "Expected ';' after 'import'.")
+        return ImportStmt(filename)
 
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
@@ -349,6 +355,8 @@ class Parser():
             return self.return_stmt()
         if self.match(tokens.ASM):
             return self.asm_stmt()
+        if self.match(tokens.IMPORT):
+            return self.import_stmt()
     
         return self.expression_stmt()
 

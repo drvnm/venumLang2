@@ -129,3 +129,11 @@ class AsmStmt(Stmt):
     
     def accept(self, visitor):
         visitor.visit_asm_stmt(self)
+
+# class to represent a import statement, like import "file.vlang"
+class ImportStmt(Stmt):
+    def __init__(self, file_path: Token):
+        self.file_path = file_path
+    
+    def accept(self, visitor):
+        visitor.visit_import_stmt(self)

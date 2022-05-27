@@ -1,3 +1,4 @@
+import os
 import subprocess
 from typing import List
 import re
@@ -8,11 +9,13 @@ from parsing.statements import *
 from parsing.expressions import *
 from intermediate.tokens import *
 from intermediate.lookup_tables import *
+from parse_file import get_file_ast
 
 
 class Compiler(ExprVisitor, StmtVisitor):
-    def __init__(self, file_name="output"):
+    def __init__(self, input_file: str, file_name: str = "output"):
         self.file = open(f"{file_name}.asm", "w")
+        self.input_file = input_file
         self.output_file = file_name
         self.environment = Environment()
         self.globals = self.environment
@@ -524,9 +527,6 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("leave")
         self.write("ret")
 
-    def visit_struct_stmt(self, struct_stmt: StructStmt):
-        self.environment.define_struct(struct_stmt)
-
     def visit_asm_stmt(self, asm_stmt: AsmStmt):
         for asm_line in asm_stmt.assembly:
             line = asm_line.lexeme
@@ -555,3 +555,9 @@ class Compiler(ExprVisitor, StmtVisitor):
                     f"&{variable}", f"MEMORY + {start_index}"
                 )
             self.write(line)
+
+    def visit_import_stmt(self, import_stmt: ImportStmt):
+        abs_path = os.path.abspath(self.input_file)
+        ast = get_file_ast(abs_path, import_stmt.file_path.lexeme)
+        for stmt in ast:
+            self.execute(stmt)

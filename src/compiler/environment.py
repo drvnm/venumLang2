@@ -96,9 +96,4 @@ class Environment:
         self.variables[name] = [Environment.memory_index, arr, False]
         Environment.memory_index += arr.size
 
-    # define struct
-    def define_struct(self, struct: StructStmt):
-        size = sum([type_to_size[nam_tok.type.type] for nam_tok in struct.fields])
-        struct_object = StructDeclr(struct.name.lexeme, size, struct.fields)
-        self.structs[struct.name.lexeme] = struct_object
-        
+   

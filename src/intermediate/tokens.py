@@ -17,6 +17,7 @@ tokens = enum.Enum('tokens', """
         AND CLASS ELSE FALSE FOR IF IN NULL OR
         PRINT RETURN SUPER THIS TRUE LET WHILE
         ELIF CONTINUE BREAK FUNC SYSCALL STRUCT ASM
+        IMPORT
 
         BYTE SHORT INT LONG BOOL STR CHAR
 
@@ -30,6 +31,10 @@ class Token:
     lexeme: str
     literal: any
     line: int
+    col: int
+    file: str = "NONE"
+    line_content: str = ""
+    
 
     def __repr__(self) -> str:
         return f'\n\tToken(type: {self.type}\n\tlexeme: {self.lexeme}\n\tliteral: {self.literal})\n\tline: {self.line}\n'

@@ -40,33 +40,6 @@ class PreProcessor:
             macro_body = macro_body.replace('\n', '')  # remove newline if any
             self.env.set(macro_name, macro_body)
 
-    def import_file(self, splitted_line: List[str]) -> str:
-        found_str = False
-        for word in splitted_line:
-            word = word.strip()
-            if word.startswith('"') and word.endswith('"'):
-                found_str = True
-                break
-        if not found_str:
-            error(self.line_num + 1, 'Invalid import statement')
-        file_name = word.replace('"', '')
-        file_name = self.absolute_path.replace(
-            os.path.basename(self.absolute_path), file_name)
-        try:
-            with open(file_name, 'r') as file:
-                file_source = file.readlines()
-                absolute_path = os.path.abspath(file_name)
-                if self.env.has_included(absolute_path):
-                    return ''
-                pre_processor = PreProcessor(file_source, absolute_path)
-                pre_processor.preprocess()
-                self.env.updata_from_env(pre_processor.env)
-                self.env.include(absolute_path)
-                
-                return pre_processor.final_source
-        except FileNotFoundError:
-            error(self.line_num + 1, f'File {file_name} not found')
-
     def preprocess(self) -> None:
         for line_num, line in enumerate(self.source_lines):
             splitted_line = line.split(' ')
@@ -76,9 +49,6 @@ class PreProcessor:
                 if word == 'macro':
                     self.macro(splitted_line)
                     splitted_line = ['\n']
-                elif word == 'import':
-                    other_file_source = self.import_file(splitted_line)
-                    splitted_line = [other_file_source]
                 else:
                     error(self.line_num + 1, 'Invalid preprocessor directive')
             else:

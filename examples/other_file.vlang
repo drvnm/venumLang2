@@ -1,5 +1,7 @@
-@import "./stdlib/io.vlang"
-@macro x 1000
-@macro y 10
-
-println("test")
+int x = 100;
+print x;
+import "./stdlib/string.vlang";
+print strlen("Hello, World!");
+if(x == t) {
+    print y;
+}      

@@ -15,7 +15,11 @@ statement   -> exprStmt
             | breakStmt
             | syscallStmt
             | returnStmt
-            | asmStmt;
+            | asmStmt
+            | importStmt
+
+
+importStmt  -> "import" STRING;
 
 asmStmt     -> "asm" "{" STRING* "}" ";" 
 
