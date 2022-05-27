@@ -1,7 +1,7 @@
 # Installing venumLang
 install venumlang via PIP:
 ```
-pip install -i https://test.pypi.org/simple/ venumLang==0.1.0
+pip install venumLang==0.1.0
 venumlang <file_path>
 ```
 Or, clone the repo:
@@ -111,6 +111,11 @@ asm {
     "mov ax, WORD $x" // use $ to get the value of a variable
     "mov rax, &x" // use & to get the memory address of x
 }
+```
+# making system calls
+To interact with the OS, venumlang has systemcall statements (you could also use inline asm)
+```cpp
+syscall <id> <first param>, <second param> ...
 ```
 
 # macros (and importing files)
