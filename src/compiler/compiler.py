@@ -11,9 +11,9 @@ from intermediate.lookup_tables import *
 
 
 class Compiler(ExprVisitor, StmtVisitor):
-    def __init__(self):
-        self.file = open("output.asm", "w")
-        self.output_file = "output"
+    def __init__(self, file_name="output"):
+        self.file = open(f"{file_name}.asm", "w")
+        self.output_file = file_name
         self.environment = Environment()
         self.globals = self.environment
         self.mem_size = 64_000
