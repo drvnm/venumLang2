@@ -1,7 +1,7 @@
 # Installing venumLang
 install venumlang via PIP:
 ```
-pip install venumLang
+pip install -i https://test.pypi.org/simple/ venumLang==0.1.0
 venumlang <file_path>
 ```
 Or, clone the repo:
