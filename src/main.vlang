@@ -1,4 +1,0 @@
-@import "./other_file.vlang"
-
-print x;
-print y;

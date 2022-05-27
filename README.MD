@@ -1,9 +1,21 @@
+# Installing venumLang
+install venumlang via PIP:
+```
+pip install venumLang
+venumlang <file_path>
+```
+Or, clone the repo:
+```
+git clone https://github.com/darealvenum/venumLang2
+python3 main.py <file_name>
+```
+
 # info
 this subrepo will contain the code for the second venumlang compiler
 the difference between this compiler and the first compiler will be the use of a recursive descent parser. 
 
 Here are some good sources i learned from:
-[Crafting interpreters](https://www.craftinginterpreters.com/)
+[Crafting interpreters](https://www.craftinginterpreters.com/), 
 [Porth](https://gitlab.com/tsoding/porth)
 
 # roadmap checklist (for now)
@@ -101,12 +113,14 @@ asm {
 }
 ```
 
-# macros
+# macros (and importing files)
 venumlang has support for 1 lined macros:
 ```python
 @macro x 12 * 2 + 34 + 420 * 69
 print x;
 >> 29038
+
+@import "stdlib/io.vlang"
 ````
 
 # table of operations
