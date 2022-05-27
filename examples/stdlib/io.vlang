@@ -1,0 +1,12 @@
+func int println(str string) {
+    int length = strlen(string);
+    int result = syscall 1 1, string, length;
+    syscall 1 1, "\n", 1;
+    return result;
+}
+
+func int printstr(str string) {
+    int length = strlen(string);
+    int result = syscall 1 1, string, length;
+    return result;
+}

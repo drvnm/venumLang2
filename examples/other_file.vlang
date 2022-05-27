@@ -1,3 +1,6 @@
-@macro x 50 + 50 - 2
-int y = 100;
+@import "./stdlib/string.vlang"
+int test = strlen("hello");
+print test;
 
+@macro x 10
+@macro y 10
