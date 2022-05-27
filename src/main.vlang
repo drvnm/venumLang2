@@ -1,4 +1,4 @@
-@macro ARR_SIZE 2
-@macro some_random_number 12 * 2 + 34 + 420 * 69
-int x[ARR_SIZE] = {1, 2};
-print some_random_number;
+@import "./other_file.vlang"
+
+print x;
+print y;

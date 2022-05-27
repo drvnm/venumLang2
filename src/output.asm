@@ -65,34 +65,25 @@
       leave
       ret
  _start:
-   push 1
+   push 100
+   pop rax ; store variable y
+   mov [MEMORY + 0], eax
    xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 0) + 0], eax
    push 2
-   xor rax, rax
-   pop rax ; store array initializer
-   mov [(MEMORY + 0) + 4], eax
-   push 69
-   push 420
-   pop rax ; multiply left by right
-   pop rbx
-   mul rbx
-   push rax
-   push 34
-   push 2
-   push 12
-   pop rax ; multiply left by right
-   pop rbx
-   mul rbx
-   push rax
+   push 50
+   push 50
    pop rax ; add right to left
    pop rbx
    add rax, rbx
    push rax
-   pop rax ; add right to left
+   pop rax ; subtract right from left
    pop rbx
-   add rax, rbx
+   sub rax, rbx
+   push rax
+   pop rdi ; print statement
+   call print
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 0]
    push rax
    pop rdi ; print statement
    call print
