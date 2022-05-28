@@ -539,7 +539,8 @@ class Compiler(ExprVisitor, StmtVisitor):
                     Token(tokens.IDENTIFIER,
                           variable,
                           variable,
-                          asm_line.line))
+                          asm_line.line,
+                          0))
                 line = asm_line.literal.replace(
                     f"${variable}", f"[MEMORY + {start_index}]"
                 )

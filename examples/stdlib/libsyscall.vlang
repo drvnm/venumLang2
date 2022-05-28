@@ -1,0 +1,30 @@
+// These would be better as macros,
+// but macro expansion across translation
+// units is not here yet...
+long SYSNONE = 0;
+
+long SYS_READ  = 0;
+long SYS_WRITE = 1;
+long SYS_OPEN  = 2;
+long SYS_CLOSE = 3;
+
+long STDIN  = 0;
+long STDOUT = 1;
+long STDERR = 3;
+
+
+// Should be variadic
+func long _syscall(long name, long rdi, long rsi, long rdx) {
+    long ret;
+
+    asm {
+        "mov    rax, $name"
+        "mov    rdi, $rdi"
+        "mov    rsi, $rsi"
+        "mov    rdx, $rdx"
+        "syscall"
+        "mov    $ret, rax"
+    }
+
+    return ret;
+}

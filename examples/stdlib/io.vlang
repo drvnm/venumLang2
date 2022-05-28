@@ -1,14 +1,21 @@
-import "./string.vlang";
+import "stdlib/string.vlang";
+import "stdlib/libsyscall.vlang";
 
-func int println(str string) {
+
+
+func long printstr(str string) {
     int length = strlen(string);
-    int result = syscall 1 1, string, length;
-    syscall 1 1, "\n", 1;
-    return result;
+    long ret = _syscall(SYS_WRITE, STDOUT, string, length);
+    return ret;
 }
 
-func int printstr(str string) {
-    int length = strlen(string);
-    int result = syscall 1 1, string, length;
-    return result;
+
+func long println(str string) {    
+    long ret = printstr(string);
+
+    if( ret == strlen(string) ) {
+        ret += _syscall(SYS_WRITE, STDOUT, "\n", 1);
+    }
+
+    return ret;
 }
