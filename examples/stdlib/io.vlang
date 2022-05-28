@@ -1,4 +1,4 @@
-@import "./string.vlang"
+import "./string.vlang";
 
 func int println(str string) {
     int length = strlen(string);
