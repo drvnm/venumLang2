@@ -530,8 +530,8 @@ class Compiler(ExprVisitor, StmtVisitor):
     def visit_asm_stmt(self, asm_stmt: AsmStmt):
         for asm_line in asm_stmt.assembly:
             line = asm_line.lexeme
-            variable_access = re.findall(r'\$[a-zA-Z_]*', asm_line.lexeme)
-            variable_pointers = re.findall(r'\&[a-zA-Z_]*', asm_line.lexeme)
+            variable_access = re.findall(r'\$[a-zA-Z0-9_]*', asm_line.lexeme)
+            variable_pointers = re.findall(r'\&[a-zA-Z0-9_]*', asm_line.lexeme)
 
             for variable in variable_access:  # replace all $variables with their values in memory
                 variable = variable[1:]

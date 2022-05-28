@@ -1,5 +1,3 @@
-@macro x 10
-
 func int strlen(str string) {
     int index = 0;
     while(string[index] > 0) {
