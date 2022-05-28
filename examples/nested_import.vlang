@@ -1,0 +1,3 @@
+import "stdlib/io.vlang";
+
+printstr("Hello world!\n");

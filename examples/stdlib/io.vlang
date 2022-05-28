@@ -2,6 +2,7 @@ import "stdlib/string.vlang";
 import "stdlib/libsyscall.vlang";
 
 
+
 func long printstr(str string) {
     int length = strlen(string);
     long ret = _syscall(SYS_WRITE, STDOUT, string, length);
