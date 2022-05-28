@@ -557,7 +557,17 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write(line)
 
     def visit_import_stmt(self, import_stmt: ImportStmt):
-        abs_path = os.path.abspath(self.input_file)
-        ast = get_file_ast(abs_path, import_stmt.file_path.lexeme)
+        file_path = os.path.abspath(
+                        os.path.join(
+                            os.path.dirname(self.input_file), import_stmt.file_path.lexeme))
+
+        # Save newly opened filename as current
+        old_if = self.input_file
+        self.input_file = file_path
+        ast = get_file_ast(file_path)
+
         for stmt in ast:
             self.execute(stmt)
+
+        # Restore previous filename
+        self.input_file = old_if

@@ -6,11 +6,12 @@ from preproccesor.preprocessor import PreProcessor
 from parsing.parser import *
 from parsing.expressions import *
 
-def get_file_ast(current_file: str, file_path: str) -> List[Token]:
-    file_path = os.path.join(os.path.dirname(current_file), file_path)
+def get_file_ast(file_path: str) -> List[Token]:
     print(file_path)
-    file = open(file_path, 'r')
-    source = file.readlines()
+
+    with open(file_path, 'r') as f:
+        source = f.readlines()
+    
     absolute_path = os.path.abspath(file_path)
     pre_processor = PreProcessor(source, absolute_path)
     pre_processor.preprocess()
@@ -20,5 +21,3 @@ def get_file_ast(current_file: str, file_path: str) -> List[Token]:
     parser = Parser(lexer.tokens)
     ast = parser.parse()
     return ast
-
-
