@@ -1,5 +1,5 @@
-import "stdlib/string.vlang";
-import "stdlib/libsyscall.vlang";
+import "string.vlang";
+import "libsyscall.vlang";
 
 func long printstr(str string) {
     int length = strlen(string);
