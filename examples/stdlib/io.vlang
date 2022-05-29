@@ -1,5 +1,5 @@
-import "stdlib/string.vlang";
-import "stdlib/libsyscall.vlang";
+import "string.vlang";
+import "libsyscall.vlang";
 
 func long printstr(str string) {
     int length = strlen(string);
@@ -16,4 +16,43 @@ func long println(str string) {
     }
 
     return ret;
+}
+
+
+func int printint(long number) {
+    str buffer = "123456789012345678901";
+
+    asm {
+        "mov   rdi, $number"
+        "mov   rsi, $buffer"
+        "xor   rcx, rcx"
+        "mov   rax, rdi"
+        "test  rax, rax"
+        "jns   .L1"
+        "mov   BYTE [rsi], '-' ; Add sign"
+        "neg   rax"
+        "mov   rdi, rax"
+        "add   rsi, 1"
+      ".L1:    ; get length of number in characters"
+        "mov   rbx, 10"
+      ".L1A:"
+        "add   rcx, 1"
+        "cqo       ; convert quad to oct (rax to rdx:rax)"
+        "div   rbx"
+        "test  rax, rax"
+        "jnz   .L1A"
+        "mov   rax, rdi"
+        "mov   BYTE [rsi+rcx], 0"
+      ".L2:"
+        "cqo"
+        "div   rbx"
+        "add   dl, '0'"
+        "sub   rcx, 1"
+        "mov   BYTE [rsi+rcx], dl"
+        "test  rcx, rcx"
+        "jnz   .L2"
+    }
+
+    printstr(buffer);
+    return 0;
 }
