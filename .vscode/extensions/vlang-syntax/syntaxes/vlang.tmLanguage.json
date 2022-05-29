@@ -1,0 +1,50 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "vlang",
+    "fileTypes": [".vlang"],
+    "scopeName": "source.vlang",
+	"patterns": [
+        {
+            "name": "comment.line",
+            "begin": "//",
+            "end": "\n"
+        },
+        {
+            "name": "keyword.operator.new",
+            "match": "(func)"
+        },
+        {
+            "name": "support.type",
+            "match": "\\b(int|short|byte|str|long)\\b"
+        },
+        {
+            "name": "constant.numeric",
+            "match": "\\b(true|false)\\b"
+        },
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.vlangsyntax",
+				"match": "\\b(if|while|for|return)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.vlangsyntax",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.vlangsyntax",
+					"match": "\\\\."
+				}
+			]
+		}
+	}
+}

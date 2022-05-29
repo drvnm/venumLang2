@@ -1,0 +1,27 @@
+{
+    "name": "venumlang-syntax",
+    "displayName": "VenumLang Syntax",
+    "description": "Syntax highlighting for vlang",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.67.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "vlang",
+            "aliases": ["vlang", "venumlang"],
+            "extensions": [
+                ".vlang"
+            ],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "vlang",
+            "scopeName": "source.vlang",
+            "path": "./syntaxes/vlang.tmLanguage.json"
+        }]
+    }
+}
