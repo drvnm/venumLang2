@@ -21,8 +21,8 @@ class Parser():
         self.loop_index_begin = 0
         self.loop_index_end = 0
 
-
     # returns last - 1 token
+
     def previous(self) -> Token:
         return self.tokens[self.current - 1]
 
@@ -176,8 +176,6 @@ class Parser():
 
     def assignment(self) -> Expr:
         expr = self.equality()
-        
-        
 
         if self.match(*inc_dec_tokens):
             operator = self.previous()
@@ -254,7 +252,7 @@ class Parser():
         return stmt
 
     def for_stmt(self) -> Stmt:
-        for_index = self.current 
+        for_index = self.current
         self.loop_index_begin = for_index
         self.consume(tokens.LEFT_PAREN, "Expected '(' after 'for'.")
         initializer = None
@@ -315,26 +313,38 @@ class Parser():
         if len(args) == 0:
             error(self.previous(), "Expected at least one argument after syscall ID.")
         return SyscallStmt(syscall_id, args)
-    
+
     def return_stmt(self) -> Stmt:
         expr = None
         if not self.check(tokens.SEMICOLON):
             expr = self.expression_stmt()
         return ReturnStmt(expr)
-    
+
     def asm_stmt(self) -> Stmt:
         self.consume(tokens.LEFT_BRACE, "Expected '{' after 'asm'.")
         lines = []
         while not self.check(tokens.RIGHT_BRACE) and not self.is_at_end():
-            lines.append(self.consume(tokens.STRING, "Expected string after 'asm'"))
+            lines.append(self.consume(
+                tokens.STRING, "Expected string after 'asm'"))
         self.consume(tokens.RIGHT_BRACE, "Expected '}' after 'asm'.")
         return AsmStmt(lines)
-    
+
     def import_stmt(self) -> Stmt:
         self.consume(tokens.STRING, "Expected string after 'import'.")
         filename = self.previous()
         self.consume(tokens.SEMICOLON, "Expected ';' after 'import'.")
         return ImportStmt(filename)
+
+    def extern_stmt(self) -> Stmt:
+        if not self.match(*types, tokens.VOID):
+            error(self.previous(), "Expected type for 'extern' statement.")
+        return_type = self.previous().type
+        name = self.consume(tokens.IDENTIFIER, "Expected identifier after 'extern'.")
+        self.consume(tokens.LEFT_PAREN, "Expected '(' after function name.")
+        params = self.params()
+        self.consume(tokens.RIGHT_PAREN, "Expected ')' after function parameters.")
+        self.consume(tokens.SEMICOLON, "Expected ';' after 'extern'.")
+        return ExternStmt(name, return_type, params)
 
     def statement(self) -> Stmt:
         if self.match(tokens.PRINT):
@@ -357,7 +367,9 @@ class Parser():
             return self.asm_stmt()
         if self.match(tokens.IMPORT):
             return self.import_stmt()
-    
+        if self.match(tokens.EXTERN):
+            return self.extern_stmt()
+
         return self.expression_stmt()
 
     def var_declaration(self) -> Stmt:
@@ -402,14 +414,7 @@ class Parser():
 
         return VarStmt(type_, name, expr, size)
 
-    # i do be writing duplicate code
-    def func_declaration(self) -> Stmt:
-        if not self.match(*types, tokens.VOID):
-            error(self.peek(), "Expected return type after 'func'.")
-        return_type = self.previous()
-        name = self.consume(tokens.IDENTIFIER, "Expected function name.")
-        return_type = None
-        self.consume(tokens.LEFT_PAREN, "Expected '(' after function name.")
+    def params(self) -> List[VarStmt]:
         params = []
         if not self.check(tokens.RIGHT_PAREN):
             # check if parameter type wasn given
@@ -442,19 +447,27 @@ class Parser():
                 else:
                     param = VarStmt(type_, arg_name, None, size)
                     params.append(param)
+        return params
+
+    def func_declaration(self) -> Stmt:
+        if not self.match(*types, tokens.VOID):
+            error(self.peek(), "Expected return type after 'func'.")
+        return_type = self.previous()
+        name = self.consume(tokens.IDENTIFIER, "Expected function name.")
+        return_type = None
+        self.consume(tokens.LEFT_PAREN, "Expected '(' after function name.")
+        params = self.params()
         self.consume(tokens.RIGHT_PAREN, "Expected ')' after parameters.")
         self.consume(tokens.LEFT_BRACE, "Expected '{' before function body.")
         body = self.block()
         return FuncStmt(name, params, body, return_type)
 
-    
     def declaration(self) -> Stmt:
         if self.match(*types):
             return self.var_declaration()
         if self.match(tokens.FUNC):
             return self.func_declaration()
         return self.statement()
-       
 
     def parse(self) -> List[Stmt]:
         statements = []

@@ -32,6 +32,7 @@ class Compiler(ExprVisitor, StmtVisitor):
             "rcx", "r8", "r9"
         ]
         self.subroutines = ""
+        self.externs = []
         self.is_subroutine = False
 
         # syscall data
@@ -51,7 +52,7 @@ class Compiler(ExprVisitor, StmtVisitor):
     # writes begin of asm file
     def write_header(self):
         self.write("section .text", False)
-        self.write("global _start")
+        self.write("global main")
 
         self.write("print:", False)
         self.write("push    rbp")
@@ -117,7 +118,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("   nop")
         self.write("   leave")
         self.write("   ret")
-        self.write("_start:", False)
+        self.write("main:", False)
 
     # writes end of asm file, calls exit system call
     def write_footer(self):
@@ -135,6 +136,10 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("section .data", False)
         for index, string in enumerate(self.strings):
             self.write(f"str_{index}: db `{string}`, 0")
+        
+        # declare functions as extern
+        for function in self.externs:
+            self.write(f"extern {function}", False)
 
     def compile(self, statements: List[Stmt]):
         self.write_header()
@@ -146,7 +151,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         # compile and link
         subprocess.run(["nasm", "-f", "elf64", f"{self.output_file}.asm"])
         subprocess.run(
-            ["ld", "-o", f"{self.output_file}", f"{self.output_file}.o"])
+            ["gcc", "-o", f"{self.output_file}", f"{self.output_file}.o", "-no-pie"])
 
     def execute(self, expr: Expr):
         expr.accept(self)
@@ -415,18 +420,19 @@ class Compiler(ExprVisitor, StmtVisitor):
     def visit_continue_stmt(self, continue_stmt: ContinueStmt):
         self.write(f"jmp .L{continue_stmt.label_index}")
 
+    # handle arguments
     def visit_call_expr(self, call_expr: CallExpr):
-        # handle arguments
         original_function = self.globals.get_function(call_expr.callee.name)
         if len(call_expr.arguments) != len(original_function.parameters):
             error(call_expr.callee.name,
                   f"Incorrect number of arguments passed to function {call_expr.callee.name.lexeme} (COMPILE TIME ERROR)")
-
+     
         for index, argument in enumerate(call_expr.arguments):
             register = self.args_registers[index]
             self.execute(argument)
             self.write(f"xor {register}, {register}")
             self.write(f"pop {register} ; func call arg")
+        self.write("xor rax, rax")
         self.write(f"call {call_expr.callee.name.lexeme}")
         self.write("push rax")
         self.write(f"xor rax, rax")
@@ -540,3 +546,7 @@ class Compiler(ExprVisitor, StmtVisitor):
 
         # Restore previous filename
         self.input_file = old_if
+    
+    def visit_extern_stmt(self, extern_stmt: ExternStmt):
+        self.externs.append(extern_stmt.name.lexeme)
+        self.globals.define_function(extern_stmt)

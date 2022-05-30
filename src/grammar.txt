@@ -19,7 +19,7 @@ statement   -> exprStmt
             | importStmt
             | externStmt;
 
-externStmt  -> "extern" IDENTIFIER "(" params? ")" ";";
+externStmt  -> "extern" TYPE IDENTIFIER "(" params? ")" ";";
 
 
 importStmt  -> "import" STRING;

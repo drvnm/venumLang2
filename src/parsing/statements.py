@@ -139,7 +139,7 @@ class ImportStmt(Stmt):
         visitor.visit_import_stmt(self)
 
 # represents external declaration of a function
-class externStmt(Stmt):
+class ExternStmt(Stmt):
     def __init__(self, name: Token, return_type: tokens, parameters: List[VarStmt]):
         self.name = name
         self.return_type = return_type

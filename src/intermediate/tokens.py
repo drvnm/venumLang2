@@ -16,6 +16,7 @@ tokens = enum.Enum('tokens', """
 
         AND CLASS ELSE FALSE FOR IF IN NULL OR
         PRINT RETURN SUPER THIS TRUE LET WHILE
+        EXTERN
         ELIF CONTINUE BREAK FUNC SYSCALL STRUCT ASM
         IMPORT
 

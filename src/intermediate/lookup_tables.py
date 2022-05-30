@@ -72,6 +72,7 @@ word_to_keyword = {
     'short': tokens.SHORT,
     'int': tokens.INT,
     'void': tokens.VOID,
+    'extern': tokens.EXTERN,
     'long': tokens.LONG,
     'bool': tokens.BOOL,
     'str': tokens.STR,

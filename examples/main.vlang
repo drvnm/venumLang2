@@ -143,12 +143,9 @@
 // close(sersock);
 
 
-func void test() {
-    
-}
 
-func void test2(int x) {
-    print x;
-}
 
-test2(2);
+
+
+extern void printf(str x, str y);
+printf("hi %s, how are you \n", "there");
