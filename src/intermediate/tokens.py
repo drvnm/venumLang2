@@ -19,7 +19,7 @@ tokens = enum.Enum('tokens', """
         ELIF CONTINUE BREAK FUNC SYSCALL STRUCT ASM
         IMPORT
 
-        BYTE SHORT INT LONG BOOL STR CHAR
+        BYTE SHORT INT LONG BOOL STR CHAR VOID
 
         EOF
                     """)

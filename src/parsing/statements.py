@@ -137,3 +137,13 @@ class ImportStmt(Stmt):
     
     def accept(self, visitor):
         visitor.visit_import_stmt(self)
+
+# represents external declaration of a function
+class externStmt(Stmt):
+    def __init__(self, name: Token, return_type: tokens, parameters: List[VarStmt]):
+        self.name = name
+        self.return_type = return_type
+        self.parameters = parameters
+    
+    def accept(self, visitor):
+        visitor.visit_extern_stmt(self)

@@ -372,6 +372,12 @@
    call close
    push rax
    xor rax, rax
+   push 2
+   xor rdi, rdi
+   pop rdi ; func call arg
+   call test2
+   push rax
+   xor rax, rax
    ; end of program
    mov rax, 60
    mov rdi, 0
@@ -1035,6 +1041,22 @@
    pop rax ; return value
    leave
    ret
+   leave
+   ret
+ test:
+   push rbp
+   mov rbp, rsp
+   leave
+   ret
+ test2:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 1250], edi
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 1250]
+   push rax
+   pop rdi ; print statement
+   call print
    leave
    ret
 

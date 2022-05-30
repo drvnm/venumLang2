@@ -3,7 +3,7 @@ program     -> decleration* EOF;
 decleration -> varDecl | statement
             | funDeclr;
 
-varDecl     -> type IDENTIFIER ("[" NUMBER "]")* ("=" expression)? ";"
+varDecl     -> type IDENTIFIER ("[" NUMBER "]")* ("=" expression)? ";";
 
 statement   -> exprStmt
             | printStmt
@@ -17,17 +17,20 @@ statement   -> exprStmt
             | returnStmt
             | asmStmt
             | importStmt
+            | externStmt;
+
+externStmt  -> "extern" IDENTIFIER "(" params? ")" ";";
 
 
 importStmt  -> "import" STRING;
 
-asmStmt     -> "asm" "{" STRING* "}" ";" 
+asmStmt     -> "asm" "{" STRING* "}" ";" ;
 
         
-returnStmt  -> "return" expression? ";"
+returnStmt  -> "return" expression? ";";
 
-syscallStmt -> syscall NUMBER sysarg+ ";"
-sysarg      -> expression ("," expression)*
+syscallStmt -> syscall NUMBER sysarg+ ";";
+sysarg      -> expression ("," expression)*;
 
 funDeclr    -> "func" function;
 function    -> TYPES IDENTIFIER "(" params? ")" block;
@@ -36,16 +39,16 @@ params      -> TYPES IDENTIFIER ("," TYPES IDENTIFIER)*;
 
 forStmt     -> "for" "(" (varDecl | exprStmt | ";")
                 expression? ";"
-                expression? ")" statement
+                expression? ")" statement;
 
             
 
-whileStmt   -> "while" "(" expression ")" statement
+whileStmt   -> "while" "(" expression ")" statement;
 
 ifStmt      -> "if" "(" expression ")"
                 statement
                 ("elif" "(" expression ")" statement)*
-                ("else" statement)?
+                ("else" statement)?;
 
 continueStmt -> "continue" ";"
 breakStmt    -> "break" ";"

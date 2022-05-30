@@ -143,3 +143,12 @@
 // close(sersock);
 
 
+func void test() {
+    
+}
+
+func void test2(int x) {
+    print x;
+}
+
+test2(2);

@@ -71,6 +71,7 @@ word_to_keyword = {
     'byte': tokens.BYTE,	
     'short': tokens.SHORT,
     'int': tokens.INT,
+    'void': tokens.VOID,
     'long': tokens.LONG,
     'bool': tokens.BOOL,
     'str': tokens.STR,

@@ -404,7 +404,7 @@ class Parser():
 
     # i do be writing duplicate code
     def func_declaration(self) -> Stmt:
-        if not self.match(*types):
+        if not self.match(*types, tokens.VOID):
             error(self.peek(), "Expected return type after 'func'.")
         return_type = self.previous()
         name = self.consume(tokens.IDENTIFIER, "Expected function name.")
