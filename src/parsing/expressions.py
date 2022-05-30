@@ -15,10 +15,11 @@ class Expr(ABC):
 
 
 class BinaryExpr(Expr):
-    def __init__(self, left: Expr, operator: tokens, right: Expr):
+    def __init__(self, left: Expr, operator: tokens, right: Expr, is_comparison: bool = False):
         self.left = left
         self.operator = operator
         self.right = right
+        self.is_comparison = is_comparison
 
     def accept(self, visitor: ExprVisitor):
         return visitor.visit_binary_expr(self)
