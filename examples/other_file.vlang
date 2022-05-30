@@ -1,7 +1,4 @@
-int x = 100;
-print x;
-import "./stdlib/string.vlang";
-print strlen("Hello, World!");
-if(x == t) {
-    print y;
-}      
+import "stdlib/io.vlang";
+
+printint(-123);
+println("");
