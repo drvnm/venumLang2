@@ -126,7 +126,7 @@
 // } else {
 //     printline("accepted");
 // }
-
+    
 //     byte buffer[1024];
 //     int result = read(newsock, buffer, 1024);
 //     chop_by_char(buffer, ' ', 2);
@@ -140,11 +140,6 @@
 //     send_to_client(newsock, "\r\n");
 //     send_to_client(newsock, "<h1>Hello World!</h1>\r\n");
 
-
 // close(sersock);
 
-int r10 = 0;
 
-asm {
-    "mov rax, $r10"
-}

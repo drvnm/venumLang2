@@ -177,77 +177,45 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.execute(grouping_expr.expression)
 
     def visit_binary_expr(self, binary_expr: BinaryExpr):
+
         self.execute(binary_expr.right)
         self.execute(binary_expr.left)
 
+        self.write("pop rax ; left operand of binary op")
+        self.write("pop rbx ; right operand of binary op")
+        self.write(f"; {binary_expr.operator.lexeme} rax, rbx")
         if binary_expr.operator.type == tokens.MINUS:
-            self.write("pop rax ; subtract right from left")
-            self.write("pop rbx")
             self.write("sub rax, rbx")
-            self.write("push rax")
         elif binary_expr.operator.type == tokens.PLUS:
-            self.write("pop rax ; add right to left")
-            self.write("pop rbx")
             self.write("add rax, rbx")
-            self.write("push rax")
         elif binary_expr.operator.type == tokens.PERCENT:
-            self.write("pop rax ; modulo right from left")
-            self.write("pop rbx")
             self.write("idiv rbx")
-            self.write("push rax")
         elif binary_expr.operator.type == tokens.SLASH:
-            self.write("pop rax ; divide left by right")
-            self.write("pop rbx")
             self.write("div rbx")
-            self.write("push rax")
         elif binary_expr.operator.type == tokens.STAR:
-            self.write("pop rax ; multiply left by right")
-            self.write("pop rbx")
             self.write("mul rbx")
+
+        if not binary_expr.is_comparison: # no need to generate code for comparison ops
             self.write("push rax")
-        elif binary_expr.operator.type == tokens.GREATER:
-            self.write("pop rax ; compare left to right")
-            self.write("pop rbx")
-            self.write("cmp rax, rbx")
+            return
+            
+        self.write("cmp rax, rbx ; compare operation")
+        if binary_expr.operator.type == tokens.GREATER:
             self.write("setg al")
             self.write("movzx rax, al")
             self.write("push rax")
         elif binary_expr.operator.type == tokens.GREATER_EQUAL:
-            self.write("pop rax ; compare left to right")
-            self.write("pop rbx")
-            self.write("cmp rax, rbx")
             self.write("setge al")
-            self.write("movzx rax, al")
-            self.write("push rax")
         elif binary_expr.operator.type == tokens.LESS:
-            self.write("pop rax ; compare left to right")
-            self.write("pop rbx")
-            self.write("cmp rax, rbx")
             self.write("setl al")
-            self.write("movzx rax, al")
-            self.write("push rax")
         elif binary_expr.operator.type == tokens.LESS_EQUAL:
-            self.write("pop rax ; compare left to right")
-            self.write("pop rbx")
-            self.write("cmp rax, rbx")
             self.write("setle al")
-            self.write("movzx rax, al")
-            self.write("push rax")
         elif binary_expr.operator.type == tokens.BANG_EQUAL:
-            self.write("pop rax ; compare left to right")
-            self.write("pop rbx")
-            self.write("cmp rax, rbx")
             self.write("setne al")
-            self.write("movzx rax, al")
-            self.write("push rax")
         elif binary_expr.operator.type == tokens.EQUAL_EQUAL:
-            self.write("pop rax ; compare left to right")
-            self.write("pop rbx")
-            self.write("cmp rax, rbx")
             self.write("sete al")
-            self.write("movzx rax, al")
-            self.write("push rax")
-            self.write("xor rax, rax")
+        self.write("movzx rax, al")
+        self.write("push rax")
 
     def visit_print_stmt(self, print_stmt: PrintStmt):
         self.execute(print_stmt.expr)

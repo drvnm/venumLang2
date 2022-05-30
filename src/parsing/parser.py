@@ -161,7 +161,7 @@ class Parser():
         while self.match(tokens.GREATER, tokens.GREATER_EQUAL, tokens.LESS, tokens.LESS_EQUAL):
             operator = self.previous()
             right = self.term()
-            expr = BinaryExpr(expr, operator, right)
+            expr = BinaryExpr(expr, operator, right, True)
 
         return expr
 
@@ -171,7 +171,7 @@ class Parser():
         while self.match(tokens.EQUAL_EQUAL, tokens.BANG_EQUAL):
             operator = self.previous()
             right = self.expression()
-            expr = BinaryExpr(expr, operator, right)
+            expr = BinaryExpr(expr, operator, right, True)
         return expr
 
     def assignment(self) -> Expr:
