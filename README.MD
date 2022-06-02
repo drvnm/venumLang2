@@ -1,4 +1,5 @@
-![Discord Banner 3](https://discordapp.com/api/guilds/982002516231352350/widget.png?style=banner3)
+# Join our discord!
+[![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/bMTDtYYqM8)
 
 
 # Installing venumLang
