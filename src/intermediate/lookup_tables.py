@@ -140,3 +140,15 @@ word_to_register_size = {
 }
 
 preprocessing_words = ['import', 'define', 'ifdef', 'endif']
+
+arithmetic_tokens = [tokens.CHAR, tokens.INT, tokens.BOOL]
+
+acceptable_types = {
+    tokens.BYTE: [tokens.INT, tokens.CHAR, tokens.BYTE, tokens.SHORT, tokens.LONG, tokens.BOOL, tokens.CHAR],
+    tokens.SHORT: [tokens.INT, tokens.CHAR, tokens.BYTE, tokens.SHORT, tokens.LONG, tokens.BOOL, tokens.CHAR],
+    tokens.INT: [tokens.INT, tokens.CHAR, tokens.BYTE, tokens.SHORT, tokens.LONG, tokens.BOOL, tokens.CHAR],
+    tokens.LONG: [tokens.INT, tokens.CHAR, tokens.BYTE, tokens.SHORT, tokens.LONG, tokens.BOOL, tokens.CHAR],
+    tokens.BOOL: [tokens.INT, tokens.CHAR, tokens.BYTE, tokens.SHORT, tokens.LONG, tokens.BOOL, tokens.CHAR],
+    tokens.STR: [tokens.STRING],
+
+}

@@ -60,13 +60,13 @@ class Parser():
 
     def primary(self) -> Expr:
         if self.match(tokens.FALSE):
-            return LiteralExpr(False)
+            return LiteralExpr(False, tokens.BOOL)
         if self.match(tokens.TRUE):
-            return LiteralExpr(True)
+            return LiteralExpr(True, tokens.BOOL)
         if self.match(tokens.NULL):
             return LiteralExpr(None)
-        if self.match(tokens.NUMBER, tokens.STRING):
-            return LiteralExpr(self.previous())
+        if self.match(tokens.NUMBER):
+            return LiteralExpr(self.previous(), tokens.INT)
         if self.match(tokens.LEFT_PAREN):
             expr = self.expression()
             self.consume(tokens.RIGHT_PAREN, "Expected ')' after expression.")
@@ -80,11 +80,11 @@ class Parser():
             token = self.consume(tokens.IDENTIFIER, "Expected variable name.")
             return VarToPointerExpr(token)
         if self.match(tokens.STRING):
-            return LiteralExpr(self.previous())
+            return LiteralExpr(self.previous(), tokens.STRING)
         if self.match(tokens.CHAR):
             char = self.previous()
             char.literal = ord(char.literal)
-            return LiteralExpr(char)
+            return LiteralExpr(char, tokens.CHAR)
         if self.match(tokens.SYSCALL):
             return self.syscall_stmt()
 

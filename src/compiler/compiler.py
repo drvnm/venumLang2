@@ -136,7 +136,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("section .data", False)
         for index, string in enumerate(self.strings):
             self.write(f"str_{index}: db `{string}`, 0")
-        
+
         # declare functions as extern
         for function in self.externs:
             self.write(f"extern {function}", False)
@@ -200,10 +200,10 @@ class Compiler(ExprVisitor, StmtVisitor):
         elif binary_expr.operator.type == tokens.STAR:
             self.write("mul rbx")
 
-        if not binary_expr.is_comparison: # no need to generate code for comparison ops
+        if not binary_expr.is_comparison:  # no need to generate code for comparison ops
             self.write("push rax")
             return
-            
+
         self.write("cmp rax, rbx ; compare operation")
         if binary_expr.operator.type == tokens.GREATER:
             self.write("setg al")
@@ -426,16 +426,21 @@ class Compiler(ExprVisitor, StmtVisitor):
         if len(call_expr.arguments) != len(original_function.parameters):
             error(call_expr.callee.name,
                   f"Incorrect number of arguments passed to function {call_expr.callee.name.lexeme} (COMPILE TIME ERROR)")
-     
+
+        # reverse arguments if more than 6 args
+        if len(call_expr.arguments) > len(self.args_registers):
+            call_expr.arguments[6:] = reversed(call_expr.arguments[6:])
         for index, argument in enumerate(call_expr.arguments):
-            register = self.args_registers[index]
             self.execute(argument)
-            self.write(f"xor {register}, {register}")
-            self.write(f"pop {register} ; func call arg")
+            if index < len(self.args_registers):
+                register = self.args_registers[index]
+                self.write(f"xor {register}, {register}")
+                self.write(f"pop {register} ; func call arg")
+
         self.write("xor rax, rax")
         self.write(f"call {call_expr.callee.name.lexeme}")
         self.write("push rax")
-        self.write(f"xor rax, rax")
+        self.write("xor rax, rax")
 
     def visit_func_stmt(self, func_stmt: FuncStmt):
         self.globals.define_function(func_stmt)
@@ -449,14 +454,20 @@ class Compiler(ExprVisitor, StmtVisitor):
         for param in range(num_args):
             func_param = func_stmt.parameters[param]
             env.define(func_param) if isinstance(
-                func_param, VarStmt) else env.define_array(func_param)
+                func_param, VarStmt
+            ) else env.define_array(func_param)
             start_index, word, is_str = env.get(func_param.name)
             if isinstance(word, ArrayStmt):
                 word = 'QWORD'
-            register = self.args_registers[param]
-            register = word_to_register_size[word + register]
-            self.write(f"mov [MEMORY + {start_index}], {register}")
-
+            if param < len(self.args_registers):   
+                register = self.args_registers[param]
+                register = word_to_register_size[word + register]
+                self.write(f"mov [MEMORY + {start_index}], {register}")
+            else:
+                register = word_to_register_size[word + 'r8']
+                self.write("xor r8, r8")
+                self.write("pop r8")
+                self.write(f"mov [MEMORY + {start_index}], {register}")
         self.execute_block(func_stmt.body, env)
         self.write("leave")
         self.write("ret")
@@ -533,8 +544,8 @@ class Compiler(ExprVisitor, StmtVisitor):
 
     def visit_import_stmt(self, import_stmt: ImportStmt):
         file_path = os.path.abspath(
-                        os.path.join(
-                            os.path.dirname(self.input_file), import_stmt.file_path.lexeme))
+            os.path.join(
+                os.path.dirname(self.input_file), import_stmt.file_path.lexeme))
 
         # Save newly opened filename as current
         old_if = self.input_file
@@ -546,7 +557,7 @@ class Compiler(ExprVisitor, StmtVisitor):
 
         # Restore previous filename
         self.input_file = old_if
-    
+
     def visit_extern_stmt(self, extern_stmt: ExternStmt):
         self.externs.append(extern_stmt.name.lexeme)
         self.globals.define_function(extern_stmt)

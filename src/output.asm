@@ -65,16 +65,31 @@
       leave
       ret
  main:
-   push str_0
-   xor rdi, rdi
-   pop rdi ; func call arg
-   push str_1
-   xor rsi, rsi
-   pop rsi ; func call arg
-   xor rax, rax
-   call printf
+   push 3
+   push 3
+   pop rax ; left operand of binary op
+   pop rbx ; right operand of binary op
+   ; == rax, rbx
+   cmp rax, rbx ; compare operation
+   sete al
+   movzx rax, al
    push rax
+   pop rax ; if condition start
+   cmp rax, 0
+   je .L8
+   jmp .L22
+   .L8:
+   push 1
+   pop rax ; elif condition start
+   cmp rax, 0
+   je .L14 ; jump to else
+   jmp .L22
+ .L14:
+   push str_0
+   pop rax ; store variable x
+   mov [MEMORY + 0], rax
    xor rax, rax
+ .L22: ; END IF STMT
    ; end of program
    mov rax, 60
    mov rdi, 0
@@ -83,6 +98,4 @@
  section .bss
    MEMORY: resb 64000
  section .data
-   str_0: db `hi %s, how are you \n`, 0
-   str_1: db `there`, 0
- extern printf
+   str_0: db `nice`, 0

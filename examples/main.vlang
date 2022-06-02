@@ -146,6 +146,49 @@
 
 
 
+// func int test(
+//     int a,
+//     int b,
+//     int c,
+//     int d,
+//     int e,
+//     int f,
+//     int g,
+//     int h
+// ) {
+//     print a;
+//     print b;
+//     print c;
+//     print d;
+//     print e;
+//     print f;
+//     print g;
+//     print h;
+// }
 
-extern void printf(str x, str y);
-printf("hi %s, how are you \n", "there");
+// test(
+//     1,
+//     2,
+//     3,
+//     4,
+//     5,
+//     6,
+//     7,
+//     8
+// );
+
+
+// extern void printf(str fmt, str test, str test2);
+// printf("%s %i\n", "test", "test3");                                           
+
+// str test = 'c' + true;
+
+if(3 == 3 ){
+
+}
+elif(true){
+
+}
+else{
+    str x = "nice";
+}

@@ -1,3 +1,6 @@
+![Discord Banner 3](https://discordapp.com/api/guilds/982002516231352350/widget.png?style=banner3)
+
+
 # Installing venumLang
 install venumlang via PIP: NOTE: I advise you to install by cloning this repo, because the pypi package is not actively being updated.
 ```

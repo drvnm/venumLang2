@@ -38,8 +38,9 @@ class GroupingExpr(Expr):
 
 
 class LiteralExpr(Expr):
-    def __init__(self, value: Token):
+    def __init__(self, value: Token, type: tokens):
         self.value = value
+        self.type = type
 
     def accept(self, visitor: ExprVisitor):
         return visitor.visit_literal_expr(self)

@@ -6,6 +6,7 @@ from compiler.compiler import Compiler
 from preproccesor.preprocessor import PreProcessor
 from parsing.parser import *
 from parsing.expressions import *
+from typechecking.type_checker import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input", help="The input file to compile")
@@ -23,6 +24,10 @@ def main():
     lexer = Lexer(source, absolute_path)
     lexer.scan()
     exprs = Parser(lexer.tokens).parse()
+
+    type_checker = TypeChecker(exprs)
+    type_checker.execute()
+
     compiler = Compiler(file_path, args.output)
     compiler.compile(exprs)
 
