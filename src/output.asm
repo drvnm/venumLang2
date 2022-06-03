@@ -66,36 +66,35 @@
       ret
  main:
    push 3
-   push 3
-   pop rax ; left operand of binary op
-   pop rbx ; right operand of binary op
-   ; == rax, rbx
-   cmp rax, rbx ; compare operation
-   sete al
-   movzx rax, al
-   push rax
-   pop rax ; if condition start
-   cmp rax, 0
-   je .L8
-   jmp .L22
-   .L8:
-   push 1
-   pop rax ; elif condition start
-   cmp rax, 0
-   je .L14 ; jump to else
-   jmp .L22
- .L14:
-   push str_0
    pop rax ; store variable x
-   mov [MEMORY + 0], rax
+   mov [MEMORY + 5], eax
    xor rax, rax
- .L22: ; END IF STMT
+   xor rax, rax ; begin loading from var
+   mov eax, DWORD [MEMORY + 5]
+   push rax
+   xor rdi, rdi
+   pop rdi ; func call arg
+   xor rax, rax
+   call test
+   push rax
+   xor rax, rax
    ; end of program
    mov rax, 60
    mov rdi, 0
    syscall
-   
+    test:
+   push rbp
+   mov rbp, rsp
+   mov [MEMORY + 0], dil
+   xor rax, rax ; begin loading from var
+   mov al, BYTE [MEMORY + 0]
+   push rax
+   pop rax ; store variable e
+   mov [MEMORY + 1], eax
+   xor rax, rax
+   leave
+   ret
+
  section .bss
    MEMORY: resb 64000
  section .data
-   str_0: db `nice`, 0
