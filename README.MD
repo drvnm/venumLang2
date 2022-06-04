@@ -14,14 +14,6 @@ git clone https://github.com/darealvenum/venumLang2
 python3 main.py <file_name>
 ```
 
-# info
-this subrepo will contain the code for the second venumlang compiler
-the difference between this compiler and the first compiler will be the use of a recursive descent parser. 
-
-Here are some good sources i learned from:
-[Crafting interpreters](https://www.craftinginterpreters.com/), 
-[Porth](https://gitlab.com/tsoding/porth)
-
 # roadmap checklist (for now)
 - [X] recursive descent parser, with good grammar
 - [X] variable declarations
@@ -29,13 +21,13 @@ Here are some good sources i learned from:
 - [X] branching
 - [X] loops
 - [X] compiler
-- [ ] native functions
-- [ ] module system
-- [ ] type checker
+- [X] module system?
+- [X] type checker?
 - [ ] OOP-like syntax
+
 # types
 At the moment, venumlang supports the following primitive types:
-byte, short, int, long
+byte, short, int, long, str, bool, void (return type) and arrays of these types.
 
 # variables
 venumlang has some native types and arrays. For now, arrays are only 1-dimensional. The size of an array also has to be a number.
@@ -101,6 +93,7 @@ func int factorial(int n) {
     fact *= i;
   }
   print fact;
+  return fact;
 }
 
 factorial(5); // should print 120
@@ -129,11 +122,10 @@ venumlang has support for 1 lined macros:
 print x;
 >> 29038
 
-@import "stdlib/io.vlang"
+import "stdlib/io.vlang"; // imports file
 ````
 
 # table of operations
-here is a pretty table of operations:
 | Operation | Description |
 | :-------: | :--------: |
 | + | addition |

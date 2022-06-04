@@ -1,4 +1,5 @@
 
+import "test";
 
 func int strlen(str string) {
     int index = 0;

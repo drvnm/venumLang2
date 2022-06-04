@@ -241,3 +241,5 @@ class TypeChecker:
                   f"""Type {index_type} is not valid for array access expression""")
         type = self.env.get_var(array_access_expr.name)
         self.type_stack.append(tokens.INT)
+    
+    def visit_import_stmt(self, import_stmt: ImportStmt): pass
