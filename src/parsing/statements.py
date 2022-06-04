@@ -115,11 +115,13 @@ class SyscallStmt(Stmt):
     
 # represents a return statement
 class ReturnStmt(Stmt):
-    def __init__(self, value: Expr):
+    def __init__(self, value: Expr, enclosing_func: Token):
         self.value = value
+        self.enclosing_func = enclosing_func
     
     def accept(self, visitor):
         visitor.visit_return_stmt(self)
+
 
     
 # class to represent a inline assembly statement

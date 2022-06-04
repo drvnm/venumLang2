@@ -8,7 +8,6 @@ def error(line: Union[Token, int], message: str):
             index = " " * line.col
             print(f'[FILE] {line.file}:{line.line}:{line.col}')
             print(f'[LINE CONTENT] {line.line_content.strip()}', file=sys.stderr)
-            print(f"             {index}^")
             print(f'[ERROR] {message}', file=sys.stderr)
             sys.exit(1)
 

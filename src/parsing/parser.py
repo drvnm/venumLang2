@@ -21,8 +21,12 @@ class Parser():
         self.loop_index_begin = 0
         self.loop_index_end = 0
 
-    # returns last - 1 token
+        # function data
+        self.in_func = False
+        self.func_name = ""
 
+
+    # returns last - 1 token
     def previous(self) -> Token:
         return self.tokens[self.current - 1]
 
@@ -315,10 +319,14 @@ class Parser():
         return SyscallStmt(syscall_id, args)
 
     def return_stmt(self) -> Stmt:
+        if not self.in_func:
+            error(self.peek(), "Cannot use 'return' outside of function.")
         expr = None
         if not self.check(tokens.SEMICOLON):
             expr = self.expression_stmt()
-        return ReturnStmt(expr)
+        else:
+            self.consume(tokens.SEMICOLON, "Expected ';' after return expression.")
+        return ReturnStmt(expr, self.func_name)
 
     def asm_stmt(self) -> Stmt:
         self.consume(tokens.LEFT_BRACE, "Expected '{' after 'asm'.")
@@ -339,10 +347,12 @@ class Parser():
         if not self.match(*types, tokens.VOID):
             error(self.previous(), "Expected type for 'extern' statement.")
         return_type = self.previous().type
-        name = self.consume(tokens.IDENTIFIER, "Expected identifier after 'extern'.")
+        name = self.consume(tokens.IDENTIFIER,
+                            "Expected identifier after 'extern'.")
         self.consume(tokens.LEFT_PAREN, "Expected '(' after function name.")
         params = self.params()
-        self.consume(tokens.RIGHT_PAREN, "Expected ')' after function parameters.")
+        self.consume(tokens.RIGHT_PAREN,
+                     "Expected ')' after function parameters.")
         self.consume(tokens.SEMICOLON, "Expected ';' after 'extern'.")
         return ExternStmt(name, return_type, params)
 
@@ -425,7 +435,8 @@ class Parser():
                 tokens.IDENTIFIER, "Expected parameter name.")
             size = type_to_size[type_.type]
             if self.match(tokens.LEFT_SQUARE):
-                self.consume(tokens.RIGHT_SQUARE, "Expected ']' after array parameter.")
+                self.consume(tokens.RIGHT_SQUARE,
+                             "Expected ']' after array parameter.")
                 param = ArrayStmt(type_, arg_name, [], 8)
                 param.is_in_func = True
                 params.append(param)
@@ -440,7 +451,8 @@ class Parser():
                     tokens.IDENTIFIER, "Expected parameter name.")
                 size = type_to_size[type_.type]
                 if self.match(tokens.LEFT_SQUARE):
-                    self.consume(tokens.RIGHT_SQUARE, "Expected ']' after array parameter.")
+                    self.consume(tokens.RIGHT_SQUARE,
+                                 "Expected ']' after array parameter.")
                     param = ArrayStmt(type_, arg_name, [], 8)
                     param.is_in_func = True
                     params.append(param)
@@ -452,14 +464,16 @@ class Parser():
     def func_declaration(self) -> Stmt:
         if not self.match(*types, tokens.VOID):
             error(self.peek(), "Expected return type after 'func'.")
-        return_type = self.previous()
+        return_type = self.previous().type
         name = self.consume(tokens.IDENTIFIER, "Expected function name.")
-        return_type = None
         self.consume(tokens.LEFT_PAREN, "Expected '(' after function name.")
         params = self.params()
         self.consume(tokens.RIGHT_PAREN, "Expected ')' after parameters.")
         self.consume(tokens.LEFT_BRACE, "Expected '{' before function body.")
+        self.in_func = True
+        self.func_name = name
         body = self.block()
+        self.in_func = False
         return FuncStmt(name, params, body, return_type)
 
     def declaration(self) -> Stmt:

@@ -149,6 +149,6 @@ acceptable_types = {
     tokens.INT: [tokens.INT, tokens.CHAR, tokens.BYTE, tokens.SHORT, tokens.LONG, tokens.BOOL, tokens.CHAR],
     tokens.LONG: [tokens.INT, tokens.CHAR, tokens.BYTE, tokens.SHORT, tokens.LONG, tokens.BOOL, tokens.CHAR],
     tokens.BOOL: [tokens.INT, tokens.CHAR, tokens.BYTE, tokens.SHORT, tokens.LONG, tokens.BOOL, tokens.CHAR],
-    tokens.STR: [tokens.STRING],
+    tokens.STR: [tokens.STRING, tokens.STR, tokens.BYTE],
 
 }
