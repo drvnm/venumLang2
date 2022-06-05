@@ -151,7 +151,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.file.close()
 
         # compile and link
-        subprocess.run(["nasm", "-f", "elf64", f"{self.output_file}.asm"])
+        subprocess.run(["nasm", "-gdwarf", "-f", "elf64", f"{self.output_file}.asm"])
         subprocess.run(
             ["gcc", "-o", f"{self.output_file}", f"{self.output_file}.o", "-no-pie"])
 
