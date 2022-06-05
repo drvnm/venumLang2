@@ -25,8 +25,8 @@ def main():
     lexer.scan()
     exprs = Parser(lexer.tokens).parse()
 
-    type_checker = TypeChecker(exprs)
-    type_checker.execute()
+    # type_checker = TypeChecker(exprs)
+    # type_checker.execute()
 
     compiler = Compiler(file_path, args.output)
     compiler.compile(exprs)
