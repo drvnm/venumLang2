@@ -11,12 +11,16 @@ from typechecking.type_checker import *
 parser = argparse.ArgumentParser()
 parser.add_argument("input", help="The input file to compile")
 parser.add_argument("-o", "--output", help="The output file to write to", default="output")
+parser.add_argument("-I", dest="include_path", help="Include path for imports, comma separated", default="")
+
 
 def main():
     args = parser.parse_args()
-    file_path = args.input 
-    file = open(file_path, 'r')
-    source = file.readlines()
+    file_path = args.input
+
+    with open(file_path, 'r') as f:
+        source = f.readlines()
+    
     absolute_path = os.path.abspath(file_path)
     pre_processor = PreProcessor(source, absolute_path)
     pre_processor.preprocess()
@@ -28,7 +32,14 @@ def main():
     # type_checker = TypeChecker(exprs)
     # type_checker.execute()
 
-    compiler = Compiler(file_path, args.output)
+    include_path = ['.']+args.include_path.split(',') if args.include_path else ['.']
+    print(f"{include_path=}")
+    for path in include_path:
+        if not os.path.isdir(path):
+            print(f"{path}: No such file or directory", file=sys.stderr)
+            sys.exit(1)
+
+    compiler = Compiler(file_path, include_path, args.output)
     compiler.compile(exprs)
 
 
