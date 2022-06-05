@@ -1,12 +1,12 @@
 import "string.vlang";
 import "libsyscall.vlang";
 
+
 func long printstr(str string) {
     int length = strlen(string);
     long ret = _syscall(SYS_WRITE, STDOUT, string, length);
     return ret;
 }
-
 
 func long println(str string) {    
     long ret = printstr(string);
@@ -17,7 +17,6 @@ func long println(str string) {
 
     return ret;
 }
-
 
 func int printint(long number) {
     str buffer = "123456789012345678901";
@@ -55,4 +54,13 @@ func int printint(long number) {
 
     printstr(buffer);
     return 0;
+}
+
+func void _clear_input(long fd) {
+    byte buf[1] = { 0 };
+    while( buf[0] != 10 ) { _syscall(SYS_READ, fd, buf, 1); }
+}
+
+func long read(long fd, str buffer, long count) {
+    _syscall(SYS_READ, fd, buffer, count);
 }
