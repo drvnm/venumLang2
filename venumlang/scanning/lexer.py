@@ -1,6 +1,6 @@
 from typing import List
-from intermediate.tokens import *
-from intermediate.lookup_tables import *
+from venumlang.intermediate.tokens import *
+from venumlang.intermediate.lookup_tables import *
 from .error import *
 
 # class that peforms lexical analysis

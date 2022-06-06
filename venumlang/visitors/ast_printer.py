@@ -1,5 +1,5 @@
 from .visitor import ExprVisitor
-from parsing.expressions import *
+from venumlang.parsing.expressions import *
 
 # turns exprs like 3 + 3 into (+ 3 3)
 class AstPrinter(ExprVisitor):

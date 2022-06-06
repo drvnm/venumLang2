@@ -1,4 +1,4 @@
-from scanning.error import error
+from venumlang.scanning.error import error
 
 class PreEnv: # holds all the data for the preprocess
     def __init__(self):

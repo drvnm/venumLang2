@@ -1,6 +1,6 @@
 import sys
 from typing import Union
-from intermediate.tokens import Token
+from venumlang.intermediate.tokens import Token
 
 def error(line: Union[Token, int], message: str):
     if isinstance(line, Token):

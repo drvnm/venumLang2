@@ -1,6 +1,6 @@
 from typing import List
-from parsing.statements import *
-from intermediate.tokens import *
+from venumlang.parsing.statements import *
+from venumlang.intermediate.tokens import *
 
 class DataHolder:
     def __init__(self, type: tokens, name: Token, expr: Expr, size: int):

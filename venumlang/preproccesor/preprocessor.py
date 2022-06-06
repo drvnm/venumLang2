@@ -1,9 +1,9 @@
 import os
 import re
 from typing import List
-from scanning.error import error
+from venumlang.scanning.error import error
 from .env import PreEnv
-from intermediate.lookup_tables import *
+from venumlang.intermediate.lookup_tables import *
 
 
 # preprocessor, takes string and passes output to scanner

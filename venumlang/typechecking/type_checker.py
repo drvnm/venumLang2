@@ -1,9 +1,9 @@
 from typing import List
-from parsing.statements import *
-from parsing.expressions import *
-from intermediate.tokens import *
-from intermediate.lookup_tables import *
-from scanning.error import *
+from venumlang.parsing.statements import *
+from venumlang.parsing.expressions import *
+from venumlang.intermediate.tokens import *
+from venumlang.intermediate.lookup_tables import *
+from venumlang.scanning.error import *
 
 
 class TypeEnv:

@@ -1,11 +1,11 @@
 import os
 from typing import List
-from scanning.lexer import Lexer
-from scanning.lexer import Lexer
-from preproccesor.preprocessor import PreProcessor
-from parsing.parser import *
-from parsing.expressions import *
-from scanning.error import *
+from venumlang.scanning.lexer import Lexer
+from venumlang.scanning.lexer import Lexer
+from venumlang.preproccesor.preprocessor import PreProcessor
+from venumlang.parsing.parser import *
+from venumlang.parsing.expressions import *
+from venumlang.scanning.error import *
 
 def get_file_ast(file_path: str) -> List[Token]:
     print(file_path)

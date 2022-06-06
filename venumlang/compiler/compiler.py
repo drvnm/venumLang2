@@ -1,16 +1,15 @@
 import os
 import subprocess
-import sys
 from typing import List
 import re
 from .environment import Environment
-from scanning.error import error
-from visitors.visitor import *
-from parsing.statements import *
-from parsing.expressions import *
-from intermediate.tokens import *
-from intermediate.lookup_tables import *
-from parse_file import get_file_ast
+from venumlang.scanning.error import error
+from venumlang.visitors.visitor import *
+from venumlang.parsing.statements import *
+from venumlang.parsing.expressions import *
+from venumlang.intermediate.tokens import *
+from venumlang.intermediate.lookup_tables import *
+from venumlang.parse_file import get_file_ast
 
 
 class Compiler(ExprVisitor, StmtVisitor):

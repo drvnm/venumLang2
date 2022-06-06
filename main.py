@@ -1,12 +1,6 @@
 import argparse
 import os
-from scanning.lexer import Lexer
-from scanning.lexer import Lexer
-from compiler.compiler import Compiler
-from preproccesor.preprocessor import PreProcessor
-from parsing.parser import *
-from parsing.expressions import *
-from typechecking.type_checker import *
+from venumlang import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input", help="The input file to compile")

@@ -1,7 +1,7 @@
 from typing import List
-from scanning.error import error
-from intermediate.tokens import *
-from intermediate.lookup_tables import *
+from venumlang.scanning.error import error
+from venumlang.intermediate.tokens import *
+from venumlang.intermediate.lookup_tables import *
 from .expressions import *
 from .statements import *
 

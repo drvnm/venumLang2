@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
-from intermediate.tokens import *
+from venumlang.intermediate.tokens import *
 from visitors.visitor import ExprVisitor
-
 
 # base class for every kind of expression
 class Expr(ABC):
