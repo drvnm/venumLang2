@@ -20,6 +20,7 @@ class Lexer:
         self.line_content = ""
 
         self.whitespace = [' ', '\t', '\n', '\r']
+        self.allowed_hex = "0123456789abcdefABCDEF"
 
     def at_end(self) -> bool:  # check if at end of source code
         return self.current >= len(self.source)
@@ -62,9 +63,42 @@ class Lexer:
         else:
             self.advance()
             self.add_token(tokens.STRING, string, str(string))
+    
+    def hex_number(self, number: str) -> None:
+        self.advance()  # skip x
+        if self.at_end() or self.get_current_char() not in self.allowed_hex:
+            error(self.line, 'Unterminated hex number')
+        while not self.at_end() and (self.get_current_char().isdigit() or self.get_current_char() in self.allowed_hex):
+            number += self.get_current_char()
+            self.advance()
+
+        self.add_token(tokens.NUMBER, number, int(number, 16))
+    
+    def binary_number(self, number: str) -> None:
+        self.advance()  # skip b
+        if self.at_end() or self.get_current_char() not in "01":
+            error(self.line, 'Unterminated binary number')
+        while not self.at_end() and self.get_current_char().isdigit():
+            number += self.get_current_char()
+            self.advance()
+
+        self.add_token(tokens.NUMBER, number, int(number, 2))
 
     def number(self) -> None:
         number = ''
+        number += self.get_current_char()
+        self.advance() # skip first decimal
+        if not self.at_end():
+            char = self.get_current_char()
+            if char == 'x':
+                number += char
+                self.hex_number(number)
+                return
+            elif char == 'b':
+                number += char
+                self.binary_number(number)
+                return
+        
         while not self.at_end() and self.get_current_char().isdigit():
             number += self.get_current_char()
             self.advance()

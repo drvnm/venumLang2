@@ -15,6 +15,8 @@ single_char_tokens = {
     '%' : tokens.PERCENT, 
     '[': tokens.LEFT_SQUARE,
     ']': tokens.RIGHT_SQUARE,
+    '&': tokens.LOGICAL_AND,
+    '|': tokens.LOGICAL_OR,
 }
 
 two_char_tokens = {
@@ -39,17 +41,16 @@ optional_to_token = {
     '<': tokens.LESS,
     '>': tokens.GREATER,
     '!': tokens.BANG,
-    '||': tokens.OR,
-    '&&': tokens.AND,
     '+=': tokens.PLUS_EQUAL,
     '-=': tokens.MINUS_EQUAL,
     '*=': tokens.STAR_EQUAL,
     '/=': tokens.SLASH_EQUAL,
+    '<<': tokens.LSHIFT,
+    '>>': tokens.RSHIFT,
 }
 
 
 word_to_keyword = {
-    'and': tokens.AND,
     'class': tokens.CLASS,
     'syscall': tokens.SYSCALL,
     'else': tokens.ELSE,

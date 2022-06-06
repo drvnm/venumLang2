@@ -1,4 +1,79 @@
+
 import "stdlib/io.vlang";
+
+func bool chop_by_char(byte st[], byte delim, byte nth_seen) {
+    int length = strlen(st);
+    for(int i = 0; i < length; i += 1) {
+        if(st[i] == delim) {
+            nth_seen = nth_seen - 1;
+            if(nth_seen == 0) {
+                st[i] = 0;
+                return true;
+            }
+            
+        }
+    }
+    return false;
+}
+
+
+// reads data from fd
+func int read_sock(int fd, int ptr, int size) {
+    int result = syscall 0 fd, ptr, size;
+    return result;
+}
+
+func int close(int fd) {
+    int result = syscall 6 fd;
+    return result;
+
+func short htons(short port) {
+    asm {
+        "xor rax, rax"
+        "mov rbx, rdi"
+        "mov al, bh"
+        "mov ah, bl"
+    }
+}
+
+
+func int strlen(str string) {
+    int index = 0;
+    while(string[index] > 0) {
+        index += 1;
+    }
+
+    return index;
+}
+
+
+func int printline(str string) {
+    int length = strlen(string);
+    int result = syscall 1 1, string, length;
+    syscall 1 1, "\n", 1;
+    return result;
+}
+
+func int printstring(str string) {
+    int length = strlen(string);
+    int result = syscall 1 1, string, length;
+    return result;
+}
+
+
+func bool strcomp(str str1, str str2) {
+    int length1 = strlen(str1);
+    int length2 = strlen(str2);
+    if(length1 != length2) {
+        return false;
+    } 
+    for(int i = 0; i < length1; i += 1) {
+        if(str1[i] != str2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
 
 func bool chop_by_char(byte st[], byte delim, byte nth_seen) {
@@ -43,15 +118,12 @@ func int exit(int status) {
 }
 
 // reads data from fd
-func int read_sock(int fd, int ptr, int size) {
+func int read(int fd, int ptr, int size) {
     int result = syscall 0 fd, ptr, size;
     return result;
 }
 
-func int close(int fd) {
-    int result = syscall 6 fd;
-    return result;
-}
+
 
 func int send_to_client(int fd, str content) {
     int length = strlen(content);
@@ -59,20 +131,10 @@ func int send_to_client(int fd, str content) {
     return result;
 }
 
-func short htons(short port) {
-    asm {
-        "xor rax, rax"
-        "mov rbx, rdi"
-        "mov al, bh"
-        "mov ah, bl"
-    }
-}
-
 
 // server data
 short AF_INET = 2;
-short PORT = htons(8000);
-print PORT;
+short PORT = 16415;
 int INADDR_ANY = 0;
 int SOCK_STREAM = 1;
 
@@ -81,29 +143,29 @@ int newsock;
 
 
 int sersock = socket(AF_INET, SOCK_STREAM, 0);
-printstr("fd is: ");
+printstring("fd is: ");
 print sersock;
 
 if(bind(sersock, &AF_INET, 16) < 0) {
-    println("bind error");
+    printline("bind error");
     exit(1);
 } 
 if(listen(sersock, 1) < 0) {
-    println("listen error");
+    printline("listen error");
     exit(1);
 }
 
 if((newsock = accept(sersock, &AF_INET, &length)) < 0) {
-    println("accept error");
+    printline("accept error");
     exit(1);
 } else {
-    println("accepted");
+    printline("accepted");
 }
     
     byte buffer[1024];
-    int result = read_sock(newsock, buffer, 1024);
+    int result = read(newsock, buffer, 1024);
     chop_by_char(buffer, ' ', 2);
-    println(buffer);
+    printline(buffer);
     // send web response
     send_to_client(newsock, "HTTP/1.1 200 OK\r\n");
     send_to_client(newsock, "Server: Go-http-server\r\n");
@@ -114,8 +176,5 @@ if((newsock = accept(sersock, &AF_INET, &length)) < 0) {
     send_to_client(newsock, "<h1>Hello World!</h1>\r\n");
 
 close(sersock);
-
-
-
 
 
