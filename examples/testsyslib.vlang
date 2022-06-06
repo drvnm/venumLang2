@@ -1,6 +1,15 @@
 import "stdlib/io.vlang";
 
+@macro BUFSZ 5
 
-str string = "Hello world!\n";
-println(string);
-printstr(string);
+byte buffer[BUFSZ];
+long bytes_read = read(STDIN, buffer, BUFSZ-1);
+buffer[bytes_read] = 0;
+printstr("Read ");
+printint(bytes_read);
+println(" bytes.");
+
+printstr("Buffer: ");
+println(buffer);
+
+_clear_input(STDIN);
