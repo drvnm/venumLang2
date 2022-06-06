@@ -151,7 +151,7 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.file.close()
 
         # compile and link
-        subprocess.run(["nasm", "-f", "elf64", f"{self.output_file}.asm"])
+        subprocess.run(["nasm", "-gdwarf", "-f", "elf64", f"{self.output_file}.asm"])
         subprocess.run(
             ["gcc", "-o", f"{self.output_file}", f"{self.output_file}.o", "-no-pie"])
 
@@ -249,7 +249,6 @@ class Compiler(ExprVisitor, StmtVisitor):
         start_index, word, is_str = self.environment.get(var_stmt.name)
         register = word_to_register_size[word + "rax"]
         self.write(f"mov [MEMORY + {start_index}], {register}")
-        self.write("xor rax, rax")
 
     def visit_array_stmt(self, array_stmt: ArrayStmt):
         self.environment.define_array(array_stmt)
@@ -262,7 +261,6 @@ class Compiler(ExprVisitor, StmtVisitor):
         # store array inital values, if any
         for index, expr in enumerate(array_stmt.exprs):
             self.execute(expr)
-            self.write("xor rax, rax")
             self.write("pop rax ; store array initializer")
             self.write(
                 f"mov [(MEMORY + {start_index}) + {index * size}], {register}")
@@ -294,7 +292,6 @@ class Compiler(ExprVisitor, StmtVisitor):
     def visit_dereference_expr(self, dereference_expr: DereferenceExpr):
         self.execute(dereference_expr.expr)
         # push value at memory address of top of stack
-        self.write("xor rax, rax")
         self.write("pop rax")
         self.write("mov rax, [rax]")
         self.write("push rax")
@@ -303,7 +300,6 @@ class Compiler(ExprVisitor, StmtVisitor):
         size = type_to_size[arr_obj.type.type]
         word = size_to_word[size]
         register = word_to_register[word]
-        self.write("xor rax, rax")
         self.write("pop rax")  # val
         if operator == tokens.EQUAL:
             self.write(f"mov [rdi], {word} {register}")
@@ -330,32 +326,27 @@ class Compiler(ExprVisitor, StmtVisitor):
 
         start_index, word, is_str = self.environment.get(assign_expr.name)
 
-        self.write(f"xor rax, rax ; assign value to variable")
-        self.write("pop rax")
+        self.write("pop rax ; assign value to variable")
         register = word_to_register_size[word + "rax"]
         if operator == tokens.EQUAL:
             self.write(
                 f"mov [MEMORY + {start_index}], {register}")
         elif operator == tokens.PLUS_EQUAL:
-            self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"add rax, r10")
             self.write(
                 f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.MINUS_EQUAL:
-            self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"sub rax, r10")
             self.write(
                 f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.STAR_EQUAL:
-            self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"imul rax, r10")
             self.write(
                 f"mov [MEMORY + {start_index}], {word} {word_to_register[word]}")
         elif operator == tokens.SLASH_EQUAL:
-            self.write("xor r10, r10")
             self.write(f"mov r10, [MEMORY + {start_index}]")
             self.write(f"idiv rax")
             self.write(
@@ -446,7 +437,6 @@ class Compiler(ExprVisitor, StmtVisitor):
         self.write("xor rax, rax")
         self.write(f"call {call_expr.callee.name.lexeme}")
         self.write("push rax")
-        self.write("xor rax, rax")
 
     def visit_func_stmt(self, func_stmt: FuncStmt):
         self.globals.define_function(func_stmt)
@@ -471,7 +461,6 @@ class Compiler(ExprVisitor, StmtVisitor):
                 self.write(f"mov [MEMORY + {start_index}], {register}")
             else:
                 register = word_to_register_size[word + 'r8']
-                self.write("xor r8, r8")
                 self.write("pop r8")
                 self.write(f"mov [MEMORY + {start_index}], {register}")
         self.execute_block(func_stmt.body, env)
@@ -483,7 +472,6 @@ class Compiler(ExprVisitor, StmtVisitor):
         for index, arg in enumerate(syscall_stmt.args):
             self.execute(arg)
             reg = self.args_registers[index]
-            self.write(f"xor {reg}, {reg}")
             self.write(f"pop {reg}")
         self.write(f"mov rax, {syscall_stmt.syscall_number}")
         self.write("syscall")
