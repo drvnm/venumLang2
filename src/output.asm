@@ -65,3 +65,20 @@
       leave
       ret
  main:
+   push 1
+   push 0
+   pop rax ; left operand of binary op
+   pop rbx ; right operand of binary op
+   ; | rax, rbx
+   or rax, rbx
+   push rax
+   pop rdi ; print statement
+   call print
+   ; end of program
+   mov rax, 60
+   mov rdi, 0
+   syscall
+   
+ section .bss
+   MEMORY: resb 64000
+ section .data

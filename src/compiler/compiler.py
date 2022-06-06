@@ -201,6 +201,10 @@ class Compiler(ExprVisitor, StmtVisitor):
             self.write("div rbx")
         elif binary_expr.operator.type == tokens.STAR:
             self.write("mul rbx")
+        elif binary_expr.operator.type == tokens.LOGICAL_AND:
+            self.write("and rax, rbx")
+        elif binary_expr.operator.type == tokens.LOGICAL_OR:
+            self.write("or rax, rbx")
 
         if not binary_expr.is_comparison:  # no need to generate code for comparison ops
             self.write("push rax")

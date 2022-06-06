@@ -25,8 +25,8 @@ class Parser():
         self.in_func = False
         self.func_name = ""
 
-
     # returns last - 1 token
+
     def previous(self) -> Token:
         return self.tokens[self.current - 1]
 
@@ -152,7 +152,8 @@ class Parser():
     def term(self) -> Expr:
         expr = self.factor()
 
-        while self.match(tokens.PLUS, tokens.MINUS, tokens.PERCENT):
+        while self.match(tokens.PLUS, tokens.MINUS,
+                         tokens.PERCENT, tokens.LOGICAL_OR, tokens.LOGICAL_AND):
             operator = self.previous()
             right = self.factor()
             expr = BinaryExpr(expr, operator, right)
@@ -325,7 +326,8 @@ class Parser():
         if not self.check(tokens.SEMICOLON):
             expr = self.expression_stmt()
         else:
-            self.consume(tokens.SEMICOLON, "Expected ';' after return expression.")
+            self.consume(tokens.SEMICOLON,
+                         "Expected ';' after return expression.")
         return ReturnStmt(expr, self.func_name)
 
     def asm_stmt(self) -> Stmt:
