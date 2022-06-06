@@ -1,43 +1,4 @@
-
-import "test";
-
-func int strlen(str string) {
-    int index = 0;
-    while(string[index] > 0) {
-        index += 1;
-    }
-
-    return index;
-}
-
-
-func int printline(str string) {
-    int length = strlen(string);
-    int result = syscall 1 1, string, length;
-    syscall 1 1, "\n", 1;
-    return result;
-}
-
-func int printstring(str string) {
-    int length = strlen(string);
-    int result = syscall 1 1, string, length;
-    return result;
-}
-
-
-func bool strcomp(str str1, str str2) {
-    int length1 = strlen(str1);
-    int length2 = strlen(str2);
-    if(length1 != length2) {
-        return false;
-    } 
-    for(int i = 0; i < length1; i += 1) {
-        if(str1[i] != str2[i]) {
-            return false;
-        }
-    }
-    return true;
-}
+import "stdlib/io.vlang";
 
 
 func bool chop_by_char(byte st[], byte delim, byte nth_seen) {
@@ -82,7 +43,7 @@ func int exit(int status) {
 }
 
 // reads data from fd
-func int read(int fd, int ptr, int size) {
+func int read_sock(int fd, int ptr, int size) {
     int result = syscall 0 fd, ptr, size;
     return result;
 }
@@ -98,10 +59,20 @@ func int send_to_client(int fd, str content) {
     return result;
 }
 
+func short htons(short port) {
+    asm {
+        "xor rax, rax"
+        "mov rbx, rdi"
+        "mov al, bh"
+        "mov ah, bl"
+    }
+}
+
 
 // server data
 short AF_INET = 2;
-short PORT = 16415;
+short PORT = htons(8000);
+print PORT;
 int INADDR_ANY = 0;
 int SOCK_STREAM = 1;
 
@@ -110,29 +81,29 @@ int newsock;
 
 
 int sersock = socket(AF_INET, SOCK_STREAM, 0);
-printstring("fd is: ");
+printstr("fd is: ");
 print sersock;
 
 if(bind(sersock, &AF_INET, 16) < 0) {
-    printline("bind error");
+    println("bind error");
     exit(1);
 } 
 if(listen(sersock, 1) < 0) {
-    printline("listen error");
+    println("listen error");
     exit(1);
 }
 
 if((newsock = accept(sersock, &AF_INET, &length)) < 0) {
-    printline("accept error");
+    println("accept error");
     exit(1);
 } else {
-    printline("accepted");
+    println("accepted");
 }
     
     byte buffer[1024];
-    int result = read(newsock, buffer, 1024);
+    int result = read_sock(newsock, buffer, 1024);
     chop_by_char(buffer, ' ', 2);
-    printline(buffer);
+    println(buffer);
     // send web response
     send_to_client(newsock, "HTTP/1.1 200 OK\r\n");
     send_to_client(newsock, "Server: Go-http-server\r\n");
