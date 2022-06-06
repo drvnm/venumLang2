@@ -80,7 +80,7 @@ class Parser():
         if self.match(tokens.STAR):
             expr = self.expression()
             return DereferenceExpr(expr)
-        if self.match(tokens.AMPERSAND):
+        if self.match(tokens.LOGICAL_AND):
             token = self.consume(tokens.IDENTIFIER, "Expected variable name.")
             return VarToPointerExpr(token)
         if self.match(tokens.STRING):
