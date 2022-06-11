@@ -1,16 +1,13 @@
-// These would be better as macros,
-// but macro expansion across translation
-// units is not here yet...
-long SYSNONE = 0;
+@define SYSNONE 0
 
-long SYS_READ  = 0;
-long SYS_WRITE = 1;
-long SYS_OPEN  = 2;
-long SYS_CLOSE = 3;
+@define SYS_READ 0
+@define SYS_WRITE 1
+@define SYS_OPEN 2
+@define SYS_CLOSE 3
 
-long STDIN  = 0;
-long STDOUT = 1;
-long STDERR = 3;
+@define STDIN 0
+@define STDOUT 1
+@define STDERR 3
 
 
 // Should be variadic

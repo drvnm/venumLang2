@@ -1,6 +1,5 @@
 
-import "io.vlang";
-
+@include "../stdlib/io.vlang"
 
 func bool chop_by_char(byte st[], byte delim, byte nth_seen) {
     int length = strlen(st);

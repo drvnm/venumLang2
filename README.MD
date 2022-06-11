@@ -1,5 +1,5 @@
 # Join our discord!
-[![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/bMTDtYYqM8)
+[![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/WtXXdE2c3q)
 
 
 # Installing venumLang
