@@ -14,17 +14,6 @@ git clone https://github.com/darealvenum/venumLang2
 python3 main.py <file_name>
 ```
 
-# roadmap checklist (for now)
-- [X] recursive descent parser, with good grammar
-- [X] variable declarations
-- [X] function declarations
-- [X] branching
-- [X] loops
-- [X] compiler
-- [X] module system?
-- [X] type checker?
-- [ ] OOP-like syntax
-
 # types
 At the moment, venumlang supports the following primitive types:
 byte, short, int, long, str, bool, void (return type) and arrays of these types.
@@ -122,7 +111,7 @@ venumlang has support for 1 lined macros:
 print x;
 >> 29038
 
-import "stdlib/io.vlang"; // imports file
+@include "stdlib/io.vlang"; // copies file into current file
 ````
 
 # table of operations
@@ -151,3 +140,13 @@ import "stdlib/io.vlang"; // imports file
 | * | dereference |
 
 
+# roadmap checklist (for now)
+- [X] recursive descent parser, with good grammar
+- [X] variable declarations
+- [X] function declarations
+- [X] branching
+- [X] loops
+- [X] compiler
+- [X] module system?
+- [X] type checker?
+- [ ] OOP-like syntax

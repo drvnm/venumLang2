@@ -1,4 +1,5 @@
 from typing import List
+import re
 from intermediate.tokens import *
 from intermediate.lookup_tables import *
 from .error import *
@@ -11,6 +12,7 @@ class Lexer:
         self.file = file
         self.source = source
         self.tokens: List[Token] = []
+        self.splitted_lines = source.split('\n')
 
         # data used for creating new tokens
         self.start = 0
@@ -36,10 +38,24 @@ class Lexer:
 
     def get_current_char(self) -> str:  # get current char
         return self.source[self.current]
+    
+    
+    
+    # "There is nothing as permanent as a temporary solution."
+    def try_parse_info(self) -> None:
+        line = self.splitted_lines[self.line - 1]
+        match = re.search(r'\/\/(?:[\w_]+\/)*[\w_]+\.vlang: (\d+)[ \/\w\.:\d]*$', line)
+        if match:
+            line_number = int(match.group(1))
+            file_name = match.group(0).split('//')[1].split(':')[0]
+            
+            return line_number, file_name
+
 
     def add_token(self, token_type: tokens, lexeme, literal=None) -> None:
+        line_number, file_name = self.try_parse_info() or (self.line, self.file)
         self.tokens.append(
-            Token(token_type, lexeme, literal, self.line, self.col, self.file, self.line_content))
+            Token(token_type, lexeme, literal, line_number, self.col, file_name, self.line_content))
 
     def peek_next_char(self) -> str:  # get next char
         if self.current + 1 >= len(self.source):
@@ -110,7 +126,6 @@ class Lexer:
             while not self.at_end() and self.get_current_char().isdigit():
                 number += self.get_current_char()
                 self.advance()
-
             self.add_token(tokens.NUMBER, number, float(number))
         else:
             self.add_token(tokens.NUMBER, number, int(number))

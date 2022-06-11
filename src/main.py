@@ -3,7 +3,7 @@ import os
 from scanning.lexer import Lexer
 from scanning.lexer import Lexer
 from compiler.compiler import Compiler
-from preproccesor.preprocessor import PreProcessor
+from pre_processing.preprocessor import PreProcessor
 from parsing.parser import *
 from parsing.expressions import *
 from typechecking.type_checker import *
@@ -19,27 +19,27 @@ def main():
     file_path = args.input
 
     with open(file_path, 'r') as f:
-        source = f.readlines()
+        source = f.read()
     
     absolute_path = os.path.abspath(file_path)
     pre_processor = PreProcessor(source, absolute_path)
     pre_processor.preprocess()
-    source = pre_processor.final_source
+    source = pre_processor.source
     lexer = Lexer(source, absolute_path)
     lexer.scan()
+
     exprs = Parser(lexer.tokens).parse()
 
     # type_checker = TypeChecker(exprs)
     # type_checker.execute()
 
     include_path = ['.']+args.include_path.split(',') if args.include_path else ['.']
-    print(f"{include_path=}")
     for path in include_path:
         if not os.path.isdir(path):
             print(f"{path}: No such file or directory", file=sys.stderr)
             sys.exit(1)
 
-    compiler = Compiler(file_path, include_path, args.output)
+    compiler = Compiler(file_path, args.output)
     compiler.compile(exprs)
 
 

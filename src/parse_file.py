@@ -2,7 +2,7 @@ import os
 from typing import List
 from scanning.lexer import Lexer
 from scanning.lexer import Lexer
-from preproccesor.preprocessor import PreProcessor
+from pre_processing.preprocessor import PreProcessor
 from parsing.parser import *
 from parsing.expressions import *
 from scanning.error import *

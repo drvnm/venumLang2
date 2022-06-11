@@ -1,4 +1,1 @@
-import "stdlib/io.vlang";
-
-printint(-123);
-println("");
+@include "nested_import.vlang"

@@ -59,7 +59,7 @@ exprStmt    -> expression ";";
 printStmt   -> "print" expression ";";
 
 expression  -> assigment;
-assigment   -> IDENTIFIER ("[" expression "]")? ("=" | "+=" | "*=" | "/=") expression 
+assigment   ->  IDENTIFIER("[" expression "]")? ("=" | "+=" | "*=" | "/=") expression 
             | equality;
 equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( ">" | ">=" | "<" | "<=" ) term )*

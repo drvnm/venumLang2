@@ -5,8 +5,11 @@ class PreEnv: # holds all the data for the preprocess
         self.data = {}
         self.included_files = []
 
-    def set(self, key, value):
+    def define_macro(self, key, value):
         self.data[key] = value
+    
+    def get(self, key: str) -> str:
+        return self.data[key]
     
     def updata_from_env(self, env: 'PreEnv') -> None:
         for key, value in env.data.items():

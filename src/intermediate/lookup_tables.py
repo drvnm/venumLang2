@@ -79,7 +79,6 @@ word_to_keyword = {
     'str': tokens.STR,
     'struct': tokens.STRUCT,
     'asm': tokens.ASM,
-    'import': tokens.IMPORT,
 }
 
 type_to_size = {
@@ -140,7 +139,7 @@ word_to_register_size = {
     'QWORDr10': 'r10',
 }
 
-preprocessing_words = ['import', 'define', 'ifdef', 'endif']
+preprocessing_words = ['include', 'define']
 
 arithmetic_tokens = [tokens.CHAR, tokens.INT, tokens.BOOL]
 

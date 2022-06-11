@@ -65,35 +65,23 @@
       leave
       ret
  main:
-   push 0
-   pop rax ; store variable SYSNONE
-   mov [MEMORY + 40], rax
-   xor rax, rax
-   push 0
-   pop rax ; store variable SYS_READ
-   mov [MEMORY + 48], rax
-   xor rax, rax
-   push 1
-   pop rax ; store variable SYS_WRITE
-   mov [MEMORY + 56], rax
-   xor rax, rax
-   push 2
-   pop rax ; store variable SYS_OPEN
-   mov [MEMORY + 64], rax
-   xor rax, rax
    push 3
-   pop rax ; store variable SYS_CLOSE
-   mov [MEMORY + 72], rax
-   xor rax, rax
-   push 0
-   pop rax ; store variable STDIN
-   mov [MEMORY + 80], rax
-   xor rax, rax
-   push 1
-   pop rax ; store variable STDOUT
-   mov [MEMORY + 88], rax
-   xor rax, rax
    push 3
-   pop rax ; store variable STDERR
-   mov [MEMORY + 96], rax
-   xor rax, rax
+   pop rax ; left operand of binary op
+   pop rbx ; right operand of binary op
+   ; + rax, rbx
+   add rax, rbx
+   push rax
+   pop rdi ; print statement
+   call print
+   push 6969
+   pop rdi ; print statement
+   call print
+   ; end of program
+   mov rax, 60
+   mov rdi, 0
+   syscall
+   
+ section .bss
+   MEMORY: resb 64000
+ section .data
