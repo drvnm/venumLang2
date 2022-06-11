@@ -14,11 +14,10 @@ from parse_file import get_file_ast
 
 
 class Compiler(ExprVisitor, StmtVisitor):
-    def __init__(self, input_file: str, include_path: List[str], file_name: str = "output"):
+    def __init__(self, input_file: str, file_name: str = "output"):
         self.file = open(f"{file_name}.asm", "w")
         self.input_file = input_file
         self.output_file = file_name
-        self.include_path = include_path
         self.environment = Environment()
         self.globals = self.environment
         self.mem_size = 64_000
@@ -535,41 +534,6 @@ class Compiler(ExprVisitor, StmtVisitor):
                     f"&{variable}", f"MEMORY + {start_index}"
                 )
             self.write(line)
-
-    def visit_import_stmt(self, import_stmt: ImportStmt):
-        """
-        The order of where vlang tries to find the file to import is:
-        - Current file's directory
-        - Current working directory
-        - All of the INCLUDE_PATH paths
-        """
-
-        def concat_paths(path, filename=import_stmt.file_path.lexeme):
-            return os.path.abspath(os.path.join(
-                    path, filename))
-
-        # Store current file for later
-        old_if = self.input_file
-
-        # Try relative import first
-        file_path = concat_paths(os.path.dirname(self.input_file))
-        if not os.path.isfile(file_path):
-            for path in self.include_path:
-                file_path = concat_paths(path)
-                if os.path.isfile(file_path):
-                    self.input_file = file_path
-                    break
-            else:
-                error("...", f"File '{import_stmt.file_path.lexeme}' could not be found in INCLUDE_PATH.")
-
-        self.input_file = file_path
-        ast = get_file_ast(file_path)
-
-        for stmt in ast:
-            self.execute(stmt)
-
-        # Restore previous filename
-        self.input_file = old_if
 
     def visit_extern_stmt(self, extern_stmt: ExternStmt):
         self.externs.append(extern_stmt.name.lexeme)

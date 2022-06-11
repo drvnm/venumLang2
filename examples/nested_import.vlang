@@ -1,3 +1,2 @@
-import "stdlib/io.vlang";
-
-printstr("Hello world!\n");
+@define _SOME_SYSCALL_NUMBER 6969
+print

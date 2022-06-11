@@ -18,7 +18,6 @@ tokens = enum.Enum('tokens', """
         PRINT RETURN SUPER THIS TRUE LET WHILE
         EXTERN
         ELIF CONTINUE BREAK FUNC SYSCALL STRUCT ASM
-        IMPORT
 
         BYTE SHORT INT LONG BOOL STR CHAR VOID
 
@@ -38,4 +37,4 @@ class Token:
     
 
     def __repr__(self) -> str:
-        return f'\n\tToken(type: {self.type}\n\tlexeme: {self.lexeme}\n\tliteral: {self.literal})\n\tline: {self.line}\n'
+        return f'\n\tToken(type: {self.type}\n\tlexeme: {self.lexeme}\n\tliteral: {self.literal})\n\tline: {self.line}\n\tfile: {self.file}'
