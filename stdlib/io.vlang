@@ -4,14 +4,12 @@
 
 func long printc(byte char) {
     long addr = &char;
-    long ret = _syscall(SYS_WRITE, STDOUT, addr, 1);
-    return ret;
+    _syscall(SYS_WRITE, STDOUT, addr, 1);
 }
 
 func long printstr(str string) {
     int length = strlen(string);
-    long ret = _syscall(SYS_WRITE, STDOUT, string, length);
-    return ret;
+    _syscall(SYS_WRITE, STDOUT, string, length);
 }
 
 func long println(str string) {    
@@ -67,8 +65,8 @@ func void _clear_input(long fd) {
     while( buf[0] != 10 ) { _syscall(SYS_READ, fd, buf, 1); }
 }
 
-func long read(long fd, str buffer, long count) {
-    _syscall(SYS_READ, fd, buffer, count);
+func long read(str buffer, long count) {
+    _syscall(SYS_READ, STDIN, buffer, count);
 }
 
 
