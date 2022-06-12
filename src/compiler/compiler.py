@@ -10,7 +10,7 @@ from parsing.statements import *
 from parsing.expressions import *
 from intermediate.tokens import *
 from intermediate.lookup_tables import *
-from parse_file import get_file_ast
+from config_options import ConfigOptions
 
 
 class Compiler(ExprVisitor, StmtVisitor):

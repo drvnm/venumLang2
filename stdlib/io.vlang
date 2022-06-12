@@ -1,5 +1,5 @@
-@include "string.vlang";
-@include "libsyscall.vlang";
+@include "stdlib/string.vlang";
+@include "stdlib/libsyscall.vlang";
 
 
 func long printstr(str string) {

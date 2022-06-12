@@ -4,11 +4,13 @@ from typing import List
 from scanning.error import error
 from .env import PreEnv
 from intermediate.lookup_tables import *
+from config_options import ConfigOptions
 
 
 # preprocessor, takes string and passes output to scanner
 class PreProcessor:
-    def __init__(self, file_source: str, absolute_path: str):
+    def __init__(self, file_source: str, absolute_path: str, options: ConfigOptions):
+        self.options = options
         self.source = file_source
         self.absolute_path = absolute_path
         self.final_source = ''
@@ -16,7 +18,6 @@ class PreProcessor:
         self.line = 0
         self.current_char_index = 0
         self.line_corrections = {}
-        self.include_lines = {}
 
         self.env = PreEnv()
 
@@ -72,7 +73,13 @@ class PreProcessor:
             error(self.line, "Expected '\"' after '@include'")
 
     def include(self, file_name: str) -> None:
-        absolute_path = os.path.abspath(file_name)
+        for path in self.options.include_paths:
+            absolute_path = os.path.join(path, file_name)
+            if os.path.exists(absolute_path):
+                break
+        else:
+            error(self.line, f"Could not find file '{file_name}'")
+
         with open(absolute_path, 'r') as f:
             source = f.readlines()
 

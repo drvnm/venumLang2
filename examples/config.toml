@@ -1,0 +1,8 @@
+[pre_processor]
+include_paths = [
+    ".",
+    "../"
+]
+
+[compiler]
+output_path = "./output/"
