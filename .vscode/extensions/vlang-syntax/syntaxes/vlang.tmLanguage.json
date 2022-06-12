@@ -33,24 +33,27 @@
         },
         {
             "name": "variable",
-            "match": "\\b[a-zA-Z_]\\w+\\b"
+            "match": "\\b[a-zA-Z_]\\w+\\s*(?==)"
         },
         {
             "name": "constant.numeric",
             "match": "\\b\\d+\\b"
+        },
+        {
+            "name": "meta.preprocessor",
+            "match": "^\\s*@"
         }
 	],
 	"repository": {
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.vlangsyntax",
-				"match": "\\b(if|else|while|for|return)\\b"
+				"match": "\\b(if|else|while|for|return|define|include)\\b"
 			}]
 		},
 		"strings": {
 			"name": "string.quoted.double.vlangsyntax",
-			"begin": "\"",
-			"end": "\"",
+            "match": "(\".*\"|'.*')",
 			"patterns": [
 				{
 					"name": "constant.character.escape.vlangsyntax",
