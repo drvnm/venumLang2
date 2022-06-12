@@ -1,0 +1,38 @@
+@include "stdlib/io.vlang";
+
+@define BUFSZ   1024
+
+// Writing
+str data = "Hello beautiful world!";
+int fd = fopen("hello", "w");
+long ret = fwrite(fd, data);
+printstr("Written ");
+printint(ret);
+printstr(" of ");
+printint(strlen(data));
+println(" bytes.");
+fclose(fd);
+
+// Appending
+data = "\nGoodbye! :^)\n";
+fd = fopen("hello", "a");
+ret = fwrite(fd, data);
+printstr("Written ");
+printint(ret);
+printstr(" of ");
+printint(strlen(data));
+println(" bytes.");
+fclose(fd);
+
+// Reading
+byte buffer[BUFSZ];
+fd = fopen("hello", "r");
+long bytes_read;
+while( (bytes_read = fread(fd, buffer, BUFSZ-1)) == BUFSZ-1 ) {
+    println("grabbing more data");
+}
+
+buffer[BUFSZ-1] = 0;
+printstr(buffer);
+
+fclose(fd);

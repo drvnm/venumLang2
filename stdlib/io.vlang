@@ -105,10 +105,12 @@ func int fopen(str filename, str mode) {
 }
 
 func long fwrite(int fd, str data) {
-    long ret;
     int length = strlen(data);
-    ret = _syscall(SYS_WRITE, fd, data, length);
-    return ret;
+    _syscall(SYS_WRITE, fd, data, length);
+}
+
+func long fread(int fd, byte buffer[], long count) {
+    _syscall(SYS_READ, fd, buffer, count);
 }
 
 func void fclose(int fd) {
