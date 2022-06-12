@@ -14,10 +14,11 @@ from config_options import ConfigOptions
 
 
 class Compiler(ExprVisitor, StmtVisitor):
-    def __init__(self, input_file: str, file_name: str = "output"):
+    def __init__(self, input_file: str, file_name: str = "output", do_run: bool = False):
         self.file = open(f"{file_name}.asm", "w")
         self.input_file = input_file
         self.output_file = file_name
+        self.do_run = do_run
         self.environment = Environment()
         self.globals = self.environment
         self.mem_size = 64_000
@@ -153,6 +154,8 @@ class Compiler(ExprVisitor, StmtVisitor):
         subprocess.run(["nasm", "-gdwarf", "-f", "elf64", f"{self.output_file}.asm"])
         subprocess.run(
             ["gcc", "-o", f"{self.output_file}", f"{self.output_file}.o", "-no-pie"])
+        if self.do_run:
+            subprocess.run([f"./{self.output_file}"])
 
     def execute(self, expr: Expr):
         expr.accept(self)
