@@ -1,6 +1,20 @@
-@include "string.vlang";
-@include "libsyscall.vlang";
+@include "stdlib/string.vlang";
+@include "stdlib/libsyscall.vlang";
 
+
+func long printc(byte char) {
+    str string;
+    asm {
+        "push rdi"
+        "mov $string, rsp"
+    }
+    long ret = _syscall(SYS_WRITE, STDOUT, string, 1);
+    asm {
+        "pop rdi"
+    }
+    
+    return ret;
+}
 
 func long printstr(str string) {
     int length = strlen(string);
@@ -63,4 +77,9 @@ func void _clear_input(long fd) {
 
 func long read(long fd, str buffer, long count) {
     _syscall(SYS_READ, fd, buffer, count);
+}
+
+
+func int fopen(str filename, str mode) {
+    if( strcomp(mode[0], "r") ) {}
 }
