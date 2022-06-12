@@ -2,10 +2,14 @@
 @include "stdlib/libsyscall.vlang";
 
 
+func long printc(byte char) {
+    long addr = &char;
+    _syscall(SYS_WRITE, STDOUT, addr, 1);
+}
+
 func long printstr(str string) {
     int length = strlen(string);
-    long ret = _syscall(SYS_WRITE, STDOUT, string, length);
-    return ret;
+    _syscall(SYS_WRITE, STDOUT, string, length);
 }
 
 func long println(str string) {    
@@ -61,6 +65,54 @@ func void _clear_input(long fd) {
     while( buf[0] != 10 ) { _syscall(SYS_READ, fd, buf, 1); }
 }
 
-func long read(long fd, str buffer, long count) {
+func long read(str buffer, long count) {
+    _syscall(SYS_READ, STDIN, buffer, count);
+}
+
+
+@define O_RDONLY 0x0
+@define O_WRONLY 0x1
+@define O_CREAT  0x40
+@define O_TRUNC  0x200
+@define O_APPEND 0x400
+
+func int fopen(str filename, str mode) {
+    short STD_MODE = 420; // -rw-rw-r--
+    byte R = 'r';
+    byte W = 'w';
+    byte A = 'a';
+    byte P = '+';
+
+    int fd;
+    int flags;
+    if( mode[0] == R ) {
+        flags = O_RDONLY;
+    }
+    else if( mode[0] == W ) {
+        flags = O_WRONLY | O_CREAT | O_TRUNC;
+    }
+    else if( mode[0] == A ) {
+        flags = O_WRONLY | O_CREAT | O_APPEND; 
+    }
+
+    fd = _syscall(SYS_OPEN, filename, flags, STD_MODE);
+    if( fd == -1 ) {
+        printstr("An error occurred while trying to open file: ");
+        println(filename);
+    }
+
+    return fd;
+}
+
+func long fwrite(int fd, str data) {
+    int length = strlen(data);
+    _syscall(SYS_WRITE, fd, data, length);
+}
+
+func long fread(int fd, byte buffer[], long count) {
     _syscall(SYS_READ, fd, buffer, count);
+}
+
+func void fclose(int fd) {
+    _syscall(SYS_CLOSE, fd, SYSNONE, SYSNONE);
 }
