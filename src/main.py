@@ -13,7 +13,8 @@ import toml
 parser = argparse.ArgumentParser()
 parser.add_argument("input", help="The input file to compile")
 parser.add_argument("-o", "--output", help="The output file to write to", default="output")
-
+parser.add_argument("-r", "--run", help="Run compiled code after compilation finishes", action="store_true", 
+                    default=False, dest="do_run")
 
 
 def main():
@@ -40,9 +41,9 @@ def main():
     # type_checker = TypeChecker(exprs)
     # type_checker.execute()
 
-    
 
-    compiler = Compiler(file_path, args.output)
+
+    compiler = Compiler(file_path, args.output, args.do_run)
     compiler.compile(exprs)
 
 
