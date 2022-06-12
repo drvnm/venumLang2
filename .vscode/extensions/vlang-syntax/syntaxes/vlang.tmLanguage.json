@@ -11,7 +11,7 @@
         },
         {
             "name": "keyword.operator.new",
-            "match": "(func|syscall)"
+            "match": "\\b(func|syscall)\\s+"
         },
         {
             "name": "support.type",
@@ -29,15 +29,15 @@
 		},
         {
             "name": "entity.name.function",
-            "match": "[a-zA-Z_]\\w+\\s*(?=\\()"
+            "match": "\\b[a-zA-Z_]\\w+\\s*(?=\\()"
         },
         {
             "name": "variable",
-            "match": "[a-zA-Z_]\\w+"
+            "match": "\\b[a-zA-Z_]\\w+\\b"
         },
         {
             "name": "constant.numeric",
-            "match": "\\d+"
+            "match": "\\b\\d+\\b"
         }
 	],
 	"repository": {
