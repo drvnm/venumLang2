@@ -29,7 +29,7 @@
 		},
         {
             "name": "entity.name.function",
-            "match": "[a-zA-Z_]\\w+(?=\\()"
+            "match": "[a-zA-Z_]\\w+\\s*(?=\\()"
         },
         {
             "name": "variable",
