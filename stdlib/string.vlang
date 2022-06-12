@@ -8,7 +8,6 @@ func int strlen(str string) {
 }
 
 
-
 func bool strcomp(str str1, str str2) {
     int length1 = strlen(str1);
     int length2 = strlen(str2);

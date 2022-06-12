@@ -12,16 +12,11 @@
 
 // Should be variadic
 func long _syscall(long name, long rdi, long rsi, long rdx) {
-    long ret;
-
     asm {
         "mov    rax, $name"
         "mov    rdi, $rdi"
         "mov    rsi, $rsi"
         "mov    rdx, $rdx"
         "syscall"
-        "mov    $ret, rax"
     }
-
-    return ret;
 }
