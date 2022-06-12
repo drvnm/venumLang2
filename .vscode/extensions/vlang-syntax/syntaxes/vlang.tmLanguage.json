@@ -11,7 +11,7 @@
         },
         {
             "name": "keyword.operator.new",
-            "match": "(func)"
+            "match": "(func|syscall)"
         },
         {
             "name": "support.type",
@@ -26,13 +26,25 @@
 		},
 		{
 			"include": "#strings"
-		}
+		},
+        {
+            "name": "entity.name.function",
+            "match": "[a-zA-Z_]\\w+(?=\\()"
+        },
+        {
+            "name": "variable",
+            "match": "[a-zA-Z_]\\w+"
+        },
+        {
+            "name": "constant.numeric",
+            "match": "\\d+"
+        }
 	],
 	"repository": {
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.vlangsyntax",
-				"match": "\\b(if|while|for|return)\\b"
+				"match": "\\b(if|else|while|for|return)\\b"
 			}]
 		},
 		"strings": {
