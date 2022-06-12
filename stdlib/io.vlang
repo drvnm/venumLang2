@@ -3,16 +3,8 @@
 
 
 func long printc(byte char) {
-    str string;
-    asm {
-        "push rdi"
-        "mov $string, rsp"
-    }
-    long ret = _syscall(SYS_WRITE, STDOUT, string, 1);
-    asm {
-        "pop rdi"
-    }
-    
+    long addr = &char;
+    long ret = _syscall(SYS_WRITE, STDOUT, addr, 1);
     return ret;
 }
 
@@ -80,6 +72,47 @@ func long read(long fd, str buffer, long count) {
 }
 
 
+@define O_RDONLY 0x0
+@define O_WRONLY 0x1
+@define O_CREAT  0x40
+@define O_TRUNC  0x200
+@define O_APPEND 0x400
+
 func int fopen(str filename, str mode) {
-    if( strcomp(mode[0], "r") ) {}
+    short STD_MODE = 420; // -rw-rw-r--
+    byte R = 'r';
+    byte W = 'w';
+    byte A = 'a';
+    byte P = '+';
+
+    int fd;
+    int flags;
+    if( mode[0] == R ) {
+        flags = O_RDONLY;
+    }
+    else if( mode[0] == W ) {
+        flags = O_WRONLY | O_CREAT | O_TRUNC;
+    }
+    else if( mode[0] == A ) {
+        flags = O_WRONLY | O_CREAT | O_APPEND; 
+    }
+
+    fd = _syscall(SYS_OPEN, filename, flags, STD_MODE);
+    if( fd == -1 ) {
+        printstr("An error occurred while trying to open file: ");
+        println(filename);
+    }
+
+    return fd;
+}
+
+func long fwrite(int fd, str data) {
+    long ret;
+    int length = strlen(data);
+    ret = _syscall(SYS_WRITE, fd, data, length);
+    return ret;
+}
+
+func void fclose(int fd) {
+    _syscall(SYS_CLOSE, fd, SYSNONE, SYSNONE);
 }
