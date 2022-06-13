@@ -94,7 +94,12 @@ class PreProcessor:
                   # the line `@include "msg.vlang"`
                   # in a file in the dir `msg`
                   # would be replaced with `@include "msg/msg.vlang"`
-                  old_path = line[len("@include"):].strip()[1:-1]
+                  included = line[len("@include"):]
+                  if "//" in included:
+                    included = included[:included.index("//")]
+                  if "/*" in included:
+                    included = included[:included.index("/*")]
+                  old_path = included.strip()[1:-1]
                   new_path = os.path.join(parent_path, old_path)
                   if os.path.exists(new_path):
                     # of course this only takes effect if the relative file
