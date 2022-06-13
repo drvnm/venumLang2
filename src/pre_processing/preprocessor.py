@@ -75,6 +75,7 @@ class PreProcessor:
     def include(self, file_name: str) -> None:
         for path in self.options.include_paths:
             absolute_path = os.path.join(path, file_name)
+            parent_path = os.path.dirname(absolute_path)
             if os.path.exists(absolute_path):
                 break
         else:
@@ -85,9 +86,28 @@ class PreProcessor:
 
             for index, line in enumerate(source):
                 line = line.replace('\n', '')
+                if line.startswith("@include"):
+                  # this is a *very* hacky solution
+                  # essentially check the file the program wants to include and
+                  # prepend it's directory's name to the include
+                  # e.g.
+                  # the line `@include "msg.vlang"`
+                  # in a file in the dir `msg`
+                  # would be replaced with `@include "msg/msg.vlang"`
+                  included = line[len("@include"):]
+                  if "//" in included:
+                    included = included[:included.index("//")]
+                  if "/*" in included:
+                    included = included[:included.index("/*")]
+                  old_path = included.strip()[1:-1]
+                  new_path = os.path.join(parent_path, old_path)
+                  if os.path.exists(new_path):
+                    # of course this only takes effect if the relative file
+                    # exists
+                    line = f"@include \"{new_path}\""
                 source[index] = f'{line} //{file_name}: {index + 1}'
                 self.line_corrections[self.line + index] = index + 1
-                
+            
             
             self.source = self.source[:self.current_char_index] + \
                 '\n'.join(source) + self.source[self.current_char_index:]
