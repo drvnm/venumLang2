@@ -17,6 +17,8 @@ parser.add_argument("input", help="The input file to compile")
 parser.add_argument("-o", "--output", help="The output file to write to", default="output")
 parser.add_argument("-r", "--run", help="Run compiled code after compilation finishes", action="store_true", 
                     default=False, dest="do_run")
+parser.add_argument("-s", "--silent", help="Dont output any logs while compilation", action="store_true", 
+                    default=False, dest="is_silent")
 
 
 def main():
@@ -24,12 +26,12 @@ def main():
     if os.path.isfile("config.toml"):
         config = toml.load("config.toml")
 
-    options = ConfigOptions(config)
-
     args = parser.parse_args()
     file_path = args.input
     with open(file_path, 'r') as f:
         source = f.read()
+
+    options = ConfigOptions(config, silent=args.is_silent)
     
     absolute_path = os.path.abspath(file_path)
     pre_processor = PreProcessor(source, absolute_path, options)
