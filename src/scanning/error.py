@@ -13,3 +13,7 @@ def error(line: Union[Token, int], message: str):
     line = line.line if hasattr(line, 'line') else line
     print(f'[line {line}] \033[31;1mError\033[0m: {message}', file=sys.stderr)
     sys.exit(1)
+
+def assert_error(condition: bool, line: Union[Token, int], message: str):
+    if not condition:
+        error(line, message)
