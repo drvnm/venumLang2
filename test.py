@@ -1,3 +1,9 @@
+"""
+Btw this test code was mostly written for farkon00/cont repo.
+But it's owner(farkon00) granted permission with MIT License to use it.
+And this code was added orginally by him.
+"""
+
 import os
 import subprocess
 import pytest
