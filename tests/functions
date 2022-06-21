@@ -1,0 +1,19 @@
+@include "stdlib/io.vlang"
+
+func void hello(str name) {
+    printstr("Hello, ");
+    printstr(name);
+    printstr("!\n");
+    return "Hello";
+}
+
+hello("world");
+hello("tests");
+hello("venum");
+println(hello("return"));
+:
+Hello, world!
+Hello, tests!
+Hello, venum!
+Hello, return!
+Hello
