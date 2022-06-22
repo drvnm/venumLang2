@@ -1,4 +1,6 @@
 class ConfigOptions:
+    DEFAULT_OUTPUT_PATH = "."
+
     def __init__(self, config, silent=False):
         self.config = config
         self.pre_processor = config.get('pre_processor', None)
@@ -16,11 +18,12 @@ class ConfigOptions:
         if self.compiler:
             self.output_path = self.compiler.get('output_path', None)
         else:
-            self.output_path = "."
+            self.output_path = self.DEFAULT_OUTPUT_PATH
 
         if silent:
             return
 
-        print(f"\033[34;1mOutput path:\033[0m {self.output_path}")
+        if self.output_path != self.DEFAULT_OUTPUT_PATH:
+            print(f"\033[34;1mOutput path:\033[0m {self.output_path}")
         if self.pre_processor:
             print(f"\033[34;1mPre-processor:\033[0m {self.pre_processor}")
