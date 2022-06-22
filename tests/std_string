@@ -1,0 +1,17 @@
+@include "stdlib/string.vlang"
+
+print strlen("Hello!");
+print strlen("Юникод = Unicode");
+print strlen("");
+print strcomp("equal", "equal");
+print strcomp("юни", "unicod");
+print strcomp("", "");
+print strcomp("not equal", "not the same");
+:
+6
+22
+0
+1
+0
+1
+0
