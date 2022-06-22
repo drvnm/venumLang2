@@ -4,7 +4,7 @@ import sys
 from typing import List
 import re
 from .environment import Environment
-from scanning.error import error
+from scanning.error import assert_error
 from visitors.visitor import *
 from parsing.statements import *
 from parsing.expressions import *
@@ -422,9 +422,8 @@ class Compiler(ExprVisitor, StmtVisitor):
     # handle arguments
     def visit_call_expr(self, call_expr: CallExpr):
         original_function = self.globals.get_function(call_expr.callee.name)
-        if len(call_expr.arguments) != len(original_function.parameters):
-            error(call_expr.callee.name,
-                  f"Incorrect number of arguments passed to function {call_expr.callee.name.lexeme} (COMPILE TIME ERROR)")
+        assert_error(len(call_expr.arguments) == len(original_function.parameters), call_expr.callee.name,
+            f"Incorrect number of arguments passed to function {call_expr.callee.name.lexeme} (COMPILE TIME ERROR)")
 
         # reverse arguments if more than 6 args
         if len(call_expr.arguments) > len(self.args_registers):

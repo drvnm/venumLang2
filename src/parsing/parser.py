@@ -1,5 +1,5 @@
 from typing import List
-from scanning.error import error
+from scanning.error import *
 from intermediate.tokens import *
 from intermediate.lookup_tables import *
 from .expressions import *
@@ -55,11 +55,15 @@ class Parser():
                 return True
         return False
 
+    def assert_prev(self, condition: bool, message: str) -> None:
+        assert_error(condition, self.previous(), message)
+
+    def assert_curr(self, condition: bool, message: str) -> None:
+        assert_error(condition, self.peek(), message)
+
     def consume(self, token: tokens, message: str) -> None:
-        if self.check(token):
-            self.advance()
-        else:
-            error(self.previous(), message)
+        assert_error(self.check(token), self.previous(), message)
+        self.advance()
         return self.previous()
 
     def primary(self) -> Expr:
@@ -185,10 +189,9 @@ class Parser():
         if self.match(*inc_dec_tokens):
             operator = self.previous()
             right = self.assignment()
-            if isinstance(expr, VarExpr):
-                return AssignmentExpr(expr.name, operator, right)
 
-            error(operator, "Invalid assignment target.")
+            assert_error(isinstance(expr, VarExpr), operator, "Invalid assignment target.")
+            return AssignmentExpr(expr.name, operator, right)
 
         return expr
 
@@ -295,14 +298,12 @@ class Parser():
 
     def break_stmt(self) -> Stmt:
         self.consume(tokens.SEMICOLON, "Expected ';' after 'break'.")
-        if not self.in_loop:
-            error(self.previous(), "Cannot use 'break' outside of loop.")
+        self.assert_prev(self.in_loop, "Cannot use 'break' outside of loop.")
         return BreakStmt()
 
     def continue_stmt(self) -> Stmt:
         self.consume(tokens.SEMICOLON, "Expected ';' after 'continue'.")
-        if not self.in_loop:
-            error(self.previous(), "Cannot use 'continue' outside of loop.")
+        self.assert_prev(self.in_loop, "Cannot use 'continue' outside of loop.")
         return ContinueStmt(self.loop_index_begin)
 
     def syscall_stmt(self) -> Stmt:
@@ -315,13 +316,11 @@ class Parser():
             while self.match(tokens.COMMA):
                 args.append(self.expression())
 
-        if len(args) == 0:
-            error(self.previous(), "Expected at least one argument after syscall ID.")
+        self.assert_prev(len(args) == 0, "Expected at least one argument after syscall ID.")
         return SyscallStmt(syscall_id, args)
 
     def return_stmt(self) -> Stmt:
-        if not self.in_func:
-            error(self.peek(), "Cannot use 'return' outside of function.")
+        self.assert_curr(self.in_func, "Cannot use 'return' outside of function.")
         expr = None
         if not self.check(tokens.SEMICOLON):
             expr = self.expression_stmt()
@@ -341,8 +340,7 @@ class Parser():
 
 
     def extern_stmt(self) -> Stmt:
-        if not self.match(*types, tokens.VOID):
-            error(self.previous(), "Expected type for 'extern' statement.")
+        self.assert_prev(self.match(*types, tokens.VOID), "Expected type for 'extern' statement.")
         return_type = self.previous().type
         name = self.consume(tokens.IDENTIFIER,
                             "Expected identifier after 'extern'.")
@@ -395,8 +393,7 @@ class Parser():
                 self.consume(tokens.LEFT_BRACE,
                              "Expected '{' after array init.")
                 while not self.check(tokens.RIGHT_BRACE):
-                    if len(initializers) + 1 > expr.literal:
-                        error(self.peek(), "Array size exceeded.")
+                    self.assert_curr(len(initializers) + 1 >= expr.literal, "Array size exceeded.")
                     initializers.append(self.expression())
                     if self.match(tokens.COMMA):
                         continue
@@ -423,8 +420,7 @@ class Parser():
         params = []
         if not self.check(tokens.RIGHT_PAREN):
             # check if parameter type wasn given
-            if not self.match(*types):
-                error(self.peek(), "Expected type before parameter name.")
+            self.assert_curr(self.match(*types), "Expected type before parameter name.")
             type_ = self.previous()
             arg_name = self.consume(
                 tokens.IDENTIFIER, "Expected parameter name.")
@@ -439,8 +435,7 @@ class Parser():
                 param = VarStmt(type_, arg_name, None, size)
                 params.append(param)
             while self.match(tokens.COMMA):
-                if not self.match(*types):
-                    error(self.peek(), "Expected type before parameter name.")
+                self.assert_curr(self.match(*types), "Expected type before parameter name.")
                 type_ = self.previous()
                 arg_name = self.consume(
                     tokens.IDENTIFIER, "Expected parameter name.")
@@ -457,8 +452,7 @@ class Parser():
         return params
 
     def func_declaration(self) -> Stmt:
-        if not self.match(*types, tokens.VOID):
-            error(self.peek(), "Expected return type after 'func'.")
+        self.assert_curr(self.match(*types, tokens.VOID), "Expected return type after 'func'.")
         return_type = self.previous().type
         name = self.consume(tokens.IDENTIFIER, "Expected function name.")
         self.consume(tokens.LEFT_PAREN, "Expected '(' after function name.")

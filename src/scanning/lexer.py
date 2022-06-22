@@ -62,6 +62,9 @@ class Lexer:
             return '\0'
         return self.source[self.current + 1]
 
+    def assert_lexer_error(self, condition: bool, message: str):
+        assert_error(condition, self.line, message)
+
     # methods that hangle literals
     def string(self) -> None:
         string = ''
@@ -74,16 +77,14 @@ class Lexer:
                 string += self.get_current_char()
                 self.advance()
 
-        if self.at_end():
-            error(self.line, 'Unterminated string')
-        else:
-            self.advance()
-            self.add_token(tokens.STRING, string, str(string))
+        self.assert_lexer_error(not self.at_end(), 'Unterminated string')
+        self.advance()
+        self.add_token(tokens.STRING, string, str(string))
     
     def hex_number(self, number: str) -> None:
         self.advance()  # skip x
-        if self.at_end() or self.get_current_char() not in self.allowed_hex:
-            error(self.line, 'Unterminated hex number')
+        self.assert_lexer_error(not self.at_end() and self.get_current_char() in self.allowed_hex, 
+                     'Unterminated hex number')
         while not self.at_end() and (self.get_current_char().isdigit() or self.get_current_char() in self.allowed_hex):
             number += self.get_current_char()
             self.advance()
@@ -92,8 +93,7 @@ class Lexer:
     
     def binary_number(self, number: str) -> None:
         self.advance()  # skip b
-        if self.at_end() or self.get_current_char() not in "01":
-            error(self.line, 'Unterminated binary number')
+        self.assert_lexer_error(not self.at_end() and self.get_current_char() in "01", 'Unterminated binary number')
         while not self.at_end() and self.get_current_char().isdigit():
             number += self.get_current_char()
             self.advance()
@@ -138,11 +138,9 @@ class Lexer:
             char += self.get_current_char()
             char = char.encode().decode('unicode_escape')
             self.advance()
-        if self.get_current_char() != "'":
-            error(self.tokens[-1], 'Unterminated char')
-        else:
-            self.advance()
-            self.add_token(tokens.CHAR, char, char)
+        assert_error(self.get_current_char() == "'", self.tokens[-1], 'Unterminated char')
+        self.advance()
+        self.add_token(tokens.CHAR, char, char)
 
     def identifier(self) -> None:
         identifier = ''

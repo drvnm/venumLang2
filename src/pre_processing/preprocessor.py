@@ -1,7 +1,7 @@
 
 import os
 from typing import List
-from scanning.error import error
+from scanning.error import *
 from .env import PreEnv
 from intermediate.lookup_tables import *
 from config_options import ConfigOptions
@@ -39,6 +39,9 @@ class PreProcessor:
             return ''
         return self.source[self.current_char_index - 1]
 
+    def assert_preprocessor_error(self, condition: bool, message: str) -> None:
+        assert_error(condition, self.line, message)
+
     # returns the word after @, if any
     def preprocessor_directive(self) -> str:
         word = ''
@@ -65,8 +68,7 @@ class PreProcessor:
             while not self.is_at_end() and self.current_char() != '"':
                 word += self.current_char()
                 self.advance()
-            if self.is_at_end() or self.current_char() != '"':
-                error(self.line, 'Expected "')
+            self.assert_preprocessor_error(not self.is_at_end() and self.current_char() == '"', 'Expected "')
             self.advance()
             return word
         else:
@@ -165,9 +167,8 @@ class PreProcessor:
                 directive_start = self.current_char_index
                 self.advance()
                 directive = self.preprocessor_directive()
-                if directive not in preprocessing_words:
-                    error(
-                        self.line, f"Unknown preprocessor directive '@{directive}'")
+                self.assert_preprocessor_error(directive in preprocessing_words, 
+                    f"Unknown preprocessor directive '@{directive}'")
 
                 self.line += 1
                 if directive == 'include':
