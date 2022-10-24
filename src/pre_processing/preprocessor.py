@@ -1,6 +1,6 @@
 
 import os
-from typing import List
+import requests
 from scanning.error import *
 from .env import PreEnv
 from intermediate.lookup_tables import *
@@ -74,7 +74,7 @@ class PreProcessor:
         else:
             error(self.line, "Expected '\"' after '@include'")
 
-    def include(self, file_name: str) -> None:
+    def _include_file(self, file_name: str) -> int:
         for path in self.options.include_paths:
             absolute_path = os.path.join(path, file_name)
             parent_path = os.path.dirname(absolute_path)
@@ -114,7 +114,39 @@ class PreProcessor:
             self.source = self.source[:self.current_char_index] + \
                 '\n'.join(source) + self.source[self.current_char_index:]
             return len(source)
-       
+
+    def _include_http(self, url: str) -> int:
+        try:
+            source = requests.get(url).text.split("\n")
+        except requests.exceptions.InvalidURL:
+            error(self.line, f"Invalid include URL")
+        except requests.exceptions.RequestException:
+            error(self.line, f"Request failed")
+
+        for index, line in enumerate(source):
+            if line.startswith("@include"):
+                included = line[len("@include"):]
+                if "//" in included:
+                    included = included[:included.index("//")]
+                if "/*" in included:
+                    included = included[:included.index("/*")]
+                old_path = included.strip()[1:-1]
+                if old_path.split("/")[0] != "stdlib":
+                    new_path = url[:url.rfind("/") + 1] + old_path
+                    line = f"@include \"{new_path}\""
+            source[index] = f'{line} //{url}: {index + 1}'
+            self.line_corrections[self.line + index] = index + 1
+        
+        
+        self.source = self.source[:self.current_char_index] + \
+            '\n'.join(source) + self.source[self.current_char_index:]
+        return len(source)
+
+    def include(self, file_name: str) -> int:
+        if file_name.startswith("http://") or file_name.startswith("https://"):
+            return self._include_http(file_name)
+        else:
+            return self._include_file(file_name)
 
     def macro_name(self) -> str:
         word = ''
